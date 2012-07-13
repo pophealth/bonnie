@@ -94,7 +94,8 @@ class MeasuresController < ApplicationController
     when 'show_nqf'
       "empty"
     else
-      "measure_page"
+      'application'
+      #"measure_page"
     end
   end
 
