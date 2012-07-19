@@ -1,0 +1,33 @@
+<h1>Editing <%= @value_set.oid %></h1>
+
+<!-- TODO: put in partial -->
+<%= form_for @value_set do |f| %>
+  <%= f.label :description %>
+  <%= f.text_field :description %><br>
+  
+  <%= f.label :oid %>
+  <%= f.text_field :oid %><br>
+  
+  <h2>Code Sets</h2>
+  <% @value_set.code_sets.each.with_index do |code_set, index| %>
+    <h3>Code Set</h3>
+    <%= f.simple_fields_for code_set do |code_set_form| %>
+      <%= code_set_form.input :description %>
+      
+      <div class="field">
+      <%= f.label :codes %><br>
+      <%= @value_set.code_sets[index].codes.each do |code| %>
+        <%# binding.pry %>
+        <% f.fields_for "codes[]", code do |c| %>
+          <%# c.object.inspect %>
+          <%= code_set_form.text_field :codes %>
+        <% end %>
+        <!-- # :name => "#{code_set_form.object_name}[codes][]", :array => true %> -->
+      <% end %>
+      </div>
+
+      <%# code_set_form.input :codes %>
+    <% end %>
+  <% end %>
+  <%= f.button :submit %>
+<% end %>
