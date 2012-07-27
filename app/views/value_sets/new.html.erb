@@ -3,6 +3,7 @@
     $(document).ready(function() {
       value_set_functions = new ValueSetFunctions();
       value_set_functions.bind_add_code();
+      // value_set_functions.bind_submit();
     });
   </script>
 <% end %>
@@ -18,45 +19,52 @@
         <fieldset>
           <legend>New Value Set</legend>
             <%= f.label :oid  %>
-            <%= f.text_field :oid %>
+            <%= f.text_field :oid, :value => 'oid' %>
           
             <%= f.label "Description" %>
-            <%= f.text_field :description %>
+            <%= f.text_field :description, :value => 'description' %>
         
           <fieldset>
             <legend>Code Sets</legend>
             <%# order does not matter here %>
             <p class="help-block">Add multiple code sets</p>
-            <div class="control-group">
-              <%= f.label :code_sets, :class => "control-label" %>
-              <div class="controls row well">
-                <div class="span6">
-                  <%= f.label :category %>
-                  <%= f.text_field :category %>
-                </div>
-                <div class="span6">
-                  <%= f.label :concept, :class => 'input-small' %>
-                  <%= f.text_field :concept, :class => 'input-small' %>
-                </div>
+            <div id="code_sets[0]">
+              <%= f.fields_for 'code_sets[0]' do |code_set_fields| %>
+              <div class="control-group">
+                <%= f.label 'code set 0', :class => "control-label" %>
+                <div class="controls row well">
+                  <div class="span6">
+                    <%= code_set_fields.label :code_set %>
+                    <%= code_set_fields.text_field :code_set, :value => 'ICD-9-CM' %>
+                  </div>
+                  <div class="span6">
+                    <%= code_set_fields.label :category %>
+                    <%= code_set_fields.text_field :category, :value => 'category' %>
+                  </div>
+                  <div class="span6">
+                    <%= code_set_fields.label :concept, :class => 'input-small' %>
+                    <%= code_set_fields.text_field :concept, :class => 'input-small', :value => 'concept' %>
+                  </div>
               
-                <div class="row">
-                <%= fields_for :code_sets do |code_set_fields| %>         
-                <div id="codes" class="control-group">                
-                    <%= code_set_fields.label :codes, :class => "control-label" %>
-                    <a class="btn btn-primary btn-small">+</a>
-                    <div class="controls row span3">
-                      <%= code_set_fields.text_field 'codes[0]', :class => 'input-small' %><br>
-                      <%# code_set_fields.text_field 'codes[1]', :class => 'input-small' %>
-                      <%# button_to "<i class=\"icon-search icon-white\">Add To Cart</i>".html_safe, 
-                                '#', 
-                                class: "btn btn-success" %>
-                    </div>
-                </div>     
-                <% end %>
+                  <div class="row">
+                  <%# code_set_fields.fields_for :codes do |code_fields| %>         
+                  <div id="codes" class="control-group">                
+                      <%= code_set_fields.label :codes, :class => "control-label" %>
+                      <a class="btn btn-primary btn-small">+</a>
+                      <div class="controls row span3">
+                        <%= code_set_fields.text_field 'codes[0]', :class => 'input-small', :value => 'code0' %><br>
+                        <%= code_set_fields.text_field 'codes[1]', :class => 'input-small' %>
+                        <%# button_to "<i class=\"icon-search icon-white\">Add To Cart</i>".html_safe, 
+                                  '#', 
+                                  class: "btn btn-success" %>
+                      </div>
+                  </div>     
+                  <%# end %>
+                  </div>
+                <% end %>                
                 </div>
-                
-              </div>
-            </div>      
+              </div><!-- control group end -->    
+            </div><!-- code_sets end -->
           </fieldset><!-- code_sets end -->
 
         </fieldset><!-- value_set end -->
@@ -67,6 +75,9 @@
       <% end %><!-- form end -->
     </div>
     </div>
+    
+    <div id="response"></div>
+    
   <% else %>
     Created value set with params:
     <%= debug params %>

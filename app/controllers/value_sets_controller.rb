@@ -1,6 +1,7 @@
-require 'json'
+# require 'json'  TODO: does rails3 need this anymore?
 
 class ValueSetsController < ApplicationController
+  respond_to :html, :json
   skip_authorization_check
   
   add_breadcrumb 'value_sets', ""
@@ -23,7 +24,28 @@ class ValueSetsController < ApplicationController
   end
   
   def create
-    render :template => 'value_sets/new'
+    respond_with do |format|
+      format.json {
+        # very important to render json here and not text
+        # even when debugging because ajaxForm plugin will break
+        # binding.pry
+        json_form = JSON.parse(params[:data])
+        puts json_form.inspect
+        render :json => { :message => "success" }
+      }
+      format.html {
+        form_params = params
+        form_params
+        render :template => 'value_sets/new'
+      }
+    end
+
+    # make a copy to manipulate
+    # p = params
+    # turn codes into an array
+    # p[:code_sets][:codes]= p[:code_sets][:codes].collect(&:second)
+    
+    # v = ValueSet.new p[:value_set]
   end
   
 end
