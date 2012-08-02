@@ -11,10 +11,6 @@
 <% end %>
 
 <% content_for :page_content do %>
-  <div class="pull-right" id="pageButtons">
-    <a href="#createNewMeasureDialog" class="btn" data-toggle="modal" data-backdrop="static" data-keyboard="true">Create New</a>
-    <%= link_to 'Export All', export_all_measures_path, method: "get", class:"btn" %>
-  </div>
 
   <%= render partial: 'dialog', locals: { submit_method: 'post', submit_text: 'Create' } %>
 
@@ -23,6 +19,10 @@
   	<ul class="nav nav-tabs">
   		<li <% unless @show_published %>class="active"<% end %>><a href="#tabs-0" data-toggle="tab">my measures</a></li>
   		<li <% if @show_published %>class="active"<% end %>><a href="#tabs-1" data-toggle="tab">all published measures</a></li>
+      <li id="pageButtons">
+        <a href="#createNewMeasureDialog" class="btn" data-toggle="modal" data-backdrop="static" data-keyboard="true">Create New</a>
+        <%= link_to 'Export All', export_all_measures_path, method: "get", class:"btn" %>
+      </li>
   	</ul>
 
     <!-- start my measures content -->

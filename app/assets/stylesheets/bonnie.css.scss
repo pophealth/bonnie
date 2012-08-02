@@ -97,8 +97,12 @@ html {height:100%}
 body {height:100%}
 
 #pageButtons {
-  margin:10px 10px 10px 25px;
+  float: right;
+  margin: 3px 10px;
   form { float:right;margin:0}
+  a {
+    display: inline-block;
+  }
 }
 
 .table-measure-detail.published-measures td:nth-child(4) {white-space:nowrap;}

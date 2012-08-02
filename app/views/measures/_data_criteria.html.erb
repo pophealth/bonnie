@@ -5,6 +5,25 @@
     </div>
   </div>
 </div>
+
+<% saved = @measure.data_criteria.select{|k,v| v['saved']} %>
+<div class="paramGroup" data-category="user_generated">
+  <div class="paramItem">
+    <div class="paramText user_generated">
+      <label><i class="icon-chevron-right"></i>User Generated Objects (<span><%= saved.length %></span>)</label>
+    </div>
+  </div>
+</div>
+<div class="paramChildren data-criteria user_generated_children">
+  <% saved.each do |k,criteria| %>
+  <div class="paramItem">
+    <div class="paramText">
+      <label draggable="true" data-criteria-id="<%= k %>"><%= criteria['title'] %><%= ": #{criteria['status']}" if !criteria['status'].blank? %></label>
+    </div>
+  </div>
+  <% end %>
+</div>
+
 <% criteria_by_category.keys.each do |category| %>
   <div class="paramGroup" data-category="<%= category.gsub(' ', '_') %>">
     <div class="paramItem">
@@ -13,7 +32,6 @@
       </div>
     </div>
   </div>
-
   <div class="paramChildren data-criteria <%= category.gsub(' ', '_') %>_children">
     <% criteria_by_category[category].each do |criteria| %>
     <div class="paramItem">
@@ -25,29 +43,3 @@
   </div>
 
 <% end %>
-<div class="paramGroup" data-category="newDataCriteria">
-  <div class="paramItem">
-    <div class="paramText">
-      <label>Add New Data Criterion</label>
-    </div>
-  </div>
-</div>
-<div class="paramChildren newDataCriteria_children data-criteria">
-  <div class="paramItem">
-    <div class="paramText">
-      <form method="GET" action="<%= url_for :action => 'upsert_criteria' %>" onsubmit="return !$(this).ajaxSubmit(bonnie.builder.addDataCriteria);">
-        <label>criteria_id <input name="criteria_id" /></label>
-        <label>title <input name="title" /></label>
-        <label>standard_category <input name="standard_category" /></label>
-        <label>qds_data_type <input name="qds_data_type" /></label>
-        <label>code_list_id <input name="code_list_id" /></label>
-        <label>property <input name="property" /></label>
-        <label>type <input name="type" /></label>
-        <label>status <input name="status" /></label>
-        <input type="hidden" name="measure" value="<%= params[:id] %>" />
-        <input type="hidden" name="source" value="1" />
-        <label><input type="submit" value="Create" /></label>
-      </form>
-    </div>
-  </div>
-</div>

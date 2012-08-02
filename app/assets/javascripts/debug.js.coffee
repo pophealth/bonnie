@@ -3,35 +3,67 @@ append_div = (div, message) ->
   div.append(message)
   div.append('\n')
 
-# function for measures/debug view
-debug_js_load = () ->
-  # reusable selectors
+initialize_measure = ->
   code_element = $('.CodeRay')
   log_element = $('#log')
-  
-  code_element.hide()
   execute_measure(patient[0])
   
   for e in emitted[0].logger
     do (e) ->
       append_div(log_element, e)
+
+init_js_load = ->
+  # reusable selectors
+  code_element = $('.CodeRay')
+  log_element = $('#log')
+  
+  code_element.hide()
   
   $("#run_numerator_link").click (event) ->
-    event.preventDefault()  # don't follow link, TODO: UJS route and fallback
     Logger.logger = [] if Logger?
     log_element.empty()
-    patient_api = new hQuery.Patient(patient);
-    hqmfjs.NUMER(patient_api)
+    patient_api = new hQuery.Patient(patient[0]);
+    executeIfAvailable(hqmfjs.NUMER, patient_api)
     for e in Logger.logger
       do (e) ->
         append_div(log_element, e)
         
   $('#run_denominator_link').click (event) ->
-    event.preventDefault()  # don't follow link, TODO: UJS route and fallback
     Logger.logger = [] if Logger?
     log_element.empty()
-    patient_api = new hQuery.Patient(patient);
-    hqmfjs.DENOM(patient_api)
+    patient_api = new hQuery.Patient(patient[0]);
+    executeIfAvailable(hqmfjs.DENOM, patient_api)
+    for e in Logger.logger
+      do (e) ->
+        append_div(log_element, e)
+  
+  $('#run_test_dc_link').click (event) ->
+    log_element.empty()
+    _.each(_.functions(hqmfjs), (item) -> append_div(log_element, "#{item} => #{hqmfjs[item](new hQuery.Patient(patient[0]))}"))
+
+  $("#run_ipp_link").click (event) ->
+    Logger.logger = [] if Logger?
+    log_element.empty()
+    patient_api = new hQuery.Patient(patient[0]);
+    executeIfAvailable(hqmfjs.IPP, patient_api)
+    for e in Logger.logger
+      do (e) ->
+        append_div(log_element, e)
+
+  $("#run_exclusions_link").click (event) ->
+    Logger.logger = [] if Logger?
+    log_element.empty()
+    patient_api = new hQuery.Patient(patient[0]);
+    executeIfAvailable(hqmfjs.EXCL, patient_api)
+    for e in Logger.logger
+      do (e) ->
+        append_div(log_element, e)
+
+  $("#run_exceptions_link").click (event) ->
+    Logger.logger = [] if Logger?
+    log_element.empty()
+    patient_api = new hQuery.Patient(patient[0]);
+    executeIfAvailable(hqmfjs.DENEXCEP, patient_api)
     for e in Logger.logger
       do (e) ->
         append_div(log_element, e)
@@ -43,6 +75,12 @@ debug_js_load = () ->
     else
       code_element.show()
       log_element.hide()
+
+executeIfAvailable = (optionalFunction, arg) ->
+  if (typeof(optionalFunction)=='function')
+    optionalFunction(arg)
+  else
+    false
 
 populate_test_table = () ->
   # column totals

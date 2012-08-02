@@ -1,29 +1,31 @@
 <% content_for :head do %>
   <script type="text/javascript">
     $(document).ready(function() {
-      debug_js_load();
+      init_js_load();
+      initialize_measure();
     });
   </script>
+  <script src="<%= "#{debug_libraries_measures_path}.js" %>" type="text/javascript"></script>
+  <script src="<%= "#{debug_measure_path}/#{@patient.id}.js" %>" type="text/javascript"></script>
 <% end %>
 
-<% content_for :page_content do %>
 
-  <!-- TODO: break out into a content_for block? or .js? -->
-  <% @js = include_js_debug(@measure.measure_id, [@patient._id]) %>
-  <%= javascript_tag do %>
-    <%= raw(@js) %>
-    <%= raw(include_js_libs(['map_reduce_utils'])) %>
-  <% end %>
+
+<% content_for :page_content do %>
 
   <div style="margin:1em;">
     <h1>Measure Debug</h1>
     <em><%= @measure.title %></em><br>
-    <%= link_to 'Run Numerator', 'run_numerator', :id => 'run_numerator_link' %> | 
-    <%= link_to 'Run Denominator', 'run_denominator', :id => 'run_denominator_link' %> |
+    <a href="#" id="run_ipp_link">Run IPP</a> | 
+    <a href="#" id="run_denominator_link">Run Denominator</a> | 
+    <a href="#" id="run_numerator_link">Run Numerator</a> | 
+    <a href="#" id="run_exclusions_link">Run Exclusions</a> | 
+    <a href="#" id="run_exceptions_link">Run Exceptions</a> | 
+    <a href="#" id="run_test_dc_link">Test Data Criteria</a> | 
+    <a href="#" id="toggle_code_link">Toggle Code</a>
+    
   
-    <%= link_to 'Toggle Code', '#toggle_code', :id => 'toggle_code_link' -%>
-
-    <% html = CodeRay.scan(@js, :javascript).div(:wrap => :div, :line_numbers => :inline) %>
+    <% html = CodeRay.scan(@js, :javascript).div(:wrap => :div, :line_numbers => :inline) %> 
     <%= raw(html) %>
     <textarea id='log' style="width:95%; height:85em;">
     </textarea>

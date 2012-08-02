@@ -1,14 +1,19 @@
 bonnie = @bonnie || {}
 
 class @bonnie.Builder
-  constructor: (data_criteria, measure_period) ->
+  constructor: (data_criteria, measure_period, preconditions, fields, value_sets, statuses_by_definition) ->
     @measure_period = new bonnie.MeasurePeriod(measure_period)
+    @field_map = fields
     @data_criteria = {}
+    @value_sets = {}
     @populationQuery = new queryStructure.Query()
     @denominatorQuery = new queryStructure.Query()
     @numeratorQuery = new queryStructure.Query()
     @exclusionsQuery = new queryStructure.Query()
     @exceptionsQuery = new queryStructure.Query()
+    @preconditions = preconditions || {}
+    @value_sets[s.oid] = s for s in value_sets
+    @statuses_by_definition = statuses_by_definition
     for key in _.keys(data_criteria)
       @data_criteria[key] = new bonnie.DataCriteria(key, data_criteria[key], @measure_period)
 
@@ -29,7 +34,7 @@ class @bonnie.Builder
 
     if (!$.isEmptyObject(data.denominator))
       @denominatorQuery.rebuildFromJson(data.denominator)
-      @addParamItems(@denominatorQuery.toJson(),$("#eligibilityMeasureItems"))
+      @addParamItems((if data.denominator.items.length then @denominatorQuery.toJson() else 'DENOMINATOR_PLACEHOLDER'),$("#eligibilityMeasureItems"))
 
     if (!$.isEmptyObject(data.numerator))
       @numeratorQuery.rebuildFromJson(data.numerator)
@@ -44,9 +49,10 @@ class @bonnie.Builder
       @addParamItems(@exceptionsQuery.toJson(),$("#exceptionMeasureItems"))
     @._bindClickHandler()
 
-  _bindClickHandler: ->
-    $('.logicLeaf').click((event) =>
+  _bindClickHandler: (selector) ->
+    $(selector || '#initialPopulationItems, #eligibilityMeasureItems, #outcomeMeasureItems, #exclusionMeasureItems, #exceptionMeasureItems').find('.paramItem[data-precondition-id], .paramItem[data-criteria-id]').click((event) =>
       $('.paramItem').removeClass('editing')
+      return if $('#text_view_styles').prop('disabled')-1
       $(event.currentTarget).closest('.paramItem').addClass('editing')
       @editDataCriteria(event.currentTarget)
       event.stopPropagation()
@@ -57,20 +63,16 @@ class @bonnie.Builder
 
   editDataCriteria: (element) =>
     leaf = $(element)
-    data_criteria = @dataCriteria($(element).data('criteria-id'))
-    if !data_criteria then return
-    data_criteria.getProperty = (ns) ->
-      obj = this
-      y = ns.split(".")
-      for i in [0..y.length-1]
-        if obj[y[i]]
-          obj = obj[y[i]]
-        else
-          return
-      obj
+
     top = $('#workspace > div').css('top')
     $('#workspace').empty();
-    element = data_criteria.asHtml('data_criteria_edit').appendTo('#workspace')
+    element =
+      if data_criteria = @dataCriteria($(element).data('criteria-id'))
+        bonnie.template('data_criteria_edit', $.extend({}, data_criteria, {precondition_id: $(element).data('precondition-id')})).appendTo('#workspace')
+      else if $(element).data('precondition-id')
+        bonnie.template('precondition_edit', {id: $(element).data('precondition-id'), precondition_id: $(element).data('precondition-id')}).appendTo('#workspace')
+
+
     offset = leaf.offset().top + leaf.height()/2 - $('#workspace').offset().top - element.height()/2
     offset = 0 if offset < 0
     maxoffset = $('#measureEditContainer').height() - element.outerHeight(true) - $('#workspace').position().top - $('#workspace').outerHeight(true) + $('#workspace').height()
@@ -82,37 +84,77 @@ class @bonnie.Builder
     element.css("top", top)
     element.animate({top: offset})
 
-    element.find('select[name=status]').val(data_criteria.status)
-    element.find('select[name=standard_category]').val(data_criteria.standard_category)
+    if data_criteria
+      data_criteria.getProperty = (ns) ->
+        obj = this
+        y = ns.split(".")
+        for i in [0..y.length-1]
+          if obj[y[i]]
+            obj = obj[y[i]]
+          else
+            return
+        obj
 
-    temporal_element = $(element).find('.temporal_reference')
-    $.each(data_criteria.temporal_references, (i, e) ->
-      $(temporal_element[i]).find('.temporal_type').val(e.type)
-      $(temporal_element[i]).find('.temporal_relation').val(
-        (if e.offset && e.offset.value < 0 then 'lt' else 'gt') +
-        if e.offset && e.offset.inclusive then 'e' else ''
+      element.find('select[name=status]').val(data_criteria.status)
+      element.find('select[name=category]').val(data_criteria.category).on('change', ->
+        $(this).parents('form').find('select[name=subcategory]').empty().append(
+          bonnie.builder.statuses_by_definition[$(this).val()].map( (e)->
+            $(document.createElement('option')).val(e).text(e).get(0)
+          )
+        )
+      ).trigger('change');
+      element.find('input[type=radio][name=value_type]').change(
+        ( ->
+          element.find('.criteria_value_value').children().show().not('.' +
+            switch(if @ instanceof String then @toString() else $(@).val())
+              when 'PQ' then 'data_criteria_value'
+              when 'IVL_PQ' then 'data_criteria_range'
+              when 'CD' then 'data_criteria_oid'
+          ).hide()
+          arguments.callee
+        ).call data_criteria.value && data_criteria.value.type || 'PQ'
+      ).filter('[value=' + (data_criteria.value && data_criteria.value.type || 'PQ') + ']').prop('checked', 'checked')
+      element.find('select.data_criteria_oid').val(data_criteria.value && data_criteria.value.code_list_id)
+
+      element.find('select[name=negation]').val('true' if data_criteria.negation)
+      element.find('.negation_reason_oid').slideDown() if data_criteria.negation
+      element.find('select[name=negation_code_list_id]').val(data_criteria.negation_code_list_id)
+
+      temporal_element = $(element).find('.temporal_reference')
+      $.each(data_criteria.temporal_references, (i, e) ->
+        $(temporal_element[i]).find('.temporal_type').val(e.type)
+        $(temporal_element[i]).find('.temporal_relation').val(
+          (if e.offset && e.offset.value < 0 then 'lt' else 'gt') +
+          if e.offset && e.offset.inclusive then 'e' else ''
+        )
+        $(temporal_element[i]).find('.temporal_range_high_relation').val(if e.range && e.range.high && e.range.high.inclusive then 'lte' else 'lt')
+        $(temporal_element[i]).find('.temporal_range_high_unit').val(if e.range && e.range.high then e.range.high.unit)
+        $(temporal_element[i]).find('.temporal_range_low_relation').val(if e.range && e.range.low && e.range.low.inclusive then 'gte' else 'gt')
+        $(temporal_element[i]).find('.temporal_range_low_unit').val(if e.range && e.range.low then e.range.low.unit)
+        $(temporal_element[i]).find('.temporal_drop_zone').each((i, e) ->
+          fillDrop(e);
+        ).droppable({ tolerance: 'pointer', greedy: true, accept: 'label.ui-draggable', drop: ((e,ui) -> fillDrop(e)) });
+      );
+
+      subset_element = $(element).find('.subset_operator')
+      $.each(data_criteria.subset_operators, (i, e) ->
+        $(subset_element[i]).find('.subset_type').val(e.type)
+        if e.range && e.range.low && e.range.high && e.range.low.equals(e.range.high) && e.range.low.inclusive
+          $(subset_element[i]).find('.subset_range_type[value=value]').attr('checked', true)
+          $(subset_element[i]).find('.data_criteria_value').siblings().hide()
+        else
+          $(subset_element[i]).find('.subset_range_type[value=range]').attr('checked', true)
+          $(subset_element[i]).find('.data_criteria_range').siblings().hide()
+          $(subset_element[i]).find('.data_criteria_range_high_relation').val(if e.range && e.range.high && e.range.high.inclusive then 'lte' else 'lt')
+          $(subset_element[i]).find('.data_criteria_range_low_relation').val(if e.range && e.range.low && e.range.low.inclusive then 'gte' else 'gt')
       )
-      $(temporal_element[i]).find('.temporal_range_high_relation').val(if e.range && e.range.high && e.range.high.inclusive then 'lte' else 'lt')
-      $(temporal_element[i]).find('.temporal_range_high_unit').val(if e.range && e.range.high then e.range.high.unit)
-      $(temporal_element[i]).find('.temporal_range_low_relation').val(if e.range && e.range.low && e.range.low.inclusive then 'gte' else 'gt')
-      $(temporal_element[i]).find('.temporal_range_low_unit').val(if e.range && e.range.low then e.range.low.unit)
-      $(temporal_element[i]).find('.temporal_drop_zone').each((i, e) ->
-        fillDrop(e);
-      ).droppable({ tolerance: 'pointer', greedy: true, accept: 'label.ui-draggable', drop: ((e,ui) -> fillDrop(e)) });
-    );
 
-    subset_element = $(element).find('.subset_operator')
-    $.each(data_criteria.subset_operators, (i, e) ->
-      $(subset_element[i]).find('.subset_type').val(e.type)
-      if e.range && e.range.low && e.range.low.equals(e.range.high) && e.range.low.inclusive
-        $(subset_element[i]).find('.subset_range_type[value=value]').attr('checked', true)
-        $(subset_element[i]).find('.subset_range').hide()
-      else
-        $(subset_element[i]).find('.subset_range_type[value=range]').attr('checked', true)
-        $(subset_element[i]).find('.subset_value').hide()
-        $(subset_element[i]).find('.subset_range_high_relation').val(if e.range && e.range.high && e.range.high.inclusive then 'lte' else 'lt')
-        $(subset_element[i]).find('.subset_range_low_relation').val(if e.range && e.range.low && e.range.low.inclusive then 'gte' else 'gt')
-    )
+      field_element = $(element).find('.field_value')
+      i = 0
+      $.each(data_criteria.field_values || {}, (k, e) ->
+        $(f = field_element[i++]).find('.field_type').val(k)
+        $(f).find('.data_criteria_oid').val(e.code_list_id)
+      )
 
   getNextChildCriteriaId: (base, start)=>
     id = start || 1
@@ -122,6 +164,7 @@ class @bonnie.Builder
   editDataCriteria_submit: (form) =>
     temporal_references = []
     subset_operators = []
+    field_values = {}
 
     $(form).find('.temporal_reference').each((i, e) ->
       temporal_references.push({
@@ -160,58 +203,136 @@ class @bonnie.Builder
           type: 'IVL_PQ'
           high: if $(e).find('.subset_range_type:checked').val() == 'value' then {
             type: 'PQ'
-            value: $(e).find('.subset_value_value').val()
-            unit: $(e).find('.subset_value_unit').val()
+            value: $(e).find('.data_criteria_value_value').val()
+            unit: $(e).find('.data_criteria_value_unit').val()
             'inclusive?': true
           } else {
             type: 'PQ'
-            value: $(e).find('.subset_range_high_value').val()
-            unit: $(e).find('.subset_range_high_unit').val()
-            'inclusive?': $(e).find('.subset_range_high_relation').val().indexOf('e') > -1
-          } if $(e).find('.subset_range_high_value').val()
+            value: $(e).find('.data_criteria_range_high_value').val()
+            unit: $(e).find('.data_criteria_range_high_unit').val()
+            'inclusive?': $(e).find('.data_criteria_range_high_relation').val().indexOf('e') > -1
+          } if $(e).find('.data_criteria_range_high_value').val()
           low: if $(e).find('.subset_range_type:checked').val() == 'value' then {
             type: 'PQ'
-            value: $(e).find('.subset_value_value').val()
-            unit: $(e).find('.subset_value_unit').val()
+            value: $(e).find('.data_criteria_value_value').val()
+            unit: $(e).find('.data_criteria_value_unit').val()
             'inclusive?': true
           } else {
             type: 'PQ'
-            value: $(e).find('.subset_range_low_value').val()
-            unit: $(e).find('.subset_range_low_unit').val()
-            'inclusive?': $(e).find('.subset_range_low_relation').val().indexOf('e') > -1
-          } if $(e).find('.subset_range_low_value').val()
+            value: $(e).find('.data_criteria_range_low_value').val()
+            unit: $(e).find('.data_criteria_range_low_unit').val()
+            'inclusive?': $(e).find('.data_criteria_range_low_relation').val().indexOf('e') > -1
+          } if $(e).find('.data_criteria_range_low_value').val()
         }
       })
     )
+    $(form).find('.field_value').each((i, e) =>
+      field_values[$(e).find('.field_type').val()] = {
+        code_list_id: oid = $(e).find('.data_criteria_oid').val()
+        title: @value_sets[oid].concept
+        type: 'CD'
+      }
+    )
     !$(form).ajaxSubmit({
       data: {
+        value: JSON.stringify(
+          switch $(form).find('.criteria_value input[type=radio][name=value_type]:checked').val()
+            when 'PQ'
+              {
+                value: $(form).find('.criteria_value .data_criteria_value_value').val()
+                unit: $(form).find('.criteria_value .data_criteria_value_unit').val()
+              }
+            when 'IVL_PQ'
+              {
+                low: {
+                  type: 'PQ'
+                  value: $(form).find('.criteria_value .data_criteria_range_low_value').val()
+                  unit: $(form).find('.criteria_value .data_criteria_range_low_unit').val()
+                } if $(form).find('.criteria_value .data_criteria_range_low_value').val()
+                high: {
+                  type: 'PQ'
+                  value: $(form).find('.criteria_value .data_criteria_range_high_value').val()
+                  unit: $(form).find('.criteria_value .data_criteria_range_high_unit').val()
+                } if $(form).find('.criteria_value .data_criteria_range_high_value').val()
+              }
+            when 'CD'
+              {
+                code_list_id: $(form).find('.criteria_value .data_criteria_oid').val()
+                title: $(form).find('.criteria_value .data_criteria_oid > option:selected').text()
+              }
+        )
         temporal_references: JSON.stringify(temporal_references)
         subset_operators: JSON.stringify(subset_operators)
+        field_values: JSON.stringify(field_values)
       }
-      success: (changes) =>
-        criteria = @data_criteria[changes.id] = $.extend(@data_criteria[changes.id], changes)
-        $element = $('#' + changes.id)
-        $element.find('label').text(criteria.buildCategory())
-        $('#edit_save_message').empty().append('<span style="color: green">Saved!</span>')
-        setTimeout (->
-          $("#edit_save_message > span").fadeOut ->
-            $(this).remove()
-        ), 3000
+      success: (r) =>
+        @data_criteria[r.id] = new bonnie.DataCriteria(r.id, r, @measure_period)
+        @addParamItems(@populationQuery.toJson(),$("#initialPopulationItems").empty())
+        @_bindClickHandler("#initialPopulationItems")
+        @addParamItems(@denominatorQuery.toJson(),$("#eligibilityMeasureItems").empty())
+        @_bindClickHandler("#eligibilityMeasureItems")
+        @addParamItems(@numeratorQuery.toJson(),$("#outcomeMeasureItems").empty())
+        @_bindClickHandler("#outcomeMeasureItems")
+        @addParamItems(@exclusionsQuery.toJson(),$("#exclusionMeasureItems").empty())
+        @_bindClickHandler("#exclusionMeasureItems")
+        @addParamItems(@exceptionsQuery.toJson(),$("#exceptionMeasureItems").empty())
+        @_bindClickHandler("#exceptionMeasureItems")
+
+        @showSaved('#workspace')
     });
+
+  showSaved: (e) =>
+    $(e).find('.edit_save_message').empty().append('<span style="color: green">Saved!</span>')
+    setTimeout (->
+      $(e).find(".edit_save_message > span").fadeOut ->
+        $(this).remove()
+    ), 3000
+
+  pushTree: (queryObj) =>
+    finder = queryObj
+    switch (
+      (while finder.parent
+        finder = finder.parent
+      ).pop()
+    )
+      when @populationQuery.structure
+        $("#initialPopulationItems").empty()
+        @saveTree(@populationQuery.toJson(), 'IPP', 'Initial Patient Population')
+        @_bindClickHandler("#initialPopulationItems")
+      when @denominatorQuery.structure
+        $("#eligibilityMeasureItems").empty()
+        @saveTree(@denominatorQuery.toJson(), 'DENOM', 'Denominator')
+        @_bindClickHandler("#eligibilityMeasureItems")
+      when @numeratorQuery.structure
+        $("#outcomeMeasureItems").empty()
+        @saveTree(@numeratorQuery.toJson(), 'NUMER', 'Numerator')
+        @_bindClickHandler("#outcomeMeasureItems")
+      when @exclusionsQuery.structure
+        $("#exclusionMeasureItems").empty()
+        @saveTree(@exclusionsQuery.toJson(), 'EXCL', 'Exclusions')
+        @_bindClickHandler("#exclusionMeasureItems")
+      when @exceptionsQuery.structure
+        $("#exceptionMeasureItems").empty()
+        @saveTree(@exceptionsQuery.toJson(), 'DENEXCEP', 'Denominator Exceptions')
+        @_bindClickHandler("#exceptionMeasureItems")
+
+  saveTree: (query, key, title) ->
+    ((o) ->
+      delete o.parent
+      for k of o
+        arguments.callee o[k]  if typeof o[k] is "object"
+    ) query = query
+    $.post(bonnie.builder.update_url, {'csrf-token': $('meta[name="csrf-token"]').attr('content'), data: {'conjunction?': true, type: key, title: title, preconditions: query}}, (r) =>
+      for key in _.keys(r.data_criteria)
+        @data_criteria[key] = new bonnie.DataCriteria(key, r.data_criteria[key], @measure_period)
+      @renderMeasureJSON(r.population_criteria)
+    )
 
   addParamItems: (obj,elemParent,container) =>
     builder = bonnie.builder
     items = obj["items"]
     data_criteria = builder.dataCriteria(obj.id) if (obj.id)
     parent = obj.parent
-
-    push = (query, key, title) ->
-      ((o) ->
-        delete o.parent
-        for k of o
-          arguments.callee o[k]  if typeof o[k] is "object"
-      ) query = query
-      $.post(bonnie.builder.update_url, {'csrf-token': $('meta[name="csrf-token"]').attr('content'), data: {'conjunction?': true, type: key, title: title, preconditions: query}})
 
     makeDropFn = (self) ->
       queryObj = parent ? obj
@@ -234,29 +355,7 @@ class @bonnie.Builder
         $(@).removeClass('droppable')
         $('#workspace').empty()
 
-        finder = queryObj
-        switch (
-          (while finder.parent
-            finder = finder.parent
-          ).pop()
-        )
-          when bonnie.builder.populationQuery.structure
-            bonnie.builder.addParamItems((query = bonnie.builder.populationQuery.toJson()),$("#initialPopulationItems").empty())
-            push(query, 'IPP', 'Initial Patient Population')
-          when bonnie.builder.denominatorQuery.structure
-            bonnie.builder.addParamItems((query = bonnie.builder.denominatorQuery.toJson()),$("#eligibilityMeasureItems").empty())
-            push(query, 'DENOM', 'Denominator')
-          when bonnie.builder.numeratorQuery.structure
-            bonnie.builder.addParamItems((query = bonnie.builder.numeratorQuery.toJson()),$("#outcomeMeasureItems").empty())
-            push(query, 'NUMER', 'Numerator')
-          when bonnie.builder.exclusionsQuery.structure
-            bonnie.builder.addParamItems((query = bonnie.builder.exclusionsQuery.toJson()),$("#exclusionMeasureItems").empty())
-            push(query, 'EXCL', 'Exclusions')
-          when bonnie.builder.exceptionsQuery.structure
-            bonnie.builder.addParamItems((query = bonnie.builder.exceptionsQuery.toJson()),$("#exceptionMeasureItems").empty())
-            push(query, 'DENEXCEP', 'Denominator Exceptions')
-
-        self._bindClickHandler()
+        bonnie.builder.pushTree(queryObj)
       return dropFunction
 
 
@@ -282,12 +381,20 @@ class @bonnie.Builder
         # we dont have a nested measure clause, add the item to the bottom of the list
         # if (!elemParent.hasClass("paramItem"))
         items = data_criteria.temporalReferenceItems()
-        elemParent = bonnie.template('param_group', obj).appendTo(elemParent).find(".paramItem:last")
+        elemParent = bonnie.template('param_group', obj).appendTo(elemParent).find(".paramItem:last").data('logic-id', obj)
+        $(elemParent).parent().find('.display_name').click((e)->
+          $(this).toggleClass('collapsed')
+          $(this).siblings().slideToggle()
+          e.stopPropagation()
+        );
         data_criteria.asHtml('data_criteria_logic').appendTo(elemParent)
+
+    else if obj == 'DENOMINATOR_PLACEHOLDER'
+      bonnie.template('param_group').appendTo(elemParent).find(".paramItem:last").data('logic-id', obj).append(bonnie.template('data_criteria_logic', {title: 'Denominator consists only of IPP', category: 'initial patient population'}));
 
     if ($.isArray(items))
       conjunction = obj['conjunction']
-      builder.renderParamItems(conjunction, items, elemParent, container, obj)
+      builder.renderParamItems(conjunction, items, elemParent, obj)
 
   _over: ->
     $(@).parents('.paramItem').removeClass('droppable')
@@ -296,11 +403,17 @@ class @bonnie.Builder
   _out: ->
     $(@).removeClass('droppable')
 
-  renderParamItems: (conjunction, items, elemParent, container, obj) =>
+  renderParamItems: (conjunction, items, elemParent, obj) =>
     neg = (obj.negation || false) && obj.negation != 'false'
     builder = bonnie.builder
 
-    elemParent = bonnie.template('param_group', obj).appendTo(elemParent).find(".paramItem:last") if items.length > 1 and !container?
+    if items.length > 1
+      elemParent = bonnie.template('param_group', $.extend({}, obj, {conjunction: conjunction || items[0] && items[0].conjunction})).appendTo(elemParent).find(".paramItem:last").data('logic-id', obj)
+      $(elemParent).parent().find('.display_name').click((e)->
+        $(this).toggleClass('collapsed')
+        $(this).siblings().slideToggle();
+        e.stopPropagation()
+      );
 
     $.each(items, (i,node) ->
       $(elemParent).append("<span class='not'>not</span>") if neg
@@ -308,14 +421,11 @@ class @bonnie.Builder
       if (node.temporal)
         $(elemParent).append("<span class='#{node.conjunction} temporal-operator'>#{node.title}</span><span class='block-down-arrow'></span>")
 
-      # if (!container and i == 0)
-      #   if (!node.temporal && !node.items?)
-      #     elemParent = bonnie.template('param_group').appendTo(elemParent).find(".paramItem:last")
       builder.addParamItems(node,elemParent)
       if (i < items.length-1 and !node.temporal)
         next = items[i+1]
         conjunction = node.conjunction if !conjunction
-        $(elemParent).append("<span class='"+conjunction+"'>"+conjunction+"</span>")
+        $(elemParent).append("<span class='conjunction "+conjunction+"'>"+conjunction+"</span>")
     )
 
 
@@ -357,13 +467,42 @@ class @bonnie.Builder
       )
     )
 
+  delete_criteria_handler: ->
+    find = (e, arr, key)->
+     for k of arr
+       return Number(k) if e[key] == arr[k][key]
+
+    criteria_id = $(this).parentsUntil("#workspace").last().find("form > input[type=hidden][name=criteria_id]").val()
+    precondition_id = $(this).parentsUntil("#workspace").last().find("form > input[type=hidden][name=precondition_id]").val()
+    bonnie.template("confirm_criteria_delete",
+      criteria_id: criteria_id
+      precondition_id: precondition_id
+    ).bind("hidden", ->
+      $(this).remove()
+    ).on("click", "input#confirm_criteria_delete_confirm", ->
+      e = $("[data-precondition-id=" + precondition_id + "]").data("logic-id")
+      if !e.parent.parent
+        bonnie.builder.pushTree($.extend(e.parent, {children: []}));
+      else if e.parent && e.parent.children.length <3
+        bonnie.builder.pushTree(e.parent.parent.children.splice(find(e.parent, e.parent.parent.children, 'precondition_id'), 1, $.extend((if find(e, e.parent.children, 'precondition_id') then e.parent.children[0] else e.parent.children[1]), {parent: e.parent.parent}))[0])
+      else
+        bonnie.builder.pushTree(e.parent.children.splice(find(e, e.parent.children, 'precondition_id'), 1)[0])
+      $('#confirm_criteria_delete').modal('hide')
+      $('#workspace').empty()
+      bonnie.builder._bindClickHandler()
+    ).appendTo(document.body).modal()
+
+  add_new_criteria: ->
+    bonnie.template('data_criteria_new').appendTo(document.body).modal()
+    $('#data_criteria_new select[name=category]').trigger('change')
+
 class @bonnie.TemporalReference
   constructor: (temporal_reference) ->
     @range = new bonnie.Range(temporal_reference.range) if temporal_reference.range
     @reference = temporal_reference.reference
     @type = temporal_reference.type
-    @type_decoder = {'DURING':'During','SBS':'Starts Before Start of','SAS':'Starts After Start of','SBE':'Starts Before End of','SAE':'Starts After End of','EBS':'Ends Before Start of','EAS':'Ends After Start of'
-                     ,'EBE':'Ends Before End of','EAE':'Ends After End of','SDU':'Starts During','EDU':'Ends During','ECW':'Ends Concurrent with','SCW':'Starts Concurrent with','CONCURRENT':'Concurrent with'}
+    @type_decoder = {'DURING':'During','SBS':'Starts Before Start of','SAS':'Starts After Start of','SBE':'Starts Before or During','SAE':'Starts After End of','EBS':'Ends Before Start of','EAS':'Ends During or After'
+                     ,'EBE':'Ends Before or During','EAE':'Ends After End of','SDU':'Starts During','EDU':'Ends During','ECW':'Ends Concurrent with','SCW':'Starts Concurrent with','CONCURRENT':'Concurrent with'}
   offset_text: =>
     if(@range)
       @range.text(true)
@@ -387,16 +526,29 @@ class @bonnie.DataCriteria
     @id = id
     @oid = criteria.code_list_id
     @property = criteria.property
-    @standard_category = criteria.standard_category
-    @qds_data_type = criteria.qds_data_type
     @title = criteria.title
-    @status = criteria.status
     @type = criteria.type
+    @definition = criteria.definition
+    @display_name = criteria.display_name
+    @field_values = criteria.field_values
+    @specific_occurrence = criteria.specific_occurrence
+    @negation = criteria.negation
+    @negation_code_list_id = criteria.negation_code_list_id
+    if @field_values?
+      for key in _.keys(@field_values)
+        value = @field_values[key]
+        if value?
+          value = new bonnie.Range(value) if value.type == 'IVL_PQ'
+          value = new bonnie.Value(value) if value.type == 'PQ'
+          value = new bonnie.Coded(value) if value.type == 'CD'
+        @field_values[key] = value
+
     if criteria.value
       @value = new bonnie.Range(criteria.value) if criteria.value.type == 'IVL_PQ'
       @value = new bonnie.Value(criteria.value) if criteria.value.type == 'PQ'
       @value = new bonnie.Coded(criteria.value) if criteria.value.type == 'CD'
     @category = this.buildCategory()
+    @status = criteria.status
     @children_criteria = criteria.children_criteria
     @derivation_operator = criteria.derivation_operator
     @temporal_references = []
@@ -422,8 +574,26 @@ class @bonnie.DataCriteria
     text
   valueText: =>
     text = ''
-    text += "(result #{@value.text()})" if @value?
-    text 
+    text += if (
+      switch(@value.type)
+        when 'PQ' then @value.value
+        when 'IVL_PQ' then @value.low && @value.low.value || @value.high && @value.high.value
+        when 'CD' then @value.code_list_id
+    ) then "(result #{@value.text()})" else ""
+
+  fieldsText: =>
+    text = ''
+    if !$.isEmptyObject(@field_values)
+      text += '('
+      i=0
+      for key in _.keys(this.field_values)
+        text+=', ' if i > 0
+        i+=1
+        field_value = ''
+        field_value = @field_values[key].text() if @field_values[key]?
+        text+="#{bonnie.builder.field_map[key].title}:#{field_value}"
+      text += ')'
+    text
 
   temporalReferenceItems: =>
     items = []
@@ -448,16 +618,10 @@ class @bonnie.DataCriteria
     else
       null
 
-
-  # get the category for the data criteria... check standard_category then qds_data_type
-  # this probably needs to be done in a better way... probably direct f
+  # get the category for the data criteria
   buildCategory: =>
-    category = @standard_category
-    # QDS data type is most specific, so use it if available. Otherwise use the standard category.
-    category = @qds_data_type if @qds_data_type
-    category = "patient characteristic" if category == 'individual_characteristic'
-    category = category.replace('_',' ') if category
-    category
+    return 'patient characteristic' if (@type == 'characteristic')
+    @definition.replace(/_/g,' ')
 
 class @bonnie.MeasurePeriod
   constructor: (measure_period) ->
@@ -522,14 +686,17 @@ class @bonnie.Coded
     @code = value['code']
     @code_list_id = value['code_list_id']
   text: =>
-    ": #{@title}"
+    if (@title? and @title.length > 0)
+      ": #{@title}"
+    else
+      ": #{@code}"
 
 @bonnie.template = (id, object={}) =>
   $("#bonnie_tmpl_#{id}").tmpl(object)
 
 class Page
-  constructor: (data_criteria, measure_period, update_url) ->
-    bonnie.builder = new bonnie.Builder(data_criteria, measure_period)
+  constructor: (data_criteria, measure_period, update_url, preconditions, fields, value_sets, statuses_by_definition) ->
+    bonnie.builder = new bonnie.Builder(data_criteria, measure_period, preconditions, fields, value_sets, statuses_by_definition)
     bonnie.builder['update_url'] = update_url
 
   initialize: () =>

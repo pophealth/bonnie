@@ -1,0 +1,15 @@
+
+execute_measure = function(patient) {
+  <%=@measure_js.html_safe%>
+}
+
+emitted = []; emit = function(id, value) { emitted.push(value); }
+ObjectId = function(id, value) { return 1; }
+
+// #########################
+// ######### PATIENT #######
+// #########################
+
+var patient = [<%= @patient.to_json.html_safe %>];
+
+

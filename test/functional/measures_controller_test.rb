@@ -82,7 +82,8 @@ class MeasuresControllerTest < ActionController::TestCase
 
     hqmf_file = expose_tempfile(fixture_file_upload("test/fixtures/measure-defs/0043/0043.xml", "text/xml"))
     value_set_file = expose_tempfile(fixture_file_upload("test/fixtures/measure-defs/0043/0043.xls", "application/vnd.ms-excel"))
-    post :create, { measure: { hqmf: hqmf_file, value_sets: value_set_file} }
+    html_file = expose_tempfile(fixture_file_upload("test/fixtures/measure-defs/0043/0043.html", "text/html"))
+    post :create, { measure: { hqmf: hqmf_file, value_sets: value_set_file, html: html_file} }
     created_measure = Measure.all.first
 
     assert_equal Measure.all.size, 1
@@ -142,17 +143,28 @@ class MeasuresControllerTest < ActionController::TestCase
       }
     ]
 
+    value = {
+        'type' => 'IVL_PQ',
+        'low' => {
+          'type' => 'PQ',
+          'value' => 1,
+          'unit' => 'unit'
+        },
+        'high' => {
+          'type' => 'PQ',
+          'value' => 1,
+          'unit' => 'unit'
+        }
+      }
+
     data_criteria = {
       'title' => 'title',
       'description' => 'description',
-      'standard_category' => 'problem',
-      'qds_data_type' => 'qds',
       'code_list_id' => 'code_list_id',
-      'property' => 'property',
       'status' => 'active',
       'title' => 'title',
-      'value' => 'value',
       'code_list_id' => 'clid',
+      'property' => 'property',
       'children_criteria' => ['a', 'b', 'c'],
     }
 
@@ -160,7 +172,11 @@ class MeasuresControllerTest < ActionController::TestCase
       'id' => @measure._id,
       'criteria_id' => 'id',
       'temporal_references' => JSON.generate(temporal_references),
-      'subset_operators' => JSON.generate(subset_operators)
+      'subset_operators' => JSON.generate(subset_operators),
+      'category' => 'symptom',
+      'subcategory' => 'active',
+      'value_type' => 'IVL_PQ',
+      'value' => value.to_json
     })
 
     assert_response :success
@@ -169,9 +185,13 @@ class MeasuresControllerTest < ActionController::TestCase
     refute_nil m.data_criteria
 
     assert_equal m.data_criteria['id']['id'], 'id'
-    assert_equal m.data_criteria['id']['type'], 'conditions'
+    assert_equal m.data_criteria['id']['type'], 'symptoms'
+    assert_equal m.data_criteria['id']['qds_data_type'], 'symptom'
+    assert_equal m.data_criteria['id']['standard_category'], 'symptom'
+    assert_equal m.data_criteria['id']['status'], 'active'
     assert_equal m.data_criteria['id']['temporal_references'], temporal_references
     assert_equal m.data_criteria['id']['subset_operators'], subset_operators
+    assert_equal m.data_criteria['id']['value'], value
 
     data_criteria.each {|k,v|
       assert_equal m.data_criteria['id'][k], v

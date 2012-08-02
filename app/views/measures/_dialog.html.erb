@@ -17,9 +17,12 @@
       <% end %>
       <%= f.label :value_sets_label, "Data Value Set:" %>
       <%= f.file_field :value_sets %>
-      
+
       <%= f.label :hqmf_label, "HQMF File:" %>
       <%= f.file_field :hqmf %>
+
+      <%= f.label :html_label, "HTML File:" %>
+      <%= f.file_field :html %>
     </div>
     <div class="modal-footer">
       <%= f.submit submit_text, class:'btn btn-primary' %>

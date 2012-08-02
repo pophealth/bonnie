@@ -32,9 +32,11 @@ class ValueSet
     attribute
     intervention
     result
+    patient_provider_interaction
+    functional_status
   )
   
   validates_inclusion_of :category, in: Categories
-  validates_format_of :oid, with: /^[\d*\.\d]+$/
+  validates_format_of :oid, with: /^(\d+)(\.\d+)*$/
   
 end

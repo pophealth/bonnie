@@ -55,16 +55,16 @@
       background-color:$borderColor;
       color:black;
     }
-  }
-  .nav-tabs > #selector {
-    position: absolute;
-    right: 10px;
-    height: 25px;
-    top: 0;
+    &#pr_controls {
+      position: absolute;
+      right: 10px;
+      height: 25px;
+      top: 0;
 
-    select {
-      height: 100%;
-      width: 181px;
+      select {
+        height: 100%;
+        width: 181px;
+      }
     }
   }
 }

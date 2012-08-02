@@ -1,0 +1,16 @@
+<div id="downloadPatientsDialog" class="modal hide fade">
+  <div class="modal-header">
+    <a class="close" data-dismiss="modal">&times;</a>
+    <h3>Download Patients</h3>
+  </div>
+  <%= form_for([:download_patients, @measure], :html => {:method => "get", :class => 'form-stacked'}) do |f| %>
+    <div class="modal-body">
+      <%= f.label :format, "Select patient format:" %>
+      <%= select(:download, :format, ["c32", "ccr", "html"]) %>
+    </div>
+    <div class="modal-footer">
+      <%= f.submit "Download", class: 'btn btn-primary' %>
+      <a href="#" data-dismiss="modal" class="btn secondary">Cancel</a>
+    </div>
+  <% end %>
+</div>

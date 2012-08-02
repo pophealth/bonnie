@@ -11,33 +11,10 @@ module MeasuresHelper
   end
   
   # create a javascript object for the debug view
-  def include_js_debug(measure_id, patient_ids, population_criteria=1)
-    # scope hack    
-    hqmf_path, codes_path, filename, measure, measure_js = 0
+  def include_js_debug(id, patient_ids, population_criteria=1)
 
-    # DHH trick for quieting STDOUT or STDERR
-    def silence_streams(*streams)
-      on_hold = streams.collect { |stream| stream.dup }
-      streams.each do |stream|
-        stream.reopen(RUBY_PLATFORM =~ /mswin/ ? 'NUL:' : '/dev/null')
-        stream.sync = true
-      end
-      yield
-    ensure
-      streams.each_with_index do |stream, i|
-        stream.reopen(on_hold[i])
-      end
-    end
-    
-    self.silence_streams(STDERR) {
-      hqmf_path = File.expand_path(File.join('.','test','fixtures','measure-defs',measure_id,"#{measure_id}.xml"))
-      codes_path = File.expand_path(File.join('.','test','fixtures','measure-defs',measure_id,"#{measure_id}.xls"))
-      filename = Pathname.new(hqmf_path).basename
-    
-      measure = Measures::Loader.load(hqmf_path, codes_path, nil, nil, false)
-      measure_js = Measures::Exporter.execution_logic(measure, population_criteria - 1)
-
-    }
+    measure = Measure.find(id)
+    measure_js = Measures::Exporter.execution_logic(measure, population_criteria - 1)
     
     patient_json = Record.find(patient_ids).to_json
 
@@ -70,10 +47,10 @@ module MeasuresHelper
   def data_criteria_by_category(data_criteria)
     by_category = {}
     data_criteria.each do |key, criteria|
-      by_category[criteria["standard_category"]] ||= []
+      by_category[criteria["type"]] ||= []
       # need to store the ID since we are putting the criteria into a list
       criteria['criteria_id'] = key
-      by_category[criteria["standard_category"]] << criteria
+      by_category[criteria["type"]] << criteria
     end if data_criteria
     by_category
   end

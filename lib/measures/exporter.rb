@@ -156,21 +156,31 @@ module Measures
       #{gen.to_js(codes, population_index)}
       
       var population = function() {
-        return hqmfjs.IPP(patient_api);
+        return executeIfAvailable(hqmfjs.IPP, patient_api);
       }
       var denominator = function() {
-        return hqmfjs.DENOM(patient_api);
+        return executeIfAvailable(hqmfjs.DENOM, patient_api);
       }
       var numerator = function() {
-        return hqmfjs.NUMER(patient_api);
+        return executeIfAvailable(hqmfjs.NUMER, patient_api);
       }
       var exclusion = function() {
-        return false;
+        return executeIfAvailable(hqmfjs.EXCL, patient_api);
+      }
+      var denexcep = function() {
+        return executeIfAvailable(hqmfjs.DENEXCEP, patient_api);
+      }
+      
+      var executeIfAvailable = function(optionalFunction, arg) {
+        if (typeof(optionalFunction)==='function')
+          return optionalFunction(arg);
+        else
+          return false;
       }
 
       if (Logger.enabled) enableMeasureLogging(hqmfjs);
 
-      map(patient, population, denominator, numerator, exclusion);
+      map(patient, population, denominator, numerator, exclusion, denexcep);
       "
     end
 

@@ -1,0 +1,88 @@
+#measureEditContainer span {
+  font-weight: bold;
+  margin: 0 0 0 -15px;
+}
+
+#measureEditContainer span.temporal-operator {
+  border-left: none;
+  border-right: none;
+  border-bottom: none;
+}
+
+#measureEditContainer span.subset-operator {
+  background-color: transparent;
+  padding: inherit;
+  border-radius: inherit;
+  border: none;
+  margin: 0;
+}
+
+#measureEditContainer .paramGroup {
+  margin: 0px 0 0px 10px;
+}
+
+#measureEditContainer .paramItem {
+  border-radius: inherit;
+  -moz-border-radius: inherit;
+  -webkit-border-radius: inherit;
+  padding: 0;
+}
+
+#measureEditContainer .paramItem .paramText {
+  padding: inherit;
+}
+
+#measureEditContainer > .tab-pane {
+  width: 1000px;
+}
+
+#measureEditContainer {
+  #initialPopulation, #eligibilityMeasures, #outcomeMeasures, #exclusionMeasures, #exceptionMeasures {
+    .measureBox .paramGroup .paramItem .paramText {
+      background-image: none;
+    }
+
+    .measureBox .paramGroup {
+      background-color: transparent;
+    }
+
+    span.block-down-arrow {
+      display: none;
+    }
+
+    label {
+      display: inline;
+    }
+
+    .negation_text {
+      display: inline;
+    }
+  }
+  .conjunction { float: left; clear: both;}
+  .paramGroup {
+    margin: 0;
+    display: inline-block;
+
+    float: left;
+    clear: left;
+
+    .paramItem {
+      cursor: inherit;
+
+      .block-down-arrow + .paramGroup {
+        margin-left: 25px;
+      }
+
+      span.conjunction {
+        display: none;
+
+        &:first-of-type {
+          display: inline-block;
+        }
+      }
+    }
+  }
+  #workspace {
+    display: none;
+  }
+}

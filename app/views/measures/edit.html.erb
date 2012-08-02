@@ -2,7 +2,7 @@
   <script type="text/javascript">
     var bonnie = bonnie || {};
 
-    var page = new Page(<%= @measure.all_data_criteria.to_json.html_safe %>, <%= @measure.measure_period.to_json.html_safe %>)
+    var page = new Page(<%= @measure.all_data_criteria.to_json.html_safe %>, <%= @measure.measure_period.to_json.html_safe %>, null, null, <%= HQMF::DataCriteria::FIELDS.to_json.html_safe %>, <%= @measure.value_sets.map{|s| s.attributes.select{|k,v| ['concept', 'oid', 'description'].include?(k) } }.to_json.html_safe %>)
     $(document).ready(function() {
       page.initialize()
       bonnie.init_populations()
@@ -16,7 +16,7 @@
         });
       })
     });
-    
+
     bonnie.init_populations = function() {
       $('.delete').click(bonnie.delete_population);
       $('.population_title').click(bonnie.edit_population_title)
@@ -27,7 +27,7 @@
           }
       });
     }
-    
+
     bonnie.add_population = function() {
       title = $('input[name=title]', '#add_population_form').val()
       ipp = $('input[name=IPP]:checked', '#add_population_form').val()
@@ -41,7 +41,7 @@
         }, 'html' );
       else
         alert('A Title, Numerator and Initial Population must be selected for a population.')
-      
+
     }
     bonnie.delete_population = function(target) {
       index = $(target.currentTarget).data('index')
@@ -69,9 +69,9 @@
 
 
 <% content_for :page_content do %>
-  
+
   <p id="notice"><%= notice %></p>
-	
+
 	<script type="text/html" id="bonnie_tmpl_param_group">
     <div class='paramGroup'>
       <div class='paramItem'></div>
@@ -85,7 +85,7 @@
       ${title} {{if value}}${valueText}{{/if}}${temporalText}
     </div>
   </script>
-  
+
 
 <h1 class="measure-title"><%= "#{@measure.endorser}#{@measure.measure_id}: #{@measure.title}" %></h1>
 <div style="margin-left:15px;">
@@ -125,7 +125,7 @@
     <br><br>
     <h2>New Population</h2>
     <%= link_to 'NQF Definition', show_nqf_measure_path(@measure), :target => "_blank" %>
-    
+
     <form id="add_population_form">
 
     <div class="row header">
@@ -159,14 +159,14 @@
         </div>
       <% end %>
     </div>
-    <% 
+    <%
       if @measure.population_criteria
         population_criteria_by_type = {}
-        ['IPP','DENOM','NUMER','EXCL','DENEXCEP'].each do |type| 
+        ['IPP','DENOM','NUMER','EXCL','DENEXCEP'].each do |type|
           population_criteria_by_type[type] = @measure.population_criteria.keys.select {|key| key.start_with? type }
           population_criteria_by_type[type].reverse!
         end
-      
+
         count = @measure.population_criteria.keys.count
         while count > 0
       %>
@@ -174,7 +174,7 @@
           <div class="span2">
             &nbsp;
           </div>
-          <% ['IPP','DENOM','NUMER','EXCL','DENEXCEP'].each do |type| 
+          <% ['IPP','DENOM','NUMER','EXCL','DENEXCEP'].each do |type|
             value = population_criteria_by_type[type].pop
             if (value)
               count -= 1
@@ -196,17 +196,17 @@
   </div>
   </form>
   <input type="button" class="btn" id="add_population_button" value="Add Population">
-  
-      
+
+
       <div data-behavior="BS.Popup" class="modal fade" id="measure_details_popup">
       <div class="modal-header" >
       <a href="#measure_details_popup" class="close" data-toggle="modal">×</a>
       <h3>Population</h3>
       </div>
       <div class="modal-body" style="overflow-y: auto; height: 350px;" id="details_modal_body">
-      
-      
-      
+
+
+
       </div>
       <div class="modal-footer">
       <a href="#measure_details_popup" class="btn dismiss" data-toggle="modal">Close</a>
@@ -217,7 +217,7 @@
 
 	<%= link_to 'Show parameter view', @measure %> <span class="sep">|</span>
 	<%= link_to 'Back to all measures', measures_path %>
-	
+
 </div>
 
 

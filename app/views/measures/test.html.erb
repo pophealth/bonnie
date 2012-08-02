@@ -5,12 +5,22 @@
       bind_inspect_highlight();
       $('#select-all').bind('click', select_all_patients);
       $('#deselect-all').bind('click', deselect_all_patients);
+      $('#population_selector').change(function(event) {
+        $('#population').val($(event.target).val())
+        $('#measure_form').submit();
+      });
     });
   </script>
 <% end %>
 
 <% content_for :page_content do %>
-
+  <div class="pull-right" id="pageButtons">
+    <%= link_to "Generate Patients", generate_patients_measure_url(@measure), :method => :post, :class => "btn" %>
+    <a href="#downloadPatientsDialog" class="btn" data-toggle="modal" data-backdrop="static" data-keyboard="true">Download Patients</a>
+  </div>
+  
+  <%= render partial: 'download_patients' %>
+  
   <h3 class="measure-title">
     <span class="label">Testing:</span>
     <span class="title"><%= @measure.title %></span><br>
@@ -22,7 +32,18 @@
   
   <ul class="nav nav-tabs" id="mainTabs" style="margin:0.5em">
     <li class="active"><a href="#patients">All Patients</a></li>
+    
+    <li id="selector" style ="float: right; margin-right: 140px;">
+      <select id="population_selector">
+        <% @measure.populations.each_with_index do |population, index| %>
+          <option value="<%=index%>"<%= ' selected="selected"' if index == params[:population].to_i%>><%= population['title'] %></option>
+        <% end if @measure.populations %>
+      </select>
+    </li>
+    
   </ul>
+  
+  
   
   <div class="tab-content" style="margin:0.5em">
     
@@ -30,18 +51,10 @@
     <a href="" id="deselect-all">Deselect All</a>
     
     <div class="tab-pane active" id="patients">
-      <%
-        if params[:population_criteria]
-          test_url = "/measures/#{params[:id]}/test?population_criteria=#{params[:population_criteria]}"
-        else
-          test_url = test_measure_url
-        end
-      %>
-      
         
-      <%= simple_form_for(:patients, :url => test_url, :method => :post, :html => { :class => 'form-horizontal' }) do |f| %>
+      <%= simple_form_for(:patients, :url => "/measures/#{params[:id]}/test", :method => :post, :html => { :class => 'form-horizontal', :id => 'measure_form'}) do |f| %>
         <%= f.submit 'Test Measure', :id => 'test-submit-button', :class => 'btn-primary' %><br>
-        
+        <input type="hidden" id="population" name="population" value="<%=@population%>"/>
         <div class="row total">
           <div class="span2 name">Totals:</div>
           <div id="population-total" class="span2 pop">&nbsp;</div>
@@ -72,7 +85,7 @@
           <div class="span2 num"> &nbsp;</div>
           <div class="span2 excl">&nbsp;</div>
           <div class="span2 inspect">
-            <a href='/measures/<%= "#{@measure._id}/debug/#{p[1]}" %>'>inspect</a>
+            <a href='/measures/<%= "#{@measure._id}/debug/#{p[1]}?population=#@population" %>'>inspect</a>
           </div>
         </div>
         <% end %>
@@ -81,7 +94,7 @@
   </div>
   
   <% if @patients_posted %>
-    <% @js = include_js_debug(@measure.measure_id, @patients_posted, params[:population_criteria].to_i) %>
+    <% @js = include_js_debug(@measure.id, @patients_posted, params[:population_criteria].to_i) %>
     <%= javascript_tag do %>
       <%= raw(@js) %>
       <%= raw(include_js_libs(['map_reduce_utils'])) %>

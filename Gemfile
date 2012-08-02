@@ -7,6 +7,8 @@ gem 'hqmf2js', :git => 'https://github.com/pophealth/hqmf2js.git', :branch => 'd
 gem 'hquery-patient-api', :git => 'https://github.com/pophealth/patientapi.git', :branch => 'develop'
 #gem 'hquery-patient-api', :path => '../patientapi'
 gem 'health-data-standards', :git => 'https://github.com/projectcypress/health-data-standards.git', :branch => 'develop'
+gem 'test-patient-generator', :git => 'https://github.com/pophealth/test-patient-generator.git', :branch => 'master'
+#gem 'test-patient-generator', :path => '../test-patient-generator'
 
 gem 'rails', '3.2.2'
 gem 'jquery-rails'
@@ -44,7 +46,8 @@ group :test, :develop do
 end
 
 group :production do
-  gem 'therubyracer', :platforms => [:ruby, :jruby]
+  gem 'libv8', '~> 3.11.8.3'                                          # 10.8 mountain lion compatibility
+  gem 'therubyracer', '~> 0.11.0beta5', :platforms => [:ruby, :jruby] # 10.8 mountain lion compatibility
 end
 
 # Gems used only for assets and not required

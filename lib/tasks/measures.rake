@@ -57,6 +57,7 @@ namespace :measures do
     codes_path = args.codes_path
     username = args.username
     delete_existing = args.delete_existing
+
     if delete_existing.nil? && username.in?(['true', 'false', nil])
       delete_existing = args.username
       username = args.codes_path
@@ -72,16 +73,17 @@ namespace :measures do
     raise "The user #{username} could not be found." unless user
 
     if delete_existing == 'true'
-      count = user.measures.delete_all
+      user.measures.each {|measure| measure.value_sets.destroy_all}
+      count = user.measures.destroy_all
       puts "Deleted #{count} measures assigned to #{user.username}"
     end
 
     Measures::Loader.load(hqmf_path, codes_path, user)
-
   end
 
   desc 'Load a measure defintion into the DB'
   task :load_all, [:measures_dir, :username, :delete_existing] do |t, args|
+
     measures_dir = args.measures_dir.empty? ? './test/fixtures/measure-defs' : args.measures_dir
     raise "The path the the measure definitions must be specified" unless measures_dir
     raise "The username to load the measures for must be specified" unless args.username
@@ -90,19 +92,22 @@ namespace :measures do
     raise "The user #{args.username} could not be found." unless user
 
     if args.delete_existing
-      count = user.measures.delete_all
+      user.measures.each {|measure| measure.value_sets.destroy_all}
+      count = user.measures.destroy_all
       puts "Deleted #{count} measures assigned to #{user.username}"
     end
 
     Dir.foreach(measures_dir) do |entry|
       next if entry.starts_with? '.'
-      hqmf_path = File.join(measures_dir,entry,"#{entry}.xml")
-      codes_path = File.join(measures_dir,entry,"#{entry}.xls")
+      measure_dir = File.join(measures_dir,entry)
+      hqmf_path = Dir.glob(File.join(measure_dir,'*.xml')).first
+      codes_path = Dir.glob(File.join(measure_dir,'*.xls')).first
+      html_path = Dir.glob(File.join(measure_dir,'*.html')).first
       begin
-        Measures::Loader.load(hqmf_path, codes_path, user)
-        puts "Measure #{entry} successfully loaded.\n"
+        measure = Measures::Loader.load(hqmf_path, codes_path, user, nil, true, html_path)
+        puts "Measure #{measure.measure_id} (#{measure.title}) successfully loaded.\n"
       rescue Exception => e
-        puts "Loading Measure #{entry} failed: #{e.message} \n"
+        puts "Loading Measure #{entry} failed: #{e.message}: [#{hqmf_path},#{codes_path}] \n"
       end
 
     end

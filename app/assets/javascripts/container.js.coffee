@@ -103,7 +103,7 @@ class queryStructure.Container
   childrenToJson: ->
      childJson = [];
      for child in @children
-       js = if child["toJson"] then  child.toJson() else child
+       js = if child["toJson"] then  child.toJson() else $.extend(true, {}, child)
        childJson.push(js )
      return childJson
 

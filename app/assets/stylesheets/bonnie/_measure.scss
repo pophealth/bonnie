@@ -21,7 +21,7 @@
   background-color:#f5f5f5;
   left:0;
   top:0px;
-  
+
   min-height:100%;
   width:300px;
   padding:140px 0 0 0;
@@ -52,7 +52,7 @@
   }
   span.and {
     display: inline-block;
-    background-color: $eligibilityParamGroupAND; 
+    background-color: $eligibilityParamGroupAND;
   }
   span.or {
     display: inline-block;
@@ -132,7 +132,7 @@
     &.editing {
       background-color:#ddf0ff;
       @include transition(background-color .2s linear);
-    }      
+    }
     .paramText {
       padding:2px 0 0 45px;
     }
@@ -140,11 +140,20 @@
       color: black;
       font-weight: bold;
       padding-right: 4px;
+      .occurrence {
+        text-transform: capitalize;
+        border-radius: 0;
+        margin: 0;
+        padding: 0;
+      }
+    }
+    span.conjunction:first-of-type {
+      display: none;
     }
   }
 }
 
-#measureEditContainer > tab-pane {
+#measureEditContainer > .tab-pane {
   width:500px;
   h3 {
     font-size: 1.5em;
@@ -158,6 +167,26 @@
     em {
       font-style: italic; }
   }
+  .display_name {
+    -moz-border-radius: 20px;
+    -webkit-border-radius: 20px;
+    border-radius: 20px;
+    padding: 2px 15px;
+
+    &:after {
+      content: '';
+      float: right;
+      width: 12px;
+      height: 12px;
+      margin: 3px 0 0 0;
+      background-image: url(/assets/vertical_expand_collapse.png);
+      background-repeat: no-repeat;
+    }
+
+    &.collapsed:after {
+      background-position: 0 -12px;
+    }
+  }
 }
 
 #eligibilityMeasures {
@@ -165,16 +194,16 @@
     background-color: #d1ecef;
     border-color:#a4d9dd;
   }
-  .paramGroup {
+  .paramGroup, .display_name {
     background-color: $eligibilityParamGroup;
-    .paramGroup {
+    .paramGroup, .display_name {
       margin-left: 10px;
       background-color: darken($eligibilityParamGroup,8);
       width: auto;
-      .paramGroup {
+      .paramGroup, .display_name {
         margin-left: 10px;
         background-color: darken($eligibilityParamGroup,20);
-        .paramGroup {
+        .paramGroup, .display_name {
           background-color: darken($eligibilityParamGroup,35);
         }
       }
@@ -229,14 +258,14 @@
     background-color: #e6f2d1;
     border-color:#9cc45e;
   }
-  .paramGroup {
+  .paramGroup, .display_name {
     background-color: $outcomeParamGroup;
     .and {
       background-color: $outcomeParamGroup; }
-    .paramGroup {
+    .paramGroup, .display_name {
       background-color: #9db26d;
       width: auto;
-      .paramGroup {
+      .paramGroup, .display_name {
         background-color: #6c8631;
       }
     }
@@ -270,11 +299,11 @@
 }
 
 #initialPopulation {
-  .paramGroup {
+  .paramGroup, .display_name {
     background-color: #dcdcdc;
-    .paramGroup {
+    .paramGroup, .display_name {
       background-color: #dcdcdc;
-      .paramGroup {
+      .paramGroup, .display_name {
         background-color: #dcdcdc;
       }
     }
@@ -305,13 +334,13 @@
 }
 
 #exclusionMeasures {
-  .paramGroup {
+  .paramGroup, .display_name {
     background-color: $exclusionsGroup;
-    .paramGroup {
+    .paramGroup, .display_name {
       background-color: darken($exclusionsGroup,5);
-      .paramGroup {
+      .paramGroup, .display_name {
         background-color: darken($exclusionsGroup,10);
-        .paramGroup {
+        .paramGroup, .display_name {
           background-color: darken($exclusionsGroup,15);
         }
       }
@@ -357,11 +386,11 @@ label.ui-draggable-dragging {display:block;width:212px;}
 div.start-drag {color:red !important;background-color:red !important;opacity:0.5}
 
 #exceptionMeasures {
-  .paramGroup {
+  .paramGroup, .display_name {
     background-color: #dcdcdc;
-    .paramGroup {
+    .paramGroup, .display_name {
       background-color: #dcdcdc;
-      .paramGroup {
+      .paramGroup, .display_name {
         background-color: #dcdcdc;
       }
     }
@@ -410,7 +439,7 @@ div.start-drag {color:red !important;background-color:red !important;opacity:0.5
       position:relative;
       cursor:pointer;
 
-     .paramText {  
+     .paramText {
        padding:5px 15px 5px 42px;
        margin:5px 0;
        text-transform:uppercase;
@@ -610,7 +639,7 @@ div.start-drag {color:red !important;background-color:red !important;opacity:0.5
     }
   }
 
-  .subset_operator {
+  .subset_operator, .criteria_value {
     label, input {
       display: inline;
     }
@@ -666,6 +695,6 @@ h3.measure-title .label {
   background: white;
   color: orange;
 }
-h3.measure-title .title { 
+h3.measure-title .title {
   font-size: 14px;
 }
