@@ -7,7 +7,7 @@ class ValueSetsController < ApplicationController
   add_breadcrumb 'value_sets', ""
   
   def index
-    @value_sets = ValueSet.limit(5)
+    @value_sets = ValueSet.all
   end
   
   def show
@@ -28,24 +28,19 @@ class ValueSetsController < ApplicationController
       format.json {
         # very important to render json here and not text
         # even when debugging because ajaxForm plugin will break
-        # binding.pry
         json_form = JSON.parse(params[:data])
         puts json_form.inspect
         render :json => { :message => "success" }
       }
       format.html {
-        form_params = params
-        form_params
-        render :template => 'value_sets/new'
+        serialized = FormSerializer.new.serialize_params(params["value_set"])
+        new_value_set = ValueSet.new serialized
+        new_value_set.save
+        # TODO: verify new_value_set has correct number of codesets
+        flash[:notice] = "Created value set."
+        redirect_to :action => 'show', :id => new_value_set.id
       }
     end
-
-    # make a copy to manipulate
-    # p = params
-    # turn codes into an array
-    # p[:code_sets][:codes]= p[:code_sets][:codes].collect(&:second)
-    
-    # v = ValueSet.new p[:value_set]
   end
   
 end

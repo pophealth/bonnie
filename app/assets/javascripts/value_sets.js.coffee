@@ -24,14 +24,11 @@ class @ValueSetFunctions
   
   bind_add_code: ->
     $('#codes .btn').on "click", ->
-      codeField = $('#codes .input-small:last').clone()
-      codeField = codeField[0]  # flatten
-      new_id = (Number) (codeField.id.match(/(\d+)/))[0]
+      codeField = $('#codes .input-small:last').clone()[0]
+      new_id = (Number) (codeField.id.match(/\[(\d+)\]/))[1]
       new_id++
-      new_name = (Number) (codeField.name.match(/(\d+)/))[0]
-      new_name++
-      codeField.id = codeField.id.replace /(\d+)/, new_id
-      codeField.name = codeField.name.replace /(\d+)/, new_name
+      codeField.id = codeField.id.replace /\[(\d+)\]/, "[#{new_id}]"
+      codeField.name = codeField.name.replace /\[(\d+)\]\]$/, "[#{new_id}]]"
       $('#codes .controls').append(codeField)
       $('#codes .controls').append("<br>")
     
