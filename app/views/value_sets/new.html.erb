@@ -16,39 +16,73 @@
     <%= form_for @value_set, :html => {:class=>'form-horizontal'}  do |f| %>
       <fieldset>
         <legend>New Value Set</legend>
-          <%= f.label :oid  %>
-          <%= f.text_field :oid, :value => '1.2.3' %>
         
-          <%= f.label "Description" %>
-          <%= f.text_field :description, :value => 'description' %>
+          <div class="control-group">
+            <%= f.label :oid, :class=>'control-label' %>
+            <div class="controls">
+              <%= f.text_field :oid, :value => '1.2.3' %>
+            </div>
+        
+            <%= f.label :description, :class=>'control-label' %>
+            <div class="controls">
+              <%= f.text_field :description, :value => 'description' %>
+            </div>
 
-          <%= f.label "Category" %>
-          <%= f.text_field :category, :value => 'medication' %>
+            <%= f.label :category, :class=>'control-label' %>
+            <div class="controls">
+              <%= f.text_field :category, :value => 'result' %>
+            </div>
 
+            <%= f.label :concept, :class=>'control-label' %>
+            <div class="controls">
+              <%= f.text_field :concept, :value => 'concept' %>
+            </div>
+          
+            <%= f.label :organization, :class=>'control-label' %>
+            <div class="controls">
+              <%= f.text_field :organization, :value => 'organization' %>
+            </div>
+
+            <%= f.label :version, :class=>'control-label' %>
+            <div class="controls">
+              <%= f.text_field :version, :value => 'version' %>
+            </div>
+
+            <%= f.label :key, :class=>'control-label' %>
+            <div class="controls">
+              <%= f.text_field :key, :value => 'value_set_key' %>
+            </div>
+
+          </div>
       
         <fieldset>
           <legend>Code Sets</legend>
-          <%# order does not matter here %>
           <p class="help-block">Add multiple code sets</p>
-          <div id="code_sets[0]">
+          <div id="code_sets[0]" class="well">
             <%= f.fields_for 'code_sets[0]' do |code_set_fields| %>
-            <div class="control-group">
-              <%= f.label 'code set 0', :class => "control-label" %>
-              <div class="controls row well">
-                <div class="span6">
-                  <%= code_set_fields.label :code_set %>
+              <div class="control-group">
+                <p>Code Set 0</p>
+                <%= code_set_fields.label :code_set, :class=>'control-label' %>
+                <div class="controls">
                   <%= code_set_fields.text_field :code_set, :value => 'ICD-9-CM' %>
                 </div>
-                <div class="span6">
-                  <%= code_set_fields.label :category %>
+                
+                <%= code_set_fields.label :category, :class=>'control-label' %>
+                <div class="controls">
                   <%= code_set_fields.text_field :category, :value => 'category' %>
                 </div>
-                <div class="span6">
-                  <%= code_set_fields.label :concept, :class => 'input-small' %>
-                  <%= code_set_fields.text_field :concept, :class => 'input-small', :value => 'concept' %>
+                
+                <%= code_set_fields.label :concept, :class => 'control-label' %>
+                <div class="controls">
+                  <%= code_set_fields.text_field :concept, :value => 'concept' %>
                 </div>
-            
-                <div class="row">
+                
+                <%= code_set_fields.label :description, :class => 'control-label' %>
+                <div class="controls">
+                  <%= code_set_fields.text_field :description, :value => 'description' %>
+                </div>
+
+                <div class="row span4">
                 <div id="codes" class="control-group">                
                     <%= code_set_fields.label :codes, :class => "control-label" %>
                     <a class="btn btn-primary btn-small">+</a>
@@ -57,10 +91,8 @@
                       <%= code_set_fields.text_field 'codes[1]', :class => 'input-small', :value => 'code1' %><br>
                     </div>
                 </div>
-                </div>
-              <% end %>                
               </div>
-            </div><!-- control group end -->    
+            <% end %><!-- fields_for code_sets[n]-->
           </div><!-- code_sets end -->
         </fieldset><!-- code_sets end -->
 
