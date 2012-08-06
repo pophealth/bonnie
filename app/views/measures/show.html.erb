@@ -1,4 +1,22 @@
 <% content_for :head do %>
+  <style>
+
+.dropped {
+    -webkit-animation: highlight-dropped 3.5s 1;
+    -webkit-animation-easing-function: ease-out;
+    -moz-animation: highlight-dropped 4s 1;
+    -moz-animation-easing-function: ease-out;
+}
+
+@-webkit-keyframes highlight-dropped {
+    0% {box-shadow:0 0 15px #f60;}
+    100% {box-shadow:none }
+}
+@-moz-keyframes highlight-dropped {
+    0% {box-shadow:0 0 15px #f60;}
+    100% {box-shadow:none }
+}​
+</style>
   <script type="text/javascript">
     Function.prototype.curry = function() {
         if (arguments.length<1) return this;
@@ -244,7 +262,7 @@
 
   <script type="text/html" id="bonnie_tmpl_param_group">
     <div class='paramGroup'>
-      <div class='paramItem{{if id}} logicLeaf{{/if}}'{{if id}} data-criteria-id="${id}"{{/if}}{{if precondition_id}} data-precondition-id="${precondition_id}"{{/if}}>
+      <div class='paramItem{{if id}} logicLeaf{{/if}}'{{if id}} data-criteria-id="${id}"{{/if}}{{if precondition_id}} data-precondition-id="${precondition_id}"{{/if}}{{if myid}} data-myid="${myid}"{{/if}}>
         {{if id}}
           {{if bonnie.builder.data_criteria[id].display_name}}<div class="display_name">${bonnie.builder.data_criteria[id].display_name}</div>{{/if}}
         {{else precondition_id}}

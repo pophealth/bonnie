@@ -9,6 +9,12 @@
         $('#population').val($(event.target).val())
         $('#measure_form').submit();
       });
+      $('.delete_patient').click(
+        function(){
+          $.post('<%= url_for :action => 'delete_patient' %>', {authenticity_token: $('meta[name=csrf-token]').val(), victim: $(this).siblings('input[name=victim]').val()}, $.proxy(function(r){if (r) $(this).parentsUntil('.row').parent().remove(); }, this));
+        }
+      );
+      $('.patient_info.icon-info-sign').popover()
     });
   </script>
 <% end %>
@@ -18,21 +24,21 @@
     <%= link_to "Generate Patients", generate_patients_measure_url(@measure), :method => :post, :class => "btn" %>
     <a href="#downloadPatientsDialog" class="btn" data-toggle="modal" data-backdrop="static" data-keyboard="true">Download Patients</a>
   </div>
-  
+
   <%= render partial: 'download_patients' %>
-  
+
   <h3 class="measure-title">
     <span class="label">Testing:</span>
     <span class="title"><%= @measure.title %></span><br>
   </h3>
-  
+
   <% if params[:population_criteria] %>
     <h4 style="margin-left:2em">Population Criteria <%= params[:population_criteria] %></h4><br>
   <% end %>
-  
+
   <ul class="nav nav-tabs" id="mainTabs" style="margin:0.5em">
     <li class="active"><a href="#patients">All Patients</a></li>
-    
+
     <li id="selector" style ="float: right; margin-right: 140px;">
       <select id="population_selector">
         <% @measure.populations.each_with_index do |population, index| %>
@@ -40,18 +46,18 @@
         <% end if @measure.populations %>
       </select>
     </li>
-    
+
   </ul>
-  
-  
-  
+
+
+
   <div class="tab-content" style="margin:0.5em">
-    
+
     <a href="" id="select-all">Select All</a> |
     <a href="" id="deselect-all">Deselect All</a>
-    
+
     <div class="tab-pane active" id="patients">
-        
+
       <%= simple_form_for(:patients, :url => "/measures/#{params[:id]}/test", :method => :post, :html => { :class => 'form-horizontal', :id => 'measure_form'}) do |f| %>
         <%= f.submit 'Test Measure', :id => 'test-submit-button', :class => 'btn-primary' %><br>
         <input type="hidden" id="population" name="population" value="<%=@population%>"/>
@@ -61,6 +67,7 @@
           <div id="denominator-total" class="span2 denom">&nbsp;</div>
           <div id="numerator-total" class="span2 num">&nbsp;</div>
           <div id="exclusions-total" class="span2 excl">&nbsp;</div>
+          <div id="exceptions-total" class="span2 excep">&nbsp;</div>
           <div id="inspect-links" class="span2 inspect">&nbsp;</div>
         </div>
 
@@ -70,36 +77,53 @@
           <div class="span2 denom"><b>Denominator</b></div>
           <div class="span2 num"><b>Numerator</b></div>
           <div class="span2 excl"><b>Exclusions</b></div>
+          <div class="span2 excep"><b>Exceptions</b></div>
           <div class="span2 inspect">&nbsp;</div>
         </div>
-        
+
         <% @patient_names.each do |p| %>
         <div class="row">
           <div class="span2 name">
             <%= f.check_box(p[1], :label => p.first, :checked => true) -%>
             <%= p.first %>
+            <%= '<span class="patient_info icon-info-sign" rel="popover" data-original-title="'.html_safe + (p[2]['category'] || '') +
+              '" data-content="('.html_safe + Time.at(p[3]['start']/1000).strftime('%m/%d/%Y') + ' - '  + Time.at(p[3]['end']/1000).strftime('%m/%d/%Y') + ')<br /><br />' +
+              (p[2]['description'] || '') + '"></span>'.html_safe unless p[2]['description'].blank? && p[2]['category'].blank?
+            %>
           </div>
           <!-- &nbsp; entity needed to keep the columns from smashing left -->
           <div class="span2 pop">&nbsp;</div>
           <div class="span2 denom">&nbsp;</div>
           <div class="span2 num"> &nbsp;</div>
           <div class="span2 excl">&nbsp;</div>
-          <div class="span2 inspect">
-            <a href='/measures/<%= "#{@measure._id}/debug/#{p[1]}?population=#@population" %>'>inspect</a>
+          <div class="span2 excep">&nbsp;</div>
+          <div class="span4">
+            <span class="span1 inspect"><%= link_to 'inspect', debug_measure_measure_path(:record_id => p[1], :population=>@population) %></span>
+            <span class="span1 delete">
+              <input type="hidden" name="victim" value="<%= p[1] %>" />
+              <a href="javascript:void(0);" class="delete_patient">delete</a>
+            </span>
+            <span class="span1 edit">
+              <%= link_to 'Edit', edit_patient_measure_path(:patient_id => p[1]) %>
+            </span>
+            <span class="span1 clone">
+              <%= link_to 'Clone', edit_patient_measure_path(:patient_id => p[1], :clone => true) %>
+            </span>
+
           </div>
         </div>
         <% end %>
       <% end %>
     </div>
   </div>
-  
+
   <% if @patients_posted %>
-    <% @js = include_js_debug(@measure.id, @patients_posted, params[:population_criteria].to_i) %>
+    <% @js = include_js_debug(@measure.id, @patients_posted, @population) %>
     <%= javascript_tag do %>
       <%= raw(@js) %>
       <%= raw(include_js_libs(['map_reduce_utils'])) %>
     <% end %>
-    
+
     <!-- we call coffeescript functions here, minimizing plain js -->
     <%= javascript_tag do %>
       $().ready(function() {

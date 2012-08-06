@@ -11,10 +11,11 @@ module MeasuresHelper
   end
   
   # create a javascript object for the debug view
-  def include_js_debug(id, patient_ids, population_criteria=1)
+  def include_js_debug(id, patient_ids, population=0)
 
+    population = population.to_i
     measure = Measure.find(id)
-    measure_js = Measures::Exporter.execution_logic(measure, population_criteria - 1)
+    measure_js = Measures::Exporter.execution_logic(measure, population)
     
     patient_json = Record.find(patient_ids).to_json
 

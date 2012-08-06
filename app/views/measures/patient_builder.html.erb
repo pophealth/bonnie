@@ -3,13 +3,15 @@
 
   var page = new PatientBuilderPage(
     <%= @measure.all_data_criteria.to_json.html_safe %>,
-    <%= @measure.value_sets.to_json.html_safe %>
+    <%= @measure.value_sets.to_json.html_safe %>,
+    <%= if params['patient_id'] then @measure.records.select{|v| v['_id'].to_s == params['patient_id']}[0]['source_data_criteria'] end .to_json.html_safe %>
   );
 
   $(document).ready(function() {
     page.initialize();
-    $('#birthdate').datepicker();
-    
+
+    $('#birthdate').datetimepicker();
+
     $('#measure_period_start').datepicker({
       onSelect: function(selectedDate) {$( "#measure_period_end" ).datepicker( "option", "minDate", selectedDate );onLoadTimeline();}
     });
@@ -17,15 +19,23 @@
       onSelect: function(selectedDate) {$( "#measure_period_start" ).datepicker( "option", "maxDate", selectedDate );onLoadTimeline();}
     });
     $('.timepicker-default').timepicker();
-    
+
+    $('#tl').on('dragover', '.timeline-band', function(){
+      return false;
+    }).on('drop', '.timeline-band', function(e){
+      var date = bonnie.timeline.getBand($(this).attr('id').match(/\d+$/)[0]).pixelOffsetToDate(e.originalEvent.pageX - $(this).offset().left);
+      var data_criteria = bonnie.patientBuilder.selected_data_criteria[e.originalEvent.dataTransfer.getData('text')];
+      data_criteria.end_date += date.getTime() -  data_criteria.start_date;
+      data_criteria.start_date = date.getTime();
+
+      $('#element_start').datetimepicker('setDate', new Date(data_criteria.start_date));
+      $('#element_end').datetimepicker('setDate', new Date(data_criteria.end_date));
+
+      bonnie.patientBuilder.updateTimeline();
+      bonnie.timeline.getBand(0).setCenterVisibleDate(date)
+    }).on('selectstart', function(e){ e.preventDefault(); });
+
     onLoadTimeline();
-    
-    $(document.body).on('dragover',
-      function(e){
-        //e.preventDefault();
-        // if (!$('.dragged').hasClass('temporal_drop_zone_element') ^ !($.inArray(e.target, $('.temporal_drop_zone, .temporal_drop_zone *')) > -1)) e.preventDefault();
-      }
-    );
 
     $(".paramChildren label").not('[data-criteria-id=MeasurePeriod] label').draggable({
       helper: "clone",
@@ -35,15 +45,22 @@
       distance: 3,
       opacity: "1",
     });
-    
+
     $('#patient_data_criteria').droppable({ tolerance: 'pointer', greedy: true, accept: 'label.ui-draggable', drop: function(e,obj){ return fillDrop(e,obj); } });
-  
+
+    $('#savebutton').click(
+      function(){
+        $('form#save_patient_builder').trigger('submit');
+      }
+    );
+
   });
 
   var fillDrop = function(event, obj){
     var id = $(obj.draggable).data('criteria-id');
     var source_data_criteria = bonnie.patientBuilder.dataCriteria(id)
     var data_criteria = source_data_criteria.duplicate(id+'_'+bonnie.patientBuilder.nextDataCriteriaId())
+    data_criteria.source = id
     html = data_criteria.asHtml('data_criteria')
     $(event.target).append(html)
     bonnie.patientBuilder.registerDataCriteria(data_criteria);
@@ -51,30 +68,262 @@
       bonnie.patientBuilder.editDataCriteria(event.currentTarget);
       data_criteria = bonnie.patientBuilder.selectedDataCriteria($(event.currentTarget).data('criteria-id'))
       bonnie.patientBuilder.timelineToDataCriteria(data_criteria);
-    });
+
+      bonnie.timeline.getBand(0).getEventPainter().setHighlightMatcher(
+        function(evt){
+          return evt._id == $(event.currentTarget).data('criteria-id') ? 2 : -1;
+        }
+      );
+      bonnie.timeline.paint();
+    }).trigger('click');
     $('.paramGroup[data-criteria-id='+data_criteria.id+'] .removeDataCriteria').click(function(event) {
       bonnie.patientBuilder.detachDataCriteria(data_criteria);
       event.stopPropagation();
     });
+    return data_criteria;
   }
-  
+
   </script>
   <!-- Load the Timeline library after reseting the fonts, etc -->
-  <script src="http://static.simile.mit.edu/timeline/api-2.3.0/timeline-api.js?bundle=true" type="text/javascript"></script>  
+  <script src="/timeline_js/timeline-api.js?bundle=true&forceLocale=en" type="text/javascript"></script>
 
 
-  <script type="text/javascript">        
+  <script type="text/javascript">
        var tl;
+      SimileAjax.History.enabled = false;
+      Timeline.OriginalEventPainter.prototype.paintPreciseInstantEvent = function(evt, metrics, theme, highlightIndex) {
+        var doc = this._timeline.getDocument();
+        var text = evt.getText();
+
+        var startDate = evt.getStart();
+        var startPixel = Math.round(this._band.dateToPixelOffset(startDate));
+        var iconRightEdge = Math.round(startPixel + metrics.iconWidth / 2);
+        var iconLeftEdge = Math.round(startPixel - metrics.iconWidth / 2);
+
+        var labelDivClassName = this._getLabelDivClassName(evt);
+        var labelSize = this._frc.computeSize(text, labelDivClassName);
+        var labelLeft = iconRightEdge + theme.event.label.offsetFromLine;
+        var labelRight = labelLeft + labelSize.width;
+
+        var rightEdge = labelRight;
+        var track = this._findFreeTrack(evt, rightEdge);
+
+        var labelTop = Math.round(
+            metrics.trackOffset + track * metrics.trackIncrement +
+            metrics.trackHeight / 2 - labelSize.height / 2);
+
+        var iconElmtData = this._paintEventIcon(evt, track, iconLeftEdge, metrics, theme, 0);
+        var labelElmtData = this._paintEventLabel(evt, text, labelLeft, labelTop, labelSize.width,
+            labelSize.height, theme, labelDivClassName, highlightIndex);
+        var els = [iconElmtData.elmt, labelElmtData.elmt];
+
+        var self = this;
+        var clickHandler = function(elmt, domEvt, target) {
+            $('[data-criteria-id=' + evt._id + ']').trigger('click');
+        };
+        SimileAjax.DOM.registerEvent(iconElmtData.elmt, "dragstart",
+          function(elmt, domEvt, target){
+            domEvt.dataTransfer.setData('text', evt._id);
+          }
+        );
+        SimileAjax.DOM.registerEvent(iconElmtData.elmt, "mousedown",
+          function(elmt, domEvt){domEvt.stopPropagation();}
+        );
+        SimileAjax.DOM.registerEvent(iconElmtData.elmt, "click", clickHandler);
+        SimileAjax.DOM.registerEvent(labelElmtData.elmt, "click", clickHandler);
+
+        var hDiv = this._createHighlightDiv(highlightIndex, iconElmtData, theme, evt);
+        if (hDiv != null) {els.push(hDiv);}
+        this._fireEventPaintListeners('paintedEvent', evt, els);
+
+
+        this._eventIdToElmt[evt.getID()] = iconElmtData.elmt;
+        this._tracks[track] = iconLeftEdge;
+    };
+
+    Timeline.OriginalEventPainter.prototype.paintImpreciseInstantEvent = function(evt, metrics, theme, highlightIndex) {
+        var doc = this._timeline.getDocument();
+        var text = evt.getText();
+
+        var startDate = evt.getStart();
+        var endDate = evt.getEnd();
+        var startPixel = Math.round(this._band.dateToPixelOffset(startDate));
+        var endPixel = Math.round(this._band.dateToPixelOffset(endDate));
+
+        var iconRightEdge = Math.round(startPixel + metrics.iconWidth / 2);
+        var iconLeftEdge = Math.round(startPixel - metrics.iconWidth / 2);
+
+        var labelDivClassName = this._getLabelDivClassName(evt);
+        var labelSize = this._frc.computeSize(text, labelDivClassName);
+        var labelLeft = iconRightEdge + theme.event.label.offsetFromLine;
+        var labelRight = labelLeft + labelSize.width;
+
+        var rightEdge = Math.max(labelRight, endPixel);
+        var track = this._findFreeTrack(evt, rightEdge);
+        var tapeHeight = theme.event.tape.height;
+        var labelTop = Math.round(
+            metrics.trackOffset + track * metrics.trackIncrement + tapeHeight);
+
+        var iconElmtData = this._paintEventIcon(evt, track, iconLeftEdge, metrics, theme, tapeHeight);
+        var labelElmtData = this._paintEventLabel(evt, text, labelLeft, labelTop, labelSize.width,
+                            labelSize.height, theme, labelDivClassName, highlightIndex);
+
+        var color = evt.getColor();
+        color = color != null ? color : theme.event.instant.impreciseColor;
+
+        var tapeElmtData = this._paintEventTape(evt, track, startPixel, endPixel,
+            color, theme.event.instant.impreciseOpacity, metrics, theme, 0);
+        var els = [iconElmtData.elmt, labelElmtData.elmt, tapeElmtData.elmt];
+
+        var self = this;
+        var clickHandler = function(elmt, domEvt, target) {
+            $('[data-criteria-id=' + evt._id + ']').trigger('click');
+        };
+        SimileAjax.DOM.registerEvent(iconElmtData.elmt, "dragstart",
+          function(elmt, domEvt, target){
+            domEvt.dataTransfer.setData('text', evt._id);
+          }
+        );
+        SimileAjax.DOM.registerEvent(iconElmtData.elmt, "mousedown",
+          function(elmt, domEvt){domEvt.stopPropagation();}
+        );
+        SimileAjax.DOM.registerEvent(iconElmtData.elmt, "click", clickHandler);
+        SimileAjax.DOM.registerEvent(tapeElmtData.elmt, "click", clickHandler);
+        SimileAjax.DOM.registerEvent(labelElmtData.elmt, "click", clickHandler);
+
+        var hDiv = this._createHighlightDiv(highlightIndex, iconElmtData, theme, evt);
+        if (hDiv != null) {els.push(hDiv);}
+        this._fireEventPaintListeners('paintedEvent', evt, els);
+
+        this._eventIdToElmt[evt.getID()] = iconElmtData.elmt;
+        this._tracks[track] = iconLeftEdge;
+    };
+
+    Timeline.OriginalEventPainter.prototype.paintPreciseDurationEvent = function(evt, metrics, theme, highlightIndex) {
+        var doc = this._timeline.getDocument();
+        var text = evt.getText();
+
+        var startDate = evt.getStart();
+        var endDate = evt.getEnd();
+        var startPixel = Math.round(this._band.dateToPixelOffset(startDate));
+        var endPixel = Math.round(this._band.dateToPixelOffset(endDate));
+
+        var labelDivClassName = this._getLabelDivClassName(evt);
+        var labelSize = this._frc.computeSize(text, labelDivClassName);
+        var labelLeft = startPixel;
+        var labelRight = labelLeft + labelSize.width;
+
+        var rightEdge = Math.max(labelRight, endPixel);
+        var track = this._findFreeTrack(evt, rightEdge);
+        var labelTop = Math.round(
+            metrics.trackOffset + track * metrics.trackIncrement + theme.event.tape.height);
+
+        var color = evt.getColor();
+        color = color != null ? color : theme.event.duration.color;
+
+        var tapeElmtData = this._paintEventTape(evt, track, startPixel, endPixel, color, 100, metrics, theme, 0);
+        var labelElmtData = this._paintEventLabel(evt, text, labelLeft, labelTop, labelSize.width,
+          labelSize.height, theme, labelDivClassName, highlightIndex);
+        var els = [tapeElmtData.elmt, labelElmtData.elmt];
+
+        var self = this;
+        var clickHandler = function(elmt, domEvt, target) {
+            $('[data-criteria-id=' + evt._id + ']').trigger('click');
+        };
+        $(tapeElmtData.elmt).prop('draggable', true);
+        SimileAjax.DOM.registerEvent(tapeElmtData.elmt, "dragstart",
+          function(elmt, domEvt, target){
+            domEvt.dataTransfer.setData('text', evt._id);
+          }
+        );
+        SimileAjax.DOM.registerEvent(tapeElmtData.elmt, "mousedown",
+          function(elmt, domEvt){domEvt.stopPropagation();}
+        );
+        SimileAjax.DOM.registerEvent(tapeElmtData.elmt, "click", clickHandler);
+        SimileAjax.DOM.registerEvent(labelElmtData.elmt, "click", clickHandler);
+
+        var hDiv = this._createHighlightDiv(highlightIndex, tapeElmtData, theme, evt);
+        if (hDiv != null) {els.push(hDiv);}
+        this._fireEventPaintListeners('paintedEvent', evt, els);
+
+        this._eventIdToElmt[evt.getID()] = tapeElmtData.elmt;
+        this._tracks[track] = startPixel;
+    };
+
+    Timeline.OriginalEventPainter.prototype.paintImpreciseDurationEvent = function(evt, metrics, theme, highlightIndex) {
+        var doc = this._timeline.getDocument();
+        var text = evt.getText();
+
+        var startDate = evt.getStart();
+        var latestStartDate = evt.getLatestStart();
+        var endDate = evt.getEnd();
+        var earliestEndDate = evt.getEarliestEnd();
+
+        var startPixel = Math.round(this._band.dateToPixelOffset(startDate));
+        var latestStartPixel = Math.round(this._band.dateToPixelOffset(latestStartDate));
+        var endPixel = Math.round(this._band.dateToPixelOffset(endDate));
+        var earliestEndPixel = Math.round(this._band.dateToPixelOffset(earliestEndDate));
+
+        var labelDivClassName = this._getLabelDivClassName(evt);
+        var labelSize = this._frc.computeSize(text, labelDivClassName);
+        var labelLeft = latestStartPixel;
+        var labelRight = labelLeft + labelSize.width;
+
+        var rightEdge = Math.max(labelRight, endPixel);
+        var track = this._findFreeTrack(evt, rightEdge);
+        var labelTop = Math.round(
+            metrics.trackOffset + track * metrics.trackIncrement + theme.event.tape.height);
+
+        var color = evt.getColor();
+        color = color != null ? color : theme.event.duration.color;
+
+        // Imprecise events can have two event tapes
+        // The imprecise dates tape, uses opacity to be dimmer than precise dates
+        var impreciseTapeElmtData = this._paintEventTape(evt, track, startPixel, endPixel,
+            theme.event.duration.impreciseColor,
+            theme.event.duration.impreciseOpacity, metrics, theme, 0);
+        // The precise dates tape, regular (100%) opacity
+        var tapeElmtData = this._paintEventTape(evt, track, latestStartPixel,
+            earliestEndPixel, color, 100, metrics, theme, 1);
+
+        var labelElmtData = this._paintEventLabel(evt, text, labelLeft, labelTop,
+            labelSize.width, labelSize.height, theme, labelDivClassName, highlightIndex);
+        var els = [impreciseTapeElmtData.elmt, tapeElmtData.elmt, labelElmtData.elmt];
+
+        var self = this;
+        var clickHandler = function(elmt, domEvt, target) {
+            $('[data-criteria-id=' + evt._id + ']').trigger('click');
+        };
+        $(tapeElmtData.elmt).prop('draggable', true);
+        SimileAjax.DOM.registerEvent(tapeElmtData.elmt, "dragstart",
+          function(elmt, domEvt, target){
+            domEvt.dataTransfer.setData('text', evt._id);
+          }
+        );
+        SimileAjax.DOM.registerEvent(tapeElmtData.elmt, "mousedown",
+          function(elmt, domEvt){domEvt.stopPropagation();}
+        );
+        SimileAjax.DOM.registerEvent(tapeElmtData.elmt, "click", clickHandler);
+        SimileAjax.DOM.registerEvent(labelElmtData.elmt, "click", clickHandler);
+
+        var hDiv = this._createHighlightDiv(highlightIndex, tapeElmtData, theme, evt);
+        if (hDiv != null) {els.push(hDiv);}
+        this._fireEventPaintListeners('paintedEvent', evt, els);
+
+        this._eventIdToElmt[evt.getID()] = tapeElmtData.elmt;
+        this._tracks[track] = startPixel;
+    };
+
+
        function onLoadTimeline() {
-         
            var timeline_data = {
            'dateTimeFormat': 'iso8601',
            'events' : []
            }
-         
+
            var tl_el = document.getElementById("tl");
            var eventSource1 = new Timeline.DefaultEventSource();
-           
+
            var theme = Timeline.ClassicTheme.create();
            theme.event.bubble.width = 250;
            theme.autoWidth = true; // Set the Timeline's "width" automatically.
@@ -82,17 +331,17 @@
                                     // will affect all bands.
            theme.timeline_start = new Date(Date.UTC(1995, 0, 1));
            theme.timeline_stop  = new Date(Date.UTC(2015, 0, 1));
-           
-           
-           
+
+
+
            var date = "2011-01-01T05:00:00Z"
            if (bonnie.timeline) {
              date = bonnie.timeline.getBand(0).getCenterVisibleDate().toString();
            }
            var bandInfos = [
                Timeline.createBandInfo({
-                   width:          "100%", 
-                   intervalUnit:   Timeline.DateTime.DAY, 
+                   width:          '100%',
+                   intervalUnit:   Timeline.DateTime.DAY,
                    intervalPixels: 80,
                    eventSource:    eventSource1,
                    date:           date,
@@ -100,8 +349,8 @@
                    theme:          theme
                }),
                Timeline.createBandInfo({
-                   width:          "100%", 
-                   intervalUnit:   Timeline.DateTime.MONTH, 
+                   width:          "100%",
+                   intervalUnit:   Timeline.DateTime.MONTH,
                    intervalPixels: 200,
                    overview:       true,
                    eventSource:    eventSource1,
@@ -110,11 +359,11 @@
                    theme:          theme
                }),
                Timeline.createBandInfo({
-                   width:          "100%", 
-                   intervalUnit:   Timeline.DateTime.YEAR, 
+                   width:          "100%",
+                   intervalUnit:   Timeline.DateTime.YEAR,
                    intervalPixels: 300,
                    eventSource:    eventSource1,
-                   date:           date, 
+                   date:           date,
                    timeZone:       0,
                    overview:       true,
                    theme:          theme
@@ -125,7 +374,7 @@
            bandInfos[1].highlight = true;
            bandInfos[2].syncWith = 0;
            bandInfos[2].highlight = true;
-           
+
            for (var i = 0; i < bandInfos.length; i++) {
                bandInfos[i].decorators = [
                    new Timeline.SpanHighlightDecorator({
@@ -139,29 +388,29 @@
                 ];
            }
 
-                                                           
+
            // create the Timeline
            tl = Timeline.create(tl_el, bandInfos, Timeline.HORIZONTAL);
-           
+
            var url = '.'; // The base url for image, icon and background image
                           // references in the data
-                          
-           eventSource1.loadJSON(timeline_data, url); // The data was stored into the 
+
+           eventSource1.loadJSON(timeline_data, url); // The data was stored into the
                                                      // timeline_data variable.
-           
+
            tl.layout(); // display the Timeline
-           
+
            bonnie.timeline = tl;
            bonnie.timelineEvents = eventSource1
-           
+
            bonnie.timeline.getBand(0).addOnScrollListener(function(band) {
              minDate = band.getMinVisibleDate();
              maxDate = band.getMaxVisibleDate();
              bonnie.patientBuilder.highlightSelectedDataCriteria(minDate,maxDate);
            });
-            
+
        }
-       
+
        var resizeTimerID = null;
        function onResize() {
            if (resizeTimerID == null) {
@@ -172,7 +421,7 @@
            }
        }
   </script>
-  
+
 
   <script type="text/html" id="bonnie_tmpl_data_criteria">
     <div class="paramGroup population" {{if id}}data-criteria-id='${id}'{{/if}}>
@@ -194,30 +443,28 @@
     <div style="width: 0px; height: 0px;"><div class="arrow-w" style="position: relative; top: 45px; left: -86px;"></div></div>
       <h4>${title}</h4>
       <input type="hidden" value="${id}" id="element_id"/>
-      
+
       <div class="row">
         <div class="span1">
-          Event Start 
+          Event Start
         </div>
         <div class="span3">
-          <input type="text" style="width: 90px;" value="01/01/2000" data-date-format="mm/dd/yyyy" id="element_start_date" >
-          <input type="text" style="width: 60px;" value="05:00 AM" class="input-small" id="element_start_time">
+          <input type="text" style="width: 150px;" value="01/01/2000 05:00 AM" data-date-format="mm/dd/yyyy" id="element_start" >
         </div>
       </div>
 
       <div class="row">
         <div class="span1">
-          Event End 
+          Event End
         </div>
         <div class="span3">
-          <input type="text" style="width: 90px;" value="01/01/2000" data-date-format="mm/dd/yyyy" id="element_end_date" >
-          <input type="text" style="width: 60px;" value="05:00 AM" class="input-small" id="element_end_time">
+          <input type="text" style="width: 150px;" value="01/01/2000 05:00 AM" data-date-format="mm/dd/yyyy" id="element_end" >
         </div>
       </div>
 
       <div class="row">
         <div class="span1">
-          &nbsp; 
+          &nbsp;
         </div>
         <div class="span3">
           <div class="span1" style="margin:0">
@@ -244,48 +491,47 @@
 
       <div class="row">
         <div class="span4">
-          <a href="javascript:void(0)" class="btn" id="element_update">Update</a>
-          <a href="javascript:void(0)" class="btn" >Update/Next</a>
-          <a href="javascript:void(0)" class="btn close_edit" >Cancel</a>
+          <span class="btn" id="element_update">Update</span>
+          <span class="btn close_edit" >Cancel</span>
         </div>
       </div>
-      
+
   </div>
   </script>
-  
+
 <% end %>
 
 <% content_for :page_content do %>
 
   <div class="pull-right" id="pageButtons">
-    <a href="#" class="btn" >Save</a>
+    <a href="#" class="btn" id="savebutton">Save</a>
   </div>
 	<h1 class="measure-title"><%= "#{@measure.endorser}#{@measure.measure_id}: #{@measure.title}" %></h1>
 
 
   <div id="measureDetailInformation" style="padding-top: 60px;">
     <div style="position:relative; margin:5px 20px 5px 15px;">
-      
+
       <div>
         <div>
-          Measure Period Start: 
+          Measure Period Start:
         </div>
         <div>
           <input type="text" value="01/01/2011" data-date-format="mm/dd/yyyy" id="measure_period_start" >
         </div>
         <div>
-          Measure Period End: 
+          Measure Period End:
         </div>
         <div>
           <input type="text" value="12/31/2011" data-date-format="mm/dd/yyyy" id="measure_period_end" >
         </div>
       </div>
-      
+
       <%= link_to 'Measure Definition', measure_path(@measure), :target => "_blank" %> |
       <%= link_to 'Back', measures_path %>
 
       <div id="dataCriteria" style="overflow-y: auto; height: 650px;">
-        <%= render partial: 'data_criteria', locals: {criteria_by_category: data_criteria_by_category(@measure.source_data_criteria)}%>
+        <%= render partial: 'data_criteria', locals: {criteria_by_category: data_criteria_by_category(@measure.source_data_criteria.reject{|k,v| ['patient_characteristic_birthdate','patient_characteristic_gender', 'patient_characteristic_expired'].include?(v['definition']) }), patient_builder: true}%>
       </div>
     </div>
   </div>
@@ -296,85 +542,92 @@
     <p id="notice"><%= notice %></p>
 
     <ul class="nav nav-tabs">
-      <li class="patient-tab"><a href="#patient" data-toggle="tab">Patient</a></li>
+      <li class="patient-tab active"><a href="#patient" data-toggle="tab">Patient</a></li>
     </ul>
 
     <div id="workspace" style="padding:10px;border-radius:12px;margin:10px;border:1px solid #aaa;background-color:#f5f5f5;float:right;width:340px;min-height:700px">
       <p>Workspace edit controls</p>
     </div>
-    
+
     <div class="tab-content" id="measureEditContainer">
-      <div style="margin: 5px 0 0 30px;">
-        <div class="row">
-          <div class="span4">
-            First Name: 
-          </div>
-          <div class="span4">
-            <input type="text" name="first"> 
-          </div>
-        </div>
-        <div class="row">
-          <div class="span4">
-            Last Name: 
-          </div>
-          <div class="span4">
-            <input type="text" name="last"> 
-          </div>
-        </div>
-        <div class="row">
-          <div class="span4">
-            Gender: 
-          </div>
-          <div class="span4">
-            <select id="gender" name="gender">
-              <option value="M" selected="selected">Male</option>
-              <option value="F">Female</option>
-            </select>
-          </div>
-        </div>
-        <div class="row">
-          <div class="span4">
-            Expired: 
-          </div>
-          <div class="span4">
-            <input type="radio" name="expired" checked="true" value="false" id="alive_radio" style="float:left;"/>
-            <label for="alive_radio" style="float:left;">&nbsp;Alive&nbsp;</label>
-            <input type="radio" name="expired" value="true" id="deceased_radio" style="float:left;"/>
-            <label for="deceased_radio" style="float:left;">&nbsp;Deceased&nbsp;</label>
-          </div>
-        </div>
-        <div class="row">
-          <div class="span4">
-            Birthdate: 
-          </div>
-          <div class="span4">
-            <div class="row">
-              <div class="span2">
-                <input type="text" class="span2" value="01/01/2000" data-date-format="mm/dd/yyyy" id="birthdate" >
-              </div>
-              <div class="span2">
-                <input type="text" class="timepicker-default input-small">
-              </div>
+      <%= form_tag({:action => 'make_patient'}, {:onsubmit => 'bonnie.patientBuilder.save_patient_builder(this); return false', :id => 'save_patient_builder'}) do %>
+        <input type="hidden" name="record_id" value="<%= @record['_id'] if !params[:clone] %>"} />
+        <input type="hidden" class="redirect_url" value="<%= url_for :action => 'test' %>"} />
+        <div style="margin: 5px 0 0 30px;">
+          <div class="row">
+            <div class="span4">
+              First Name:
+            </div>
+            <div class="span4">
+              <input type="text" name="first" value="<%= @record['first'] %>">
             </div>
           </div>
-        </div>
-        <div class="row">
-          <div class="span4" style="font-weight: bold">
-            Clinical Attributes
+          <div class="row">
+            <div class="span4">
+              Last Name:
+            </div>
+            <div class="span4">
+              <input type="text" name="last" value="<%= @record['last'] %>">
+            </div>
           </div>
-          <div class="span6" style="margin: 5px 0 0 40px; min-height: 300px; padding-left: 5px; border: 1px #CCC solid;" id="patient_data_criteria">
-            &nbsp;
+          <div class="row">
+            <div class="span4">
+              Gender:
+            </div>
+            <div class="span4">
+              <select id="gender" name="gender">
+                <option value="M"<%= 'selected="selected"' if @record['gender'] == 'M' %>>Male</option>
+                <option value="F"<%= 'selected="selected"' if @record['gender'] == 'F' %>>Female</option>
+              </select>
+            </div>
+          </div>
+          <div class="row">
+            <div class="span4">
+              Expired:
+            </div>
+            <div class="span4">
+              <input type="radio" name="expired"<%= ' checked="checked"' if !@record['expired'] %> value="false" id="alive_radio" style="float:left;"/>
+              <label for="alive_radio" style="float:left;">&nbsp;Alive&nbsp;</label>
+              <input type="radio" name="expired"<%= ' checked="checked"' if @record['expired'] %> value="true" id="deceased_radio" style="float:left;"/>
+              <label for="deceased_radio" style="float:left;">&nbsp;Deceased&nbsp;</label>
+            </div>
+          </div>
+          <div class="row">
+            <div class="span4">
+              Birthdate:
+            </div>
+            <div class="span4">
+              <input type="text" class="span3" value="<%= Time.at(@record['birthdate'] || 946715400).strftime('%m/%d/%Y') %>" name="birthdate" id="birthdate" style="z-index:5000; position: relative;" >
+            </div>
+          </div>
+          <div class="row">
+            <div class="span4" style="font-weight: bold">
+              Clinical Attributes
+            </div>
+            <div class="span6" style="margin: 5px 0 0 40px; min-height: 300px; padding-left: 5px; border: 1px #CCC solid;" id="patient_data_criteria">
+              &nbsp;
+            </div>
+          </div>
+          <div class="row">&nbsp;</div>
+          <div class="row">
+            <div class="span4" style="font-weight: bold">Description</div>
+            <div class="span6" style="clear: left; margin: 5px 0 0 40px;">
+              <label style="display: inline; margin-right: 7px;"><input type="radio" name="description_category" value="IPP"<%= ' checked="checked"' if @record['description_category'] == 'IPP' %> style="display: inline;"> Initial Population</label>
+              <label style="display: inline; margin-right: 7px;"><input type="radio" name="description_category" value="NUMER"<%= ' checked="checked"' if @record['description_category'] == 'NUMER' %> style="display: inline;"> Numerator</label>
+              <label style="display: inline; margin-right: 7px;"><input type="radio" name="description_category" value="DENOM"<%= ' checked="checked"' if @record['description_category'] == 'DENOM' %> style="display: inline;"> Denominator</label>
+              <label style="display: inline; margin-right: 7px;"><input type="radio" name="description_category" value="EXCL"<%= ' checked="checked"' if @record['description_category'] == 'EXCL' %> style="display: inline;"> Exclusions</label>
+              <label style="display: inline; margin-right: 7px;"><input type="radio" name="description_category" value="EXCEP"<%= ' checked="checked"' if @record['description_category'] == 'EXCEP' %> style="display: inline;"> Exceptions</label>
+            </div>
+            <div class="span6" style="clear: left; margin: 5px 0 0 40px;"><textarea name="description" style="width: 100%; height: 100px;"><%= @record['description'] %></textarea></div>
           </div>
         </div>
-        
-      </div>
-      
+      <% end %>
     </div>
 
   </div><!-- end #tabs -->
-  
+
   <div style="width: 630px; margin-left: 310px; margin-top: 20px;">
   <div id='tl'></div>
   </div>
-  
+
 <% end -%>

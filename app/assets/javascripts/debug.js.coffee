@@ -7,7 +7,7 @@ initialize_measure = ->
   code_element = $('.CodeRay')
   log_element = $('#log')
   execute_measure(patient[0])
-  
+
   for e in emitted[0].logger
     do (e) ->
       append_div(log_element, e)
@@ -16,9 +16,9 @@ init_js_load = ->
   # reusable selectors
   code_element = $('.CodeRay')
   log_element = $('#log')
-  
+
   code_element.hide()
-  
+
   $("#run_numerator_link").click (event) ->
     Logger.logger = [] if Logger?
     log_element.empty()
@@ -27,7 +27,7 @@ init_js_load = ->
     for e in Logger.logger
       do (e) ->
         append_div(log_element, e)
-        
+
   $('#run_denominator_link').click (event) ->
     Logger.logger = [] if Logger?
     log_element.empty()
@@ -36,7 +36,7 @@ init_js_load = ->
     for e in Logger.logger
       do (e) ->
         append_div(log_element, e)
-  
+
   $('#run_test_dc_link').click (event) ->
     log_element.empty()
     _.each(_.functions(hqmfjs), (item) -> append_div(log_element, "#{item} => #{hqmfjs[item](new hQuery.Patient(patient[0]))}"))
@@ -88,16 +88,17 @@ populate_test_table = () ->
   denominator_total = 0
   numerator_total = 0
   exclusions_total = 0
-  
+  exceptions_total = 0
+
   for p in patient
-    do (p) ->      
+    do (p) ->
       execute_measure(p)
 
   for e in emitted
     do (e) ->
       # select the row with the patient id
       row = $('#patients_' + e.patient_id).parent().parent()
-    
+
       # TODO: this is not DRY
       # colorize and checkmark table cells based on results
       if e.population == true
@@ -105,13 +106,13 @@ populate_test_table = () ->
         cell = $(row).children(":nth-child(2)")
         cell.css('background-color', '#EEE')      #light gray
         cell.html('&#x2713;')
-      
+
       if e.denominator == true
         denominator_total += 1
         cell = $(row).children(":nth-child(3)")
         cell.css('background-color', '#99CCFF')   #light blue
         cell.html('&#x2713;')
-      
+
       if e.numerator == true
         numerator_total += 1
         cell = $(row).children(":nth-child(4)")
@@ -123,13 +124,20 @@ populate_test_table = () ->
         cell = $(row).children(":nth-child(5)")
         cell.css('background-color', '#FFCC99')   #light orange
         cell.html('&#x2713;')
-  
+
+      if e.exceptions == true
+        exceptions_total++
+        cell = $(row).children(":nth-child(6)")
+        cell.css('background-color', '#EEE')
+        cell.html('&#x2713')
+
   # set total columns
   total_row = $('#patients').find('.total').find('.span2')
   total_row.eq(1).html(population_total)
   total_row.eq(2).html(denominator_total)
   total_row.eq(3).html(numerator_total)
   total_row.eq(4).html(exclusions_total)
+  total_row.eq(5).html(exceptions_total)
 
 # add row highlighting when rolling over inspect link
 bind_inspect_highlight = () ->
@@ -144,10 +152,10 @@ bind_inspect_highlight = () ->
 change_test_button_params = (e) ->
   # save test button element for later, we will change a url parameter in the button href
   test_button = $('#pageButtons .btn').eq(1)
-  
+
   # split on ? in case we already have updated the href
   base_url = test_button.attr('href').split("?")[0]
-  
+
   # regex to find the population criteria number selected in the dropdown
   definition_number_matches = e.match /.*\/(\d+)\/definition/
   if definition_number_matches
@@ -155,7 +163,7 @@ change_test_button_params = (e) ->
   else
     population_criteria_number = 0
   population_criteria_number++     # off by one fix
-  
+
   # make button link pass a url param
   test_button.attr('href', base_url + "?population_criteria=" + population_criteria_number)
 
@@ -165,7 +173,7 @@ select_all_patients = (e) ->
     e.preventDefault()
   $('#patients .name :checkbox').each (i) ->
     $(this).attr('checked', true)
-    
+
 # deselect all patients
 deselect_all_patients = (e) ->
   if (e)

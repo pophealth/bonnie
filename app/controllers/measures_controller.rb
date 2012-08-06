@@ -144,25 +144,25 @@ class MeasuresController < ApplicationController
 
     send_file file.path, :type => 'application/zip', :disposition => 'attachment', :filename => "measures.zip"
   end
-  
+
   def generate_patients
     measure = Measure.find(params[:id])
     measure.records.destroy_all
-    
+
     begin
       generator = HQMF::Generator.new(measure.as_hqmf_model, measure.value_sets)
       measure.records = generator.generate_patients
       measure.save
     rescue
     end
-    
+
     redirect_to :test_measure
   end
-  
+
   def download_patients
     measure = Measure.find(params[:id])
     zip = TPG::Exporter.zip(measure.records, "c32")
-    
+
     send_file zip.path, :type => 'application/zip', :disposition => 'attachment', :filename => "patients.zip"
   end
 
@@ -194,7 +194,12 @@ class MeasuresController < ApplicationController
   def test
     @population = params[:population] || 0
     @measure = Measure.find(params[:id])
-    @patient_names = @measure.records.entries.collect {|r| ["#{r[:first]} #{r[:last]}", r[:_id].to_s] }
+    @patient_names = @measure.records.entries.collect {|r| [
+      "#{r[:first]} #{r[:last]}",
+      r[:_id].to_s,
+      {'description' => r['description'], 'category' => r['description_category']},
+      {'start' => r['measure_period_start'], 'end' => r['measure_period_end']}
+    ]}
 
     # we need to manipulate params[:patients] but it's immutable?
     if params[:patients]
@@ -272,9 +277,41 @@ class MeasuresController < ApplicationController
     @measure.data_criteria[params[:criteria_id]]['saved'] = true
     render :json => @measure.save!
   end
-  
+
   def patient_builder
     @measure = Measure.find(params[:id])
-    
+    @record = @measure.records.select{|r| r['_id'].to_s == params[:patient_id]}[0] || {}
+  end
+
+  def make_patient
+    @measure = Measure.find(params[:id])
+    values = Hash[@measure.value_sets.map{|v| [v['oid'], v]}]
+    params['birthdate'] = params['birthdate'].to_i / 1000
+    patient = HQMF::Generator.create_base_patient(params.select{|k| ['first', 'last', 'gender', 'expired', 'birthdate'].include?k })
+    patient['source_data_criteria'] = JSON.parse(params['data_criteria'])
+    patient['description'] = params['description']
+    patient['description_category'] = params['description_category']
+    patient['measure_period_start'] = params['measure_period_start'].to_i
+    patient['measure_period_end'] = params['measure_period_end'].to_i
+    JSON.parse(params['data_criteria']).each {|v|
+      data_criteria = HQMF::DataCriteria.from_json(v['id'], @measure.source_data_criteria[v['id']])
+      data_criteria.modify_patient(patient, HQMF::Range.from_json({
+        'low' => {'value' => Time.at(v['start_date'] / 1000).strftime('%Y%m%d')},
+        'high' => {'value' => Time.at(v['end_date'] / 1000).strftime('%Y%m%d')}
+      }), HQMF::Range.from_json('low' => {'value' => v['value'], 'unit' => v['value_unit']}), values[data_criteria.code_list_id])
+    }
+    patient['source_data_criteria'].push({'id' => 'MeasurePeriod', 'start_date' => params['measure_period_start'].to_i, 'end_date' => params['measure_period_end'].to_i})
+    if params['record_id'].blank?
+      @measure.records.push(patient)
+    else
+      @measure.records = @measure.records.map{|r| if r['_id'].to_s == params['record_id'] then patient else r end }
+    end
+    render :json => @measure.save!
+  end
+
+  def delete_patient
+    @measure = Measure.find(params[:id])
+    @measure.records = @measure.records.reject{|v| v['_id'].to_s == params['victim']}
+    render :json => @measure.save!
   end
 end

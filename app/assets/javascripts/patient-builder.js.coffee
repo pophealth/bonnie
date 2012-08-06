@@ -16,36 +16,30 @@ class @bonnie.PatientBuilder
     @data_criteria_counter = 0
     for key in _.keys(data_criteria)
       @data_criteria[key] = new bonnie.DataCriteria(key, data_criteria[key], @measure_period)
-  
+
   nextDataCriteriaId: =>
     @data_criteria_counter+=1
-    
+
   registerDataCriteria: (criteria) =>
-    criteria.start_date = $('#measure_period_start').val()
-    criteria.end_date = $('#measure_period_start').val()
-    criteria.start_time = '12:00 AM'
-    criteria.end_time = '12:00 AM'
+    criteria.start_date = new Date($('#measure_period_start').val()).getTime()
+    criteria.end_date = new Date($('#measure_period_start').val()).getTime()
     @selected_data_criteria[criteria.id] = criteria
     @updateTimeline()
-    
+
   detachDataCriteria: (criteria) =>
     $('.paramGroup[data-criteria-id='+criteria.id+']').detach();
     delete @selected_data_criteria[criteria.id]
     $('#workspace').empty();
     @updateTimeline()
 
-  getDate: (date, time) =>
-    new Date(Date.parse("#{date} #{time}"))
-    
-  getDateString: (date, time) =>
-    d = @getDate(date, time)
+  getDateString: (date) =>
+    d = new Date(date)
     val = "#{d.getFullYear()}-#{@fillZeros(d.getMonth()+1)}-#{@fillZeros(d.getDate())}T#{@fillZeros(d.getHours())}:#{@fillZeros(d.getMinutes())}:#{@fillZeros(d.getSeconds())}Z"
-    val
-  
+
   fillZeros: (string) ->
     val = "0#{string}"
     val.substring(val.length-2)
-  
+
   toggleDataCriteriaTree: (element) =>
     $(element.currentTarget).closest(".paramGroup").find("i").toggleClass("icon-chevron-right").toggleClass("icon-chevron-down")
     category = $(element.currentTarget).data('category');
@@ -56,8 +50,8 @@ class @bonnie.PatientBuilder
       children.show("blind", { direction: "vertical" }, 500)
 
   timelineToDataCriteria: (data_criteria) =>
-    bonnie.timeline.getBand(0).setCenterVisibleDate(Timeline.DateTime.parseGregorianDateTime(@getDateString(data_criteria.start_date, data_criteria.start_time)))
-    
+    bonnie.timeline.getBand(0).setCenterVisibleDate(new Date(data_criteria.start_date))
+
   highlightSelectedDataCriteria: (minDate, maxDate) =>
     container = $('#patient_data_criteria');
     children = container.children("div");
@@ -65,11 +59,11 @@ class @bonnie.PatientBuilder
     $('.paramItem').removeClass('highlight')
     for child in children
       dc = @selectedDataCriteria($(child).data('criteria-id'))
-      dc_start = @getDate(dc.start_date, dc.start_time)
-      dc_end = @getDate(dc.end_date, dc.end_time)
+      dc_start = new Date(dc.start_date)
+      dc_end = new Date(dc.end_date)
       if ((dc_start <= maxDate and dc_end >= minDate ))
         $(child).children('.paramItem').addClass('highlight')
-      
+
 
   editDataCriteria: (element) =>
     leaf = $(element)
@@ -93,28 +87,26 @@ class @bonnie.PatientBuilder
     element.css("top", top)
     element.animate({top: offset})
     $('.close_edit').click( -> $('#workspace').empty(); $('.paramItem').removeClass('editing') );
-    $('#element_start_date').val(data_criteria.start_date);
-    $('#element_end_date').val(data_criteria.end_date);
-    
-    $('#element_start_date').datepicker({
-      onSelect: (selectedDate) -> $( "#element_end_date" ).datepicker( "option", "minDate", selectedDate )
-    });
-    $('#element_end_date').datepicker({
-      onSelect: (selectedDate) -> $( "#element_start_date" ).datepicker( "option", "maxDate", selectedDate )
-    });
 
-    $('#element_start_time').timepicker();
-    $('#element_end_time').timepicker();
-    $('#element_start_time').val(data_criteria.start_time);
-    $('#element_end_time').val(data_criteria.end_time);
+    $('#element_start').datetimepicker({
+      onSelect: (selectedDate) -> $( "#element_end" ).datetimepicker('option', "minDate", new Date(selectedDate) )
+    }).datetimepicker('setDate', new Date(data_criteria.start_date));
+
+    $('#element_end').datetimepicker({
+      onSelect: (selectedDate) -> $( "#element_start" ).datetimepicker( "option", "maxDate", new Date(selectedDate) )
+    }).datetimepicker('setDate', new Date(data_criteria.end_date));
+
+    $('#element_value').val(data_criteria.value)
+    $('#element_value_unit').val(data_criteria.value_unit)
+
     $('#element_update').click(=>
       data_criteria = @selectedDataCriteria($('#element_id').val())
-      data_criteria.start_date = $('#element_start_date').val()
-      data_criteria.start_time = $('#element_start_time').val()
-      data_criteria.end_date = $('#element_end_date').val()
-      data_criteria.end_time = $('#element_end_time').val()
+      data_criteria.start_date = new Date($('#element_start').val()).getTime()
+      data_criteria.end_date = new Date($('#element_end').val()).getTime()
+      data_criteria.value = $('#element_value').val()
+      data_criteria.value_unit = $('#element_value_unit').val()
       @updateTimeline()
-      @timelineToDataCriteria(data_criteria);
+      @timelineToDataCriteria(data_criteria)
       $('#workspace').empty()
       $('.paramItem').removeClass('editing')
       )
@@ -126,43 +118,83 @@ class @bonnie.PatientBuilder
     children.detach().sort((left, right) =>
       left_dc = @selectedDataCriteria($(left).data('criteria-id'))
       right_dc = @selectedDataCriteria($(right).data('criteria-id'))
-      @getDateString(left_dc.start_date, left_dc.start_time) > @getDateString(right_dc.start_date, right_dc.start_time) ? 1 : -1;
+      @getDateString(left_dc.start_date) > @getDateString(right_dc.start_date) ? 1 : -1;
       );
     container.append(children);
 
-    
+
 
   updateTimeline: =>
-    
+
     @sortSelectedDataCriteria()
-    
+
     timelineData = {
     'dateTimeFormat': 'iso8601',
     'events' : []
     }
-    
+
     for key in _.keys(@selected_data_criteria)
       criteria = @selectedDataCriteria(key)
-      start = @getDateString(criteria.start_date, criteria.start_time)
-      end = @getDateString(criteria.end_date, criteria.end_time)
-      event = {'start': start, 'title': "#{criteria.category} #{criteria.status}: #{criteria.title}", 'description': "#{criteria.category} #{criteria.status}: criteria.title"}
+      start = @getDateString(criteria.start_date)
+      end = @getDateString(criteria.end_date)
+      event = {'start': start, 'title': "#{criteria.category} #{criteria.status}: #{criteria.title}", 'description': "#{criteria.category} #{criteria.status}: #{criteria.title}", 'id': "#{criteria.id}"}
       event['end'] = end if start != end
       timelineData.events.push(event)
-    
+
     bonnie.timelineEvents.clear();
-    bonnie.timelineEvents.loadJSON(timelineData, '.'); 
+    bonnie.timelineEvents.loadJSON(timelineData, '.');
     bonnie.timeline.layout()
-    
-  
+
+
 
   dataCriteria: (id) =>
     @data_criteria[id]
   selectedDataCriteria: (id) =>
     @selected_data_criteria[id]
 
+  save_patient_builder: (form)->
+    data_criteria = []
+    $('#patient_data_criteria .paramGroup').each((i,e)=>
+      data = bonnie.patientBuilder.selected_data_criteria[$(e).data('criteria-id')]
+      data_criteria.push({
+        id: data.source
+        start_date: data.start_date
+        end_date: data.end_date
+        value: data.value if data.value
+        value_unit: data.value_unit if data.value
+      })
+    );
+    $(form).ajaxSubmit({
+      beforeSubmit: (v) -> v.map((e) ->
+        e.value = new Date(e.value).getTime() if e.name == 'birthdate'
+        e
+      )
+      data: {
+        measure_period_start: new Date($('#measure_period_start').val()).getTime()
+        measure_period_end: new Date($('#measure_period_end').val()).getTime()
+        data_criteria: JSON.stringify(data_criteria)
+      },
+      success: (r)->
+        document.location.href = $(form).find('input.redirect_url[type=hidden]').val() if r
+    });
+
 class PatientBuilderPage
-  constructor: (data_criteria, value_sets) ->
+  constructor: (data_criteria, value_sets, patient) ->
     bonnie.patientBuilder = new bonnie.PatientBuilder(data_criteria, value_sets)
+    if patient
+      $(window).load(->
+        for data_criteria in patient
+          if data_criteria.id == 'MeasurePeriod'
+            $('#measure_period_start').datetimepicker('setDate', new Date(data_criteria.start_date));
+            $('#measure_period_end').datetimepicker('setDate', new Date(data_criteria.end_date));
+          else
+            criteria = fillDrop({target: $('#patient_data_criteria')}, {draggable: $('[data-criteria-id=' + data_criteria.id + ']')});
+            criteria.start_date = data_criteria.start_date
+            criteria.end_date = data_criteria.end_date
+            criteria.value = data_criteria.value
+            criteria.value_unit = data_criteria.value_unit
+        $('#workspace .close_edit').click()
+      )
 
   initialize: () =>
     $(document).on('click', '#dataCriteria .paramGroup', bonnie.patientBuilder.toggleDataCriteriaTree)

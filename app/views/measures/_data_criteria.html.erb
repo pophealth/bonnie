@@ -1,28 +1,30 @@
-<div class="paramChildren data-criteria" style="display:block">
-  <div class="paramItem">
-    <div draggable="true" class="paramText" data-criteria-id="MeasurePeriod">
-      <label>Measurement Period</label>
+<% if (patient_builder = patient_builder).nil? %>
+  <div class="paramChildren data-criteria" style="display:block">
+    <div class="paramItem">
+      <div draggable="true" class="paramText" data-criteria-id="MeasurePeriod">
+        <label>Measurement Period</label>
+      </div>
     </div>
   </div>
-</div>
 
-<% saved = @measure.data_criteria.select{|k,v| v['saved']} %>
-<div class="paramGroup" data-category="user_generated">
-  <div class="paramItem">
-    <div class="paramText user_generated">
-      <label><i class="icon-chevron-right"></i>User Generated Objects (<span><%= saved.length %></span>)</label>
+  <% saved = @measure.data_criteria.select{|k,v| v['saved']} %>
+  <div class="paramGroup" data-category="user_generated">
+    <div class="paramItem">
+      <div class="paramText user_generated">
+        <label><i class="icon-chevron-right"></i>User Generated Objects (<span><%= saved.length %></span>)</label>
+      </div>
     </div>
   </div>
-</div>
-<div class="paramChildren data-criteria user_generated_children">
-  <% saved.each do |k,criteria| %>
-  <div class="paramItem">
-    <div class="paramText">
-      <label draggable="true" data-criteria-id="<%= k %>"><%= criteria['title'] %><%= ": #{criteria['status']}" if !criteria['status'].blank? %></label>
+  <div class="paramChildren data-criteria user_generated_children">
+    <% saved.each do |k,criteria| %>
+    <div class="paramItem">
+      <div class="paramText">
+        <label draggable="true" data-criteria-id="<%= k %>"><%= criteria['title'] %><%= ": #{criteria['status']}" if !criteria['status'].blank? %></label>
+      </div>
     </div>
+    <% end %>
   </div>
-  <% end %>
-</div>
+<% end %>
 
 <% criteria_by_category.keys.each do |category| %>
   <div class="paramGroup" data-category="<%= category.gsub(' ', '_') %>">

@@ -6,17 +6,26 @@
 # Will need to either update to hold multitple num/denominators or switch to hold just one generic tree
 class queryStructure.Query
   constructor: ->
-    @structure = new queryStructure.AND(null)
 
-  toJson: ->
-    return @structure.toJson()
-
+  toJson: -> 
+    return {
+      'population'  : @population.toJson()
+      'denominator' : @denominator.toJson()
+      'numerator'   : @numerator.toJson()
+      'exclusions'  : @exclusions.toJson()
+      'exceptions'  : @exceptions.toJson()
+    }
+  
   rebuildFromJson: (json) ->
-    @structure = if json then @buildFromJson(null, json) else new queryStructure.AND(null)
+    @population =  if json['population']  then @buildFromJson(null, json['population'])  else new queryStructure.AND(null)
+    @denominator = if json['denominator'] then @buildFromJson(null, json['denominator']) else new queryStructure.AND(null)
+    @numerator =   if json['numerator']   then @buildFromJson(null, json['numerator'])   else new queryStructure.AND(null)
+    @exclusions =  if json['exclusions']  then @buildFromJson(null, json['exclusions'])  else new queryStructure.AND(null)
+    @exceptions =  if json['exceptions']  then @buildFromJson(null, json['exceptions'])  else new queryStructure.AND(null)
 
   buildFromJson: (parent, element) ->
     if @getElementType(element) == 'rule'
-      return  { 'id': element.id, 'precondition_id': element['precondition_id'] }
+      return  { 'id': element.id, 'precondition_id': element['precondition_id'] ,'data_criteria':bonnie.builder.data_criteria[element.id] }
     else
       container = @getContainerType(element)
       newContainer = new queryStructure[container](parent, [], element.negation, element['precondition_id'])
@@ -36,7 +45,6 @@ class queryStructure.Query
     else
       return null
 
-
 ##############
 # Containers
 ##############
@@ -49,11 +57,13 @@ class queryStructure.Container
     # first see if the element is already part of the children array
     # if it is there is no need to do anything
     index = @children.length
-    ci = @childIndex(after)
-    if ci != -1
-      index = ci + 1
+    if after?
+      ci = @childIndex(after)
+      if ci != -1
+        index = ci + 1
+    else index=0
     @children.splice(index,0,element)
-    if element.parent && element.parent != this
+    if element.parent? && element.parent != this
       element.parent.removeChild(element)
     element.parent = this
     return element
@@ -66,11 +76,20 @@ class queryStructure.Container
     if @parent
       @parent.removeChild(this)
 
+  removeAtIndex: (index) ->
+    if index > -1 && index < @children.length
+      @children.splice(index,1)
+
+  childIndexByKey: (e, key) ->
+    for j,k in @children
+      return k if e[key] == j[key]
+       
   removeChild: (victim) ->
     index = @childIndex(victim)
     if index != -1
       @children.splice(index,1)
       victim.parent = null
+      victim
 
   replaceChild: (child, newChild) ->
     index = @childIndex(child)
@@ -92,8 +111,8 @@ class queryStructure.Container
   childIndex: (child) ->
     if child == null
       return -1
-    for index, _child of @children
-      if _child == child
+    for _child, index in @children
+      if _child is child
         return index
     return -1
 
@@ -111,40 +130,22 @@ class queryStructure.Container
 class queryStructure.OR extends queryStructure.Container
   constructor: ->
     @conjunction = 'or'
+    @myid = "id_or_" + (Math.random().toString().split('.')[1])
+
     super
 
   toJson: ->
     childJson = @childrenToJson()
-    return { "conjunction" : "or", "items" : childJson, "negation" : @negation, "parent" : @parent, "precondition_id" : @precondition_id }
-
-  test: (patient) ->
-    if (@children.length == 0)
-      return true;
-    retval = false
-    for child in @children
-      if (child.test(patient))
-        retval = true
-        break
-    return if @negation then !retval else retval;
+    return { "conjunction" : "or", "items" : childJson, "negation" : @negation, "parent" : @parent, "precondition_id" : @precondition_id, "myid" : @myid }
 
 
 class queryStructure.AND extends queryStructure.Container
   constructor: ->
     @conjunction = 'and'
+    @myid = "id_and_" + (Math.random().toString().split('.')[1])
     super
 
   toJson: ->
     childJson = @childrenToJson()
-    return { "conjunction" : "and", "items" : childJson, "negation" : @negation, "parent" : @parent, "precondition_id" : @precondition_id }
-
-  test: (patient) ->
-    if (@children.length == 0)
-      return true;
-    retval = true
-    for child in @children
-      if (!child.test(patient))
-        retval =  false
-        break
-
-    return if @negation then !retval else retval
+    return { "conjunction" : "and", "items" : childJson, "negation" : @negation, "parent" : @parent, "precondition_id" : @precondition_id, "myid" : @myid }
 

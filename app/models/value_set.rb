@@ -34,6 +34,7 @@ class ValueSet
     result
     patient_provider_interaction
     functional_status
+    transfer_of_care
   )
   
   validates_inclusion_of :category, in: Categories

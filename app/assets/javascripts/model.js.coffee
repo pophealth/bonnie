@@ -83,10 +83,10 @@ class @bonnie.DataCriteria
     text
   valueText: =>
     text = ''
-    text += if (
+    text += if (@value &&
       switch(@value.type)
         when 'PQ' then @value.value
-        when 'IVL_PQ' then @value.low.value || @value.high.value
+        when 'IVL_PQ' then @value.low && @value.low.value || @value.high && @value.high.value
         when 'CD' then @value.code_list_id
     ) then "(result #{@value.text()})" else ""
 
@@ -117,7 +117,7 @@ class @bonnie.DataCriteria
 
   childrenCriteriaItems: =>
     items = []
-    if @children_criteria.length > 0
+    if @children_criteria?.length > 0
       conjunction = 'or'
       conjunction = 'and' if @derivation_operator == 'XPRODUCT'
       for child in @children_criteria

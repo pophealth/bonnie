@@ -109,15 +109,13 @@
   .subset-operator+.paramGroup {margin-top:0;border-top-left-radius:0}
   .paramGroup {
     margin: 10px 0 10px 10px;
-    border-radius: $radius;
-    -moz-border-radius: $radius;
-    -webkit-border-radius: $radius;
+    @include border-radius($radius);
     padding: 2px;
     display: table;
     &.paramItem {
       @include transition(background-color .2s linear);
     }
-    
+    &.dragged {@include box-shadow(0 0 15px #06f);}
   }
   .paramGroupToggle {
     margin: 0 0 0 20px;
@@ -131,10 +129,19 @@
     display: table;
     margin-left: 10px;
     color: black;
-    cursor:pointer;
     text-transform: lowercase;
+    @include transition(background-color .2s linear);
+
     &.droppable {
       background-color:#fec;
+      @include transition(background-color .2s linear);
+    }
+    &.droppable2 {
+      background-color:#cfe;
+      @include transition(background-color .2s linear);
+    }
+    &.droppable3 {
+      background-color:#ecf;
       @include transition(background-color .2s linear);
     }
     &.highlight {
@@ -147,11 +154,14 @@
     }
     .paramText {
       padding:2px 0 0 45px;
+      cursor:pointer;
     }
     label {
       color: black;
       font-weight: bold;
       padding-right: 4px;
+      cursor:pointer;
+
       .occurrence {
         text-transform: capitalize;
         border-radius: 0;
@@ -227,6 +237,8 @@
   span.block-down-arrow {
     border-top-color:$eligibilityParamGroup;
   }
+  .paramItem.ui-draggable-dragging {border:2px solid $eligibilityParamGroup}
+
   .paramItem .paramText {
 
       &.care, &.communication, &.device, &.diagnostic, &.intervention, &.procedure, &.provider {
@@ -288,6 +300,8 @@
   span.block-down-arrow {
     border-top-color:$outcomeParamGroup;
   }
+  .paramItem.ui-draggable-dragging {border:2px solid $outcomeParamGroup}
+
   .paramItem .paramText {
     &.care, &.communication, &.device, &.diagnostic, &.intervention, &.procedure, &.provider {
       background:transparent url(/assets/treatment_green_dark.png) 0 2px no-repeat;
@@ -312,17 +326,24 @@
 
 #initialPopulation, #patient_data_criteria {
   .paramGroup, .display_name {
-    background-color: #dcdcdc;
+    background-color: $initialPopulationParamGroup;
     .paramGroup, .display_name {
-      background-color: #dcdcdc;
+      margin-left: 10px;
+      background-color: darken($initialPopulationParamGroup,7);
+      width: auto;
       .paramGroup, .display_name {
-        background-color: #dcdcdc;
+        margin-left: 10px;
+        background-color: darken($initialPopulationParamGroup,15);
+        .paramGroup, .display_name {
+          background-color: darken($initialPopulationParamGroup,25);
+        }
       }
     }
     .and {
       background-color: #dddddd;
     }
   }
+  .paramItem.ui-draggable-dragging {border:2px solid $initialPopulationParamGroup}
   .paramItem .paramText {
     &.care, &.communication, &.device, &.diagnostic, &.intervention, &.procedure, &.provider {
         background:transparent url(/assets/treatment_gray.png) 0 2px no-repeat;
@@ -371,6 +392,7 @@
   span.block-down-arrow {
     border-top-color:darken($exclusionsGroup,15);
   }
+  .paramItem.ui-draggable-dragging {outline:2px solid $exclusionsGroup}
   .paramItem .paramText {
     &.care, &.communication, &.device, &.diagnostic, &.intervention, &.procedure, &.provider {
         background:transparent url(/assets/treatment_gray.png) 0 2px no-repeat;
@@ -410,6 +432,7 @@ div.start-drag {color:red !important;background-color:red !important;opacity:0.5
       background-color: #dddddd;
     }
   }
+  .paramItem.ui-draggable-dragging {border:2px solid #dcdcdc}
   .paramItem .paramText {
     &.care, &.communication, &.device, &.diagnostic, &.intervention, &.procedure, &.provider {
         background:transparent url(/assets/treatment_gray.png) 0 2px no-repeat;
@@ -466,22 +489,22 @@ div.start-drag {color:red !important;background-color:red !important;opacity:0.5
          position:relative;
          i {position:relative;top:-2px;opacity:0.5;margin-right:2px}
         }
-      &.care, &.communication, &.device, &.diagnostic, &.intervention, &.procedure, &.provider {
+      &.care, &.communication, &.device, &.diagnostic, &.intervention, &.procedure, &.procedures, &.provider, &.providers {
           background:transparent url(/assets/treatment_gray.png) 0 50% no-repeat;
         }
-        &.diagnosis, &.symptom  {
+        &.diagnosis, &.symptom, &.symptoms, &.condition, &.conditions  {
           background:transparent url(/assets/condition_gray.png) 0 50% no-repeat;
         }
-        &.encounter, &.physical {
+        &.encounter, &.encounters, &.physical, &.physicals, &.physical_exams {
           background:transparent url(/assets/encounter_gray.png) 0 50% no-repeat;
         }
-        &.laboratory, &.diagnostic, &.diagnostic_study ,&.substance {
+        &.laboratory, &.laboratory_tests, &.diagnostic, &.diagnostic_study ,&.substance {
           background:transparent url(/assets/observation_gray.png) 0 50% no-repeat;
         }
-        &.medication {
+        &.medication, &.medications {
           background:transparent url(/assets/medication_gray.png) 0 50% no-repeat;
         }
-        &.patient, &.risk {
+        &.patient, &.patients, &.risk, &.risks, &.characteristic {
           background:transparent url(/assets/demographic_gray.png) 0 50% no-repeat;
         }
 
@@ -658,24 +681,36 @@ div.start-drag {color:red !important;background-color:red !important;opacity:0.5
   }
 }
 
+.widget {
+  //border-left:1px dotted red;
+}
 #patients .row {
   margin: 0em;
   padding: 0em;
   border-bottom: 1px #DDD solid;
-}
 
-#patients .row .span2 {
-  border-left: 1px #DDD solid;
-  text-align: center;
-  margin: 0em;
-  width: 15%;
-  padding: 0em;
-}
+  span {
+    margin-left: 15px;
+  }
 
-#patients .row .name {
-  border-left: 1px #FFF solid;
-  text-align: left;
-  width: 20%;
+  > [class*=span]:last-child {
+      border-left: 1px #DDD solid;
+      margin-left: 0;
+  }
+
+  .span2 {
+    border-left: 1px #DDD solid;
+    text-align: center;
+    margin: 0em;
+    width: 10%;
+    padding: 0em;
+  }
+
+  .name {
+    border-left: 1px #FFF solid;
+    text-align: left;
+    width: 20%;
+  }
 }
 
 #patients #population-total {
@@ -692,6 +727,10 @@ div.start-drag {color:red !important;background-color:red !important;opacity:0.5
 
 #patients #exclusions-total {
   background: #FFCC99;
+}
+
+#patients #exceptions-total {
+  background: #EEE;
 }
 
 #test-submit-button {
