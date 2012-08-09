@@ -60,7 +60,7 @@
           <p class="help-block">Add multiple code sets</p>
           <div id="code_sets[0]" class="well">
             <%= f.fields_for 'code_sets[0]' do |code_set_fields| %>
-              <div class="control-group">
+              <div class="control-group row">
                 <p>Code Set 0</p>
                 <%= code_set_fields.label :code_set, :class=>'control-label' %>
                 <div class="controls">
@@ -91,6 +91,27 @@
                       <%= code_set_fields.text_field 'codes[1]', :class => 'input-small', :value => 'code1' %><br>
                     </div>
                 </div>
+                
+                <%= code_set_fields.label :key, :class => 'control-label' %>
+                <div class="controls">
+                  <%= code_set_fields.text_field :key, :value => 'key' %>
+                </div>
+                
+                <%= code_set_fields.label :oid, :class => 'control-label' %>
+                <div class="controls">
+                  <%= code_set_fields.text_field :oid, :value => '1.2.3' %>
+                </div>
+
+                <%= code_set_fields.label :organization, :class => 'control-label' %>
+                <div class="controls">
+                  <%= code_set_fields.text_field :organization, :value => 'organization' %>
+                </div>
+                
+                <%= code_set_fields.label :version, :class => 'control-label' %>
+                <div class="controls">
+                  <%= code_set_fields.text_field :version, :value => 'version' %>
+                </div>
+                
               </div>
             <% end %><!-- fields_for code_sets[n]-->
           </div><!-- code_sets end -->
