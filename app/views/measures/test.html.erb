@@ -21,7 +21,8 @@
 
 <% content_for :page_content do %>
   <div class="pull-right" id="pageButtons">
-    <%= link_to "Generate Patients", generate_patients_measure_url(@measure), :method => :post, :class => "btn" %>
+    <%# link_to "Generate Patients", generate_patients_measure_url(@measure), :method => :post, :class => "btn" %>
+    <%= link_to "Add Patients", {:action => 'patient_builder'}, {:class => "btn"} %>
     <a href="#downloadPatientsDialog" class="btn" data-toggle="modal" data-backdrop="static" data-keyboard="true">Download Patients</a>
   </div>
 

@@ -3,7 +3,7 @@
     <a class="close" data-dismiss="modal">&times;</a>
     <h3>Download Patients</h3>
   </div>
-  <%= form_for([:download_patients, @measure], :html => {:method => "get", :class => 'form-stacked'}) do |f| %>
+  <%= form_for([:download_patients, @measure], :html => {:method => "get", :class => 'form-stacked', :onsubmit => '$("#downloadPatientsDialog").modal("hide");'}) do |f| %>
     <div class="modal-body">
       <%= f.label :format, "Select patient format:" %>
       <%= select(:download, :format, ["c32", "ccr", "html"]) %>

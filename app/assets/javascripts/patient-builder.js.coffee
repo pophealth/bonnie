@@ -109,7 +109,7 @@ class @bonnie.PatientBuilder
       @timelineToDataCriteria(data_criteria)
       $('#workspace').empty()
       $('.paramItem').removeClass('editing')
-      )
+    )
 
   sortSelectedDataCriteria: () =>
     container = $('#patient_data_criteria');
@@ -187,12 +187,15 @@ class PatientBuilderPage
           if data_criteria.id == 'MeasurePeriod'
             $('#measure_period_start').datetimepicker('setDate', new Date(data_criteria.start_date));
             $('#measure_period_end').datetimepicker('setDate', new Date(data_criteria.end_date));
+            onLoadTimeline();
           else
             criteria = fillDrop({target: $('#patient_data_criteria')}, {draggable: $('[data-criteria-id=' + data_criteria.id + ']')});
             criteria.start_date = data_criteria.start_date
             criteria.end_date = data_criteria.end_date
             criteria.value = data_criteria.value
             criteria.value_unit = data_criteria.value_unit
+            bonnie.patientBuilder.timelineToDataCriteria(criteria)
+        bonnie.patientBuilder.updateTimeline()
         $('#workspace .close_edit').click()
       )
 

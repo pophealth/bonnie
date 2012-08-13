@@ -13,10 +13,19 @@
     $('#birthdate').datetimepicker();
 
     $('#measure_period_start').datepicker({
-      onSelect: function(selectedDate) {$( "#measure_period_end" ).datepicker( "option", "minDate", selectedDate );onLoadTimeline();}
-    });
+      onSelect: function(selectedDate) {
+        $( "#measure_period_end" ).datepicker( "option", "minDate", null );
+        datechange.call(this, $.Deferred().done(
+          function(){
+            $( "#measure_period_end" ).datepicker( "option", "minDate", selectedDate );
+            onLoadTimeline();
+            bonnie.patientBuilder.updateTimeline();
+          }
+        ));
+      }
+    }).focus(function(){bonnie.patientBuilder.measurePeriodOrig = new Date($(this).val());});
     $('#measure_period_end').datepicker({
-      onSelect: function(selectedDate) {$( "#measure_period_start" ).datepicker( "option", "maxDate", selectedDate );onLoadTimeline();}
+      onSelect: function(selectedDate) {$( "#measure_period_start" ).datepicker( "option", "maxDate", selectedDate ); onLoadTimeline();}
     });
     $('.timepicker-default').timepicker();
 
@@ -33,6 +42,9 @@
 
       bonnie.patientBuilder.updateTimeline();
       bonnie.timeline.getBand(0).setCenterVisibleDate(date)
+
+      // Fixes FF redirect bug
+      e.preventDefault();
     }).on('selectstart', function(e){ e.preventDefault(); });
 
     onLoadTimeline();
@@ -83,62 +95,121 @@
     return data_criteria;
   }
 
+  var datechange = function(deferred){
+    var prev = bonnie.patientBuilder.measurePeriodOrig, next = new Date($(this).val()), offsetstring = 'forward by ';
+    if (prev.getTime() == next.getTime()) return;
+    $(this).blur();
+    if (prev > next){
+      var temp = next;
+      next = prev;
+      prev = temp;
+      offsetstring = 'backward by ';
+      var reversed = true;
+    }
+    var offset = [
+      next.getFullYear() - prev.getFullYear(),
+      next.getMonth() - prev.getMonth(),
+      next.getDate() - prev.getDate()
+    ];
+
+    if (offset[2] < 0) offset[1]--;
+    if (offset[1] < 0){
+      offset[0]--;
+      offset[1] += 12;
+    }
+    if (offset[2] < 0) offset[2] += 32 - new Date(next.getFullYear() - ((next.getMonth() - prev.getMonth()) < 0 ? 1 : 0), (next.getMonth() + 11) % 12, 32).getDate()
+
+    offsetstring += (offset[0] ? offset[0] + ' year' + (offset[0] == 1 ? '' : 's') + ' ' : '') +
+      (offset[1] ? offset[1] + ' month' + (offset[1] == 1 ? '' : 's') + ' ' : '') +
+      (offset[2] ? offset[2] + ' day' + (offset[2] == 1 ? '' : 's') + ' ' : '')
+
+    if (reversed) offset = offset.map(function(e){ return -e; });
+
+    $('#bonnie_tmpl_confirm_shift').tmpl({offsetstring: offsetstring}).appendTo(document.body).modal().on('hidden',
+      function(){
+        if (deferred) deferred.resolve();
+        $(this).remove();
+      }
+    ).find('.btn.btn-primary').click(
+      function(){
+        var old_date = new Date($('#birthdate').val());
+        $('#birthdate').datetimepicker('setDate', new Date(old_date.getFullYear() + offset[0], old_date.getMonth() + offset[1], old_date.getDate() + offset[2], old_date.getHours(), old_date.getMinutes(), old_date.getSeconds(), old_date.getMilliseconds()));
+        old_date = new Date($('#measure_period_end').val());
+        $('#measure_period_end').datetimepicker('setDate', new Date(old_date.getFullYear() + offset[0], old_date.getMonth() + offset[1], old_date.getDate() + offset[2]));
+
+        $.each(bonnie.patientBuilder.selected_data_criteria,
+          function(i, e){
+            var old_date = new Date(e.start_date);
+            e.start_date = new Date(old_date.getFullYear() + offset[0], old_date.getMonth() + offset[1], old_date.getDate() + offset[2], old_date.getHours(), old_date.getMinutes(), old_date.getSeconds(), old_date.getMilliseconds());
+            old_date = new Date(e.end_date);
+            e.end_date = new Date(old_date.getFullYear() + offset[0], old_date.getMonth() + offset[1], old_date.getDate() + offset[2], old_date.getHours(), old_date.getMinutes(), old_date.getSeconds(), old_date.getMilliseconds());
+          }
+        );
+
+        old_date = bonnie.timeline.getBand(0).getCenterVisibleDate();
+        bonnie.timeline.getBand(0).setCenterVisibleDate(new Date(old_date.getFullYear() + offset[0], old_date.getMonth() + offset[1], old_date.getDate() + offset[2], old_date.getHours(), old_date.getMinutes(), old_date.getSeconds(), old_date.getMilliseconds()));
+
+        $(this).parent().parent().modal('hide');
+      }
+    );
+  }
+
   </script>
   <!-- Load the Timeline library after reseting the fonts, etc -->
   <script src="/timeline_js/timeline-api.js?bundle=true&forceLocale=en" type="text/javascript"></script>
 
 
   <script type="text/javascript">
-       var tl;
-      SimileAjax.History.enabled = false;
-      Timeline.OriginalEventPainter.prototype.paintPreciseInstantEvent = function(evt, metrics, theme, highlightIndex) {
-        var doc = this._timeline.getDocument();
-        var text = evt.getText();
+    var tl;
+    SimileAjax.History.enabled = false;
+    Timeline.OriginalEventPainter.prototype.paintPreciseInstantEvent = function(evt, metrics, theme, highlightIndex) {
+      var doc = this._timeline.getDocument();
+      var text = evt.getText();
 
-        var startDate = evt.getStart();
-        var startPixel = Math.round(this._band.dateToPixelOffset(startDate));
-        var iconRightEdge = Math.round(startPixel + metrics.iconWidth / 2);
-        var iconLeftEdge = Math.round(startPixel - metrics.iconWidth / 2);
+      var startDate = evt.getStart();
+      var startPixel = Math.round(this._band.dateToPixelOffset(startDate));
+      var iconRightEdge = Math.round(startPixel + metrics.iconWidth / 2);
+      var iconLeftEdge = Math.round(startPixel - metrics.iconWidth / 2);
 
-        var labelDivClassName = this._getLabelDivClassName(evt);
-        var labelSize = this._frc.computeSize(text, labelDivClassName);
-        var labelLeft = iconRightEdge + theme.event.label.offsetFromLine;
-        var labelRight = labelLeft + labelSize.width;
+      var labelDivClassName = this._getLabelDivClassName(evt);
+      var labelSize = this._frc.computeSize(text, labelDivClassName);
+      var labelLeft = iconRightEdge + theme.event.label.offsetFromLine;
+      var labelRight = labelLeft + labelSize.width;
 
-        var rightEdge = labelRight;
-        var track = this._findFreeTrack(evt, rightEdge);
+      var rightEdge = labelRight;
+      var track = this._findFreeTrack(evt, rightEdge);
 
-        var labelTop = Math.round(
-            metrics.trackOffset + track * metrics.trackIncrement +
-            metrics.trackHeight / 2 - labelSize.height / 2);
+      var labelTop = Math.round(
+          metrics.trackOffset + track * metrics.trackIncrement +
+          metrics.trackHeight / 2 - labelSize.height / 2);
 
-        var iconElmtData = this._paintEventIcon(evt, track, iconLeftEdge, metrics, theme, 0);
-        var labelElmtData = this._paintEventLabel(evt, text, labelLeft, labelTop, labelSize.width,
-            labelSize.height, theme, labelDivClassName, highlightIndex);
-        var els = [iconElmtData.elmt, labelElmtData.elmt];
+      var iconElmtData = this._paintEventIcon(evt, track, iconLeftEdge, metrics, theme, 0);
+      var labelElmtData = this._paintEventLabel(evt, text, labelLeft, labelTop, labelSize.width,
+          labelSize.height, theme, labelDivClassName, highlightIndex);
+      var els = [iconElmtData.elmt, labelElmtData.elmt];
 
-        var self = this;
-        var clickHandler = function(elmt, domEvt, target) {
-            $('[data-criteria-id=' + evt._id + ']').trigger('click');
-        };
-        SimileAjax.DOM.registerEvent(iconElmtData.elmt, "dragstart",
-          function(elmt, domEvt, target){
-            domEvt.dataTransfer.setData('text', evt._id);
-          }
-        );
-        SimileAjax.DOM.registerEvent(iconElmtData.elmt, "mousedown",
-          function(elmt, domEvt){domEvt.stopPropagation();}
-        );
-        SimileAjax.DOM.registerEvent(iconElmtData.elmt, "click", clickHandler);
-        SimileAjax.DOM.registerEvent(labelElmtData.elmt, "click", clickHandler);
+      var self = this;
+      var clickHandler = function(elmt, domEvt, target) {
+          $('[data-criteria-id=' + evt._id + ']').trigger('click');
+      };
+      SimileAjax.DOM.registerEvent(iconElmtData.elmt, "dragstart",
+        function(elmt, domEvt, target){
+          domEvt.dataTransfer.setData('text', evt._id);
+        }
+      );
+      SimileAjax.DOM.registerEvent(iconElmtData.elmt, "mousedown",
+        function(elmt, domEvt){domEvt.stopPropagation();}
+      );
+      SimileAjax.DOM.registerEvent(iconElmtData.elmt, "click", clickHandler);
+      SimileAjax.DOM.registerEvent(labelElmtData.elmt, "click", clickHandler);
 
-        var hDiv = this._createHighlightDiv(highlightIndex, iconElmtData, theme, evt);
-        if (hDiv != null) {els.push(hDiv);}
-        this._fireEventPaintListeners('paintedEvent', evt, els);
+      var hDiv = this._createHighlightDiv(highlightIndex, iconElmtData, theme, evt);
+      if (hDiv != null) {els.push(hDiv);}
+      this._fireEventPaintListeners('paintedEvent', evt, els);
 
 
-        this._eventIdToElmt[evt.getID()] = iconElmtData.elmt;
-        this._tracks[track] = iconLeftEdge;
+      this._eventIdToElmt[evt.getID()] = iconElmtData.elmt;
+      this._tracks[track] = iconLeftEdge;
     };
 
     Timeline.OriginalEventPainter.prototype.paintImpreciseInstantEvent = function(evt, metrics, theme, highlightIndex) {
@@ -423,6 +494,21 @@
   </script>
 
 
+  <script type="text/html" id="bonnie_tmpl_confirm_shift">
+    <div class="modal hide fade in">
+      <div class="modal-header">
+        <h3>Confirm Date Shift</h3>
+      </div>
+      <div class="modal-body">
+        <p>You have shifted the measurement period ${offsetstring}</p>
+        <p>Would you like to shift this record ${offsetstring}?</p>
+      </div>
+      <div class="modal-footer">
+        <button class="close btn" data-dismiss="modal">No</button>
+        <button class="btn btn-primary">Yes</button>
+      </div>
+    </div>
+  </script>
   <script type="text/html" id="bonnie_tmpl_data_criteria">
     <div class="paramGroup population" {{if id}}data-criteria-id='${id}'{{/if}}>
       <div class='paramItem logicLeaf'>
@@ -597,7 +683,7 @@
               Birthdate:
             </div>
             <div class="span4">
-              <input type="text" class="span3" value="<%= Time.at(@record['birthdate'] || 946715400).strftime('%m/%d/%Y') %>" name="birthdate" id="birthdate" style="z-index:5000; position: relative;" >
+              <input type="text" class="span3" value="<%= Time.at(@record['birthdate'] || 946715400).strftime('%m/%d/%Y %M:%S') %>" name="birthdate" id="birthdate" style="z-index:5000; position: relative;" >
             </div>
           </div>
           <div class="row">

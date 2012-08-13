@@ -184,8 +184,8 @@ class @bonnie.Value
       '='
     else
       ''
-  equals: (other) ->
-    return @type == other.type && @value == other.value && @unit == other.unit && @inclusive == other.inclusive
+  equals: (other) =>
+    return other && @type == other.type && @value == other.value && @unit == other.unit && @inclusive == other.inclusive
 
 class @bonnie.Coded
   constructor: (value) ->
