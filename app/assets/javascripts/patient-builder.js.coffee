@@ -173,9 +173,11 @@ class @bonnie.PatientBuilder
         measure_period_start: new Date($('#measure_period_start').val()).getTime()
         measure_period_end: new Date($('#measure_period_end').val()).getTime()
         data_criteria: JSON.stringify(data_criteria)
-      },
+      }
       success: (r)->
         document.location.href = $(form).find('input.redirect_url[type=hidden]').val() if r
+      error: (XHR, title, r)->
+        alert(title + "\n" + r)
     });
 
 class PatientBuilderPage

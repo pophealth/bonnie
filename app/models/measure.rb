@@ -1,6 +1,10 @@
 class Measure
   include Mongoid::Document
 
+  DEFAULT_EFFECTIVE_DATE=Time.new(2011,1,1).to_i
+
+  store_in :draft_measures
+
   field :endorser, type: String
   field :measure_id, type: String
   field :title, type: String

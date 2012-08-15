@@ -1,5 +1,5 @@
 module MeasuresHelper
-  
+
   def include_js_libs(libs)
     library_functions = Measures::Exporter.library_functions
     js = ""
@@ -9,27 +9,27 @@ module MeasuresHelper
     end
     js << library_functions['hqmf_utils'] + "\n"
   end
-  
+
   # create a javascript object for the debug view
   def include_js_debug(id, patient_ids, population=0)
 
     population = population.to_i
     measure = Measure.find(id)
     measure_js = Measures::Exporter.execution_logic(measure, population)
-    
+
     patient_json = Record.find(patient_ids).to_json
 
     @js = "execute_measure = function(patient) {\n #{measure_js} \n}\n"
     @js << "emitted = []; emit = function(id, value) { emitted.push(value); } \n"
     @js << "ObjectId = function(id, value) { return 1; } \n"
-    
+
     @js << "// #########################\n"
     @js << "// ######### PATIENT #######\n"
     @js << "// #########################\n\n"
-    
+
     @js << "var patient = #{patient_json};\n"
 
-    return @js    
+    return @js
   end
 
   def dc_category_style(category)
@@ -44,7 +44,7 @@ module MeasuresHelper
       category
     end
   end
-  
+
   def data_criteria_by_category(data_criteria)
     by_category = {}
     data_criteria.each do |key, criteria|
@@ -55,5 +55,5 @@ module MeasuresHelper
     end if data_criteria
     by_category
   end
-  
+
 end

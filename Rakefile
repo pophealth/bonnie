@@ -5,3 +5,5 @@
 require File.expand_path('../config/application', __FILE__)
 
 Bonnie::Application.load_tasks
+ENV['DB_NAME'] = "bonnie-#{Rails.env}"
+task "resque:setup" => :environment

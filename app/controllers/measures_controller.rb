@@ -1,5 +1,5 @@
 class MeasuresController < ApplicationController
-
+  include Measures::DatabaseAccess
   layout :select_layout
   before_filter :authenticate_user!
   before_filter :validate_authorization!
@@ -17,16 +17,16 @@ class MeasuresController < ApplicationController
   end
 
   def show
-    @measure = Measure.find(params[:id])
+    @measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
   end
 
   def show_nqf
-    @measure = Measure.find(params[:id])
+    @measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
     @contents = File.read(File.expand_path(File.join('.','tmp','measures','html',"#{@measure.id}.html")))
   end
 
   def publish
-    @measure = Measure.find(params[:id])
+    @measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
     @measure.publish
 
     @show_published=true
@@ -47,7 +47,7 @@ class MeasuresController < ApplicationController
 
   def edit
     @editing=true
-    @measure = Measure.find(params[:id])
+    @measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
   end
 
   def create
@@ -66,14 +66,14 @@ class MeasuresController < ApplicationController
   end
 
   def upsert_criteria
-    @measure = Measure.find(params[:id])
+    @measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
     criteria = {"id" => params[:criteria_id]  || BSON::ObjectId.new.to_s, "type" => params['type']}
     ["title", "code_list_id", "description", "qds_data_type", 'negation_code_list_id'].each { |f| criteria[f] = params[f] if !params[f].blank?}
 
 
     # Do that HQMF Processing
     criteria = {'id' => criteria['id'] }.merge JSON.parse(HQMF::DataCriteria.create_from_category(criteria['id'], criteria['title'], criteria['description'], criteria['code_list_id'], params['category'], params['subcategory'], !criteria['negation'].blank?, criteria['negation_code_list_id']).to_json.to_json).flatten[1]
-    
+
     ["display_name"].each { |f| criteria[f] = params[f] if !params[f].nil?}
     ["property", "children_criteria"].each { |f| criteria[f] = params[f] if !params[f].blank?}
 
@@ -87,14 +87,14 @@ class MeasuresController < ApplicationController
   end
 
   def update
-    @measure = Measure.find(params[:id])
+    @measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
     @measure.update_attributes!(params[:measure])
 
     redirect_to @measure, notice: 'Measure was successfully updated.'
   end
 
   def destroy
-    @measure = Measure.find(params[:id])
+    @measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
     @measure.destroy
 
     redirect_to measures_url
@@ -114,20 +114,20 @@ class MeasuresController < ApplicationController
   end
 
   def definition
-    measure = Measure.find(params[:id])
+    measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
     population_index = params[:population].to_i if params[:population]
     population = measure.parameter_json(population_index)
     render :json => population
   end
 
   def population_criteria_definition
-    measure = Measure.find(params[:id])
+    measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
     population = measure.population_criteria_json(measure.population_criteria[params[:key]])
     render :json => population
   end
 
   def export
-    measure = Measure.find(params[:id])
+    measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
 
     file = Tempfile.new(["#{measure.id}-#{Time.now.to_i}", ".zip"])
     Measures::Exporter.export(file, [measure])
@@ -145,7 +145,7 @@ class MeasuresController < ApplicationController
   end
 
   def generate_patients
-    measure = Measure.find(params[:id])
+    measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
     measure.records.destroy_all
 
     begin
@@ -159,14 +159,14 @@ class MeasuresController < ApplicationController
   end
 
   def download_patients
-    measure = Measure.find(params[:id])
+    measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
     zip = TPG::Exporter.zip(measure.records, "c32")
 
     send_file zip.path, :type => 'application/zip', :disposition => 'attachment', :filename => "patients.zip"
   end
 
   def debug
-    @measure = Measure.find(params[:id])
+    @measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
     @patient = Record.find(params[:record_id])
     @population = (params[:population] || 0).to_i
 
@@ -192,12 +192,13 @@ class MeasuresController < ApplicationController
 
   def test
     @population = params[:population] || 0
-    @measure = Measure.find(params[:id])
-    @patient_names = @measure.records.entries.collect {|r| [
-      "#{r[:first]} #{r[:last]}",
+    @measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
+    @patient_names = (Record.all.sort {|left, right| left.last <=> right.last }).collect {|r| [
+      "#{r[:last]}, #{r[:first]}",
       r[:_id].to_s,
       {'description' => r['description'], 'category' => r['description_category']},
-      {'start' => r['measure_period_start'], 'end' => r['measure_period_end']}
+      {'start' => r['measure_period_start'], 'end' => r['measure_period_end']},
+      r['measure_id']
     ]}
 
     # we need to manipulate params[:patients] but it's immutable?
@@ -215,7 +216,7 @@ class MeasuresController < ApplicationController
   ## POPULATIONS
   ####
   def update_population
-    @measure = Measure.find(params[:id])
+    @measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
     index = params['index'].to_i
     title = params['title']
     @measure.populations[index]['title'] = title
@@ -224,14 +225,14 @@ class MeasuresController < ApplicationController
   end
 
   def delete_population
-    @measure = Measure.find(params[:id])
+    @measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
     index = params['index'].to_i
     @measure.populations.delete_at(index)
     @measure.save!
     render partial: 'populations', locals: {measure: @measure}
   end
   def add_population
-    @measure = Measure.find(params[:id])
+    @measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
     population = {}
     population['title']= params['title']
 
@@ -250,7 +251,7 @@ class MeasuresController < ApplicationController
     render partial: 'populations', locals: {measure: @measure}
   end
   def update_population_criteria
-    @measure = Measure.find(params[:id])
+    @measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
     @measure.create_hqmf_preconditions(params['data'])
     @measure.save!
     render :json => {
@@ -266,51 +267,110 @@ class MeasuresController < ApplicationController
   end
 
   def name_precondition
-    @measure = Measure.find(params[:id])
+    @measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
     @measure.name_precondition(params[:precondition_id], params[:name])
     render :json => @measure.save!
   end
 
   def save_data_criteria
-    @measure = Measure.find(params[:id])
+    @measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
     @measure.data_criteria[params[:criteria_id]]['saved'] = true
     render :json => @measure.save!
   end
 
   def patient_builder
-    @measure = Measure.find(params[:id])
-    @record = @measure.records.select{|r| r['_id'].to_s == params[:patient_id]}[0] || {}
+    @measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
+    @record = Record.where({'_id' => params[:patient_id]}).first || {}
+    @data_criteria = Hash[
+      *Measure.where({'measure_id' => {'$in' => (@record['measure_ids'] || []) << @measure['measure_id']}}).map{|m|
+        m.source_data_criteria.reject{|k,v|
+          ['patient_characteristic_birthdate','patient_characteristic_gender', 'patient_characteristic_expired'].include?(v['definition'])
+        }
+      }.map(&:to_a).flatten
+    ]
+    @value_sets = Measure.where({'measure_id' => {'$in' => @record['measure_ids'] || []}}).map{|m| m.value_sets}.flatten(1).uniq
   end
 
   def make_patient
-    @measure = Measure.find(params[:id])
-    values = Hash[@measure.value_sets.map{|v| [v['oid'], v]}]
+    @measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
+    
+    patient = Record.where({'_id' => params['record_id']}).first || HQMF::Generator.create_base_patient(params.select{|k| ['first', 'last', 'gender', 'expired', 'birthdate'].include?k })
+
+    # clear out patient data
+    if (patient.id)
+      ['allergies', 'care_goals', 'conditions', 'encounters', 'immunizations', 'medical_equipment', 'medications', 'procedures', 'results', 'social_history', 'vital_signs'].each do |section|
+        patient[section] = [] if patient[section]
+      end
+      patient.save!
+    end
+
+    patient['measure_ids'] ||= []
+    patient['measure_ids'] = Array.new(patient['measure_ids']).push(@measure['measure_id']) unless patient['measure_ids'].include? @measure['measure_id']
+    
+    values = Hash[
+      *Measure.where({'measure_id' => {'$in' => patient['measure_ids'] || []}}).map{|m|
+        m.value_sets.map{|v| [v['oid'], v]}
+      }.map(&:to_a).flatten
+    ]
+
     params['birthdate'] = params['birthdate'].to_i / 1000
-    patient = HQMF::Generator.create_base_patient(params.select{|k| ['first', 'last', 'gender', 'expired', 'birthdate'].include?k })
+    
+    @data_criteria = Hash[
+      *Measure.where({'measure_id' => {'$in' => patient['measure_ids'] || []}}).map{|m|
+        m.source_data_criteria.reject{|k,v|
+          ['patient_characteristic_birthdate','patient_characteristic_gender', 'patient_characteristic_expired'].include?(v['definition'])
+        }
+      }.map(&:to_a).flatten
+    ]
+    
+    ['first', 'last', 'gender', 'expired', 'birthdate', 'description', 'description_category'].each {|param| patient[param] = params[param]}
     patient['source_data_criteria'] = JSON.parse(params['data_criteria'])
-    patient['description'] = params['description']
-    patient['description_category'] = params['description_category']
     patient['measure_period_start'] = params['measure_period_start'].to_i
     patient['measure_period_end'] = params['measure_period_end'].to_i
+    
     JSON.parse(params['data_criteria']).each {|v|
-      data_criteria = HQMF::DataCriteria.from_json(v['id'], @measure.source_data_criteria[v['id']])
+      data_criteria = HQMF::DataCriteria.from_json(v['id'], @data_criteria[v['id']])
       data_criteria.modify_patient(patient, HQMF::Range.from_json({
         'low' => {'value' => Time.at(v['start_date'] / 1000).strftime('%Y%m%d')},
         'high' => {'value' => Time.at(v['end_date'] / 1000).strftime('%Y%m%d')}
       }), HQMF::Range.from_json('low' => {'value' => v['value'], 'unit' => v['value_unit']}), values[data_criteria.code_list_id])
     }
+
     patient['source_data_criteria'].push({'id' => 'MeasurePeriod', 'start_date' => params['measure_period_start'].to_i, 'end_date' => params['measure_period_end'].to_i})
-    if params['record_id'].blank?
-      @measure.records.push(patient)
+
+    if @measure.records.include? patient
+      render :json => patient.save!
     else
-      @measure.records = @measure.records.map{|r| if r['_id'].to_s == params['record_id'] then patient else r end }
+      @measure.records.push(patient)
+      render :json => @measure.save!
     end
-    render :json => @measure.save!
+
   end
 
   def delete_patient
-    @measure = Measure.find(params[:id])
+    @measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
     @measure.records = @measure.records.reject{|v| v['_id'].to_s == params['victim']}
     render :json => @measure.save!
   end
+
+  def matrix
+  end
+
+  def generate_matrix
+    (params[:id] ? [current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first] : Measure.all.to_a).each{|m|
+      MONGO_DB['query_cache'].remove({'measure_id' => m['measure_id']})
+      MONGO_DB['patient_cache'].remove({'value.measure_id' => m['measure_id']})
+      (m['populations'].length > 1 ? ('a'..'zz').to_a.first(m['populations'].length) : [nil]).each{|sub_id|
+        p 'Calculating measure ' + m['measure_id'] + (sub_id || '')
+        qr = QME::QualityReport.new(m['measure_id'], sub_id, {'effective_date' => (params['effective_date'] || Measure::DEFAULT_EFFECTIVE_DATE).to_i }.merge(params['providers'] ? {'filters' => {'providers' => params['providers']}} : {}))
+        qr.calculate(false) unless qr.calculated?
+      }
+    }
+    redirect_to :action => 'matrix'
+  end
+
+  def matrix_data
+    render :json => MONGO_DB['patient_cache'].find({}, :fields => ['population', 'denominator', 'numerator', 'denexcep', 'exclusions', 'first', 'last', 'gender', 'measure_id', 'birthdate', 'patient_id', 'sub_id'].map{|k| 'value.'+k } )
+  end
+
 end

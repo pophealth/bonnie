@@ -1,0 +1,224 @@
+<% content_for :head do %>
+  <style type="text/css">
+  .background {
+    fill: #eee;
+  }
+
+  line {
+    stroke: #fff;
+  }
+
+  text.active {
+    fill: red;
+  }
+  </style>
+
+  <script type="text/javascript">
+  $(document).ready(
+    function(){
+      $('#loadingModal').modal({backdrop:'static',keyboard:false});
+      $('#loading_image').load(
+        function(){
+          d3.json("<%= url_for :action => 'matrix_data' %>", function(raw_data) {
+          $('#loadingModal').modal('hide');
+          var headers = [], matrix = [], nodes = [], row_info = {};
+          raw_data.forEach(
+            function(e){
+              var index = (index = headers.indexOf(e.value.measure_id + (e.value.sub_id || ''))) > -1 ? index : headers.push(e.value.measure_id + (e.value.sub_id || '')) - 1;
+              row_info[e.value.patient_id] = {
+                first: e.value.first,
+                last: e.value.last
+              };
+              var indey = nodes.indexOf(e.value.patient_id);
+              (matrix[indey] || matrix[matrix.push([]) - 1])[index] = {
+                x: index,
+                y: indey > -1 ? indey : nodes.push(e.value.patient_id) - 1,
+                z: 4,
+                category: e.value.exclusions ? 5 : e.value.numerator ? 4 : e.value.denominator ? 3 : e.value.denexcep ? 2 : e.value.population ? 1 : 0
+              }
+            }
+          );
+
+          n = matrix.length;
+
+          var margin = {top: 120, right: 0, bottom: 10, left: 150},
+              width = $('#pageContent').width() - 300 - margin.left - margin.right,
+              height = n * 15 + margin.top + margin.bottom + 100;
+
+          var x = d3.scale.ordinal().rangeBands([0, width]),
+              y = d3.scale.ordinal().rangeBands([0, height]),
+              z = d3.scale.linear().domain([0, 4]).clamp(true),
+              c = d3.scale.category10().domain(d3.range(10)),
+              colors = ['#eeeeee', '#cccccc', '#cccccc', '#40b3bc', '#9cc45e', '#eda039'];
+
+          d3.range(6).forEach(
+            function(i){
+              d3.select('#key').append('div')
+                .style('background', colors[i])
+                .text(['None','Population','Exceptions','Denominator','Numerator','Exclusions'][i])
+                .on('click',
+                  function(){
+                    var hl = $(this).parent().children().toArray().indexOf(this);
+                    d3.selectAll('.cell').each(
+                      function(i){
+                        $(this).css('opacity', !hl || i.category == hl ? 1 : .4);
+                      }
+                    );
+                  }
+                );
+            }
+          );
+
+          var svg = d3.select("#pageContent").append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .style("margin-left", 'auto')
+          .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+          // Precompute the orders.
+          var orders = {
+            name: {
+              x: d3.range(headers.length).sort(function(a, b) { return d3.ascending(headers[a], headers[b]); }),
+              y: d3.range(n).sort(function(a, b) { return d3.ascending(row_info[nodes[a]].last+row_info[nodes[a]].first, row_info[nodes[b]].last+row_info[nodes[b]].first); })
+            },
+            density: {
+              x: d3.range(headers.length).sort(function(a, b){ return matrix.reduce(function(p, e){ return p + (e[b] && e[b].category ? 1 : 0) - (e[a] && e[a].category ? 1: 0); }, 0); }),
+              y: d3.range(n).sort(function(a, b){ return matrix[b].reduce(function(p, e){ return p + (e.category ? 1 : 0) }, 0) - matrix[a].reduce(function(p, e){ return p + (e.category ? 1 : 0); }, 0); })
+            }
+          };
+          x.domain(orders.name.x);
+          y.domain(orders.name.y);
+
+          svg.append("rect")
+              .attr("class", "background")
+              .attr("width", width)
+              .attr("height", height);
+
+          var row = svg.selectAll(".row")
+              .data(matrix)
+            .enter().append("g")
+              .attr("class", "row")
+              .attr("transform", function(d, i) { return "translate(0," + y(i) + ")"; })
+              .each(row);
+
+          row.append("line")
+              .attr("x2", width);
+
+          row.append("text")
+              .attr("x", -6)
+              .attr("y", x.rangeBand() / 2)
+              .attr("dy", ".32em")
+              .attr("text-anchor", "end")
+              .text(function(d, i) { return row_info[nodes[i]].last+', '+row_info[nodes[i]].first; });
+
+          var column = svg.selectAll(".column")
+              .data(headers)
+            .enter().append("g")
+              .attr("class", "column")
+              .attr("transform", function(d, i) { return "translate(" + x(i) + ")rotate(-90)"; });
+
+          column.append("line")
+              .attr("x1", -width);
+
+          column.append("text")
+              .attr("x", 6)
+              .attr("y", x.rangeBand() / 2)
+              .attr("dy", ".32em")
+              .attr("text-anchor", "start")
+              .text(function(d, i) { return headers[i]; })
+              .on('click', function(i){document.location.href = '/measures/' + i.replace(/(\d+)[a-z]{1,2}/, "$1");});
+
+          function row(row) {
+            var cell = d3.select(this).selectAll(".cell")
+                .data(row.filter(function(d) { return d.z; }))
+              .enter().append("rect")
+                .attr("class", "cell")
+                .attr("x", function(d) { return x(d.x); })
+                .attr("width", x.rangeBand())
+                .attr("height", y.rangeBand())
+                .style("fill-opacity", function(d) { return z(d.z); })
+                .style("fill", function(d){return colors[d.category] })
+                .on("mouseover", mouseover)
+                .on("mouseout", mouseout)
+                .on('click',
+                  function(i){
+                    document.location.href = '<%= url_for edit_patient_measure_path(:id => '$1', :patient_id => '$2') %>'.replace(/\$(\d+)\b/g,
+                      function(m, g1){
+                        return [headers[i.x].replace(/(\d+)[a-z]{1,2}/, "$1"), nodes[i.y]][g1-1];
+                      }
+                    );
+                  }
+                );
+          }
+
+          function mouseover(p) {
+            d3.selectAll(".row text").classed("active", function(d, i) { return i == p.y; });
+            d3.selectAll(".column text").classed("active", function(d, i) { return i == p.x; });
+          }
+
+          function mouseout() {
+            d3.selectAll("text").classed("active", false);
+          }
+
+          d3.select("#orderCol").on("change", function() {
+            orderCol(this.value);
+          });
+
+          d3.select("#orderRow").on("change", function() {
+            orderRow(this.value);
+          });
+
+          function orderRow(row) {
+            if (orders[row] && orders[row].y) y.domain(orders[row].y);
+
+            var t = svg.transition().duration(2500);
+
+            t.selectAll(".row")
+                .delay(function(d, i) { return y(i) / 2 ; })
+                .attr("transform", function(d, i) { return "translate(0," + y(i) + ")"; })
+          }
+          function orderCol(col){
+            if (orders[col] && orders[col].x) x.domain(orders[col].x);
+
+            var t = svg;//.transition().duration(2500);
+
+            t.selectAll(".row .cell")
+                //.delay(function(d) { return x(d.x) * 4; })
+                .attr("x", function(d) { return x(d.x); });
+
+            t.selectAll(".column")
+                //.delay(function(d, i) { return x(i) * 4; })
+                .attr("transform", function(d, i) { return "translate(" + x(i) + ")rotate(-90)"; });
+
+          }
+        });
+      });
+    }
+  );
+  </script>
+
+<% end %>
+
+<% content_for :page_content do %>
+  <aside style="margin-top:80px;">
+  <%= link_to 'Generate Matrix Data', {:action => 'generate_matrix'}, {:class => 'btn', :onclick => "$('#loadingModal').modal({backdrop:'static',keyboard:false});", :style => 'margin: 5px 10px 15px 20px'} %>
+  <p>Order Measures: <select id="orderCol">
+    <option value="name">by Name</option>
+    <option value="density">by Density</option>
+  </select>
+  </p>
+  <p>Order Rows: <select id="orderRow">
+    <option value="name">by Name</option>
+    <option value="density">by Density</option>
+  </select>
+  </p>
+  <p id="key"></p>
+  </aside>
+  <div class="modal hide fade in" id="loadingModal">
+    <div class="modal-body" style="text-align: center;">
+      <img id="loading_image" src="/assets/loading.gif" />
+    </div>
+  </div>
+<% end %>
+

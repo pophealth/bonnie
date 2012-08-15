@@ -2,9 +2,9 @@
   <script type="text/javascript">
 
   var page = new PatientBuilderPage(
-    <%= @measure.all_data_criteria.to_json.html_safe %>,
-    <%= @measure.value_sets.to_json.html_safe %>,
-    <%= if params['patient_id'] then @measure.records.select{|v| v['_id'].to_s == params['patient_id']}[0]['source_data_criteria'] end .to_json.html_safe %>
+    <%= @data_criteria.to_json.html_safe %>,
+    <%= @value_sets.to_json.html_safe %>,
+    <%= @record['source_data_criteria'].to_json.html_safe %>
   );
 
   $(document).ready(function() {
@@ -37,8 +37,10 @@
       data_criteria.end_date += date.getTime() -  data_criteria.start_date;
       data_criteria.start_date = date.getTime();
 
-      $('#element_start').datetimepicker('setDate', new Date(data_criteria.start_date));
-      $('#element_end').datetimepicker('setDate', new Date(data_criteria.end_date));
+      if (data_criteria.id == $('#element_id').val()){
+        $('#element_start').datetimepicker('setDate', new Date(data_criteria.start_date));
+        $('#element_end').datetimepicker('setDate', new Date(data_criteria.end_date));
+      }
 
       bonnie.patientBuilder.updateTimeline();
       bonnie.timeline.getBand(0).setCenterVisibleDate(date)
@@ -140,9 +142,13 @@
         $.each(bonnie.patientBuilder.selected_data_criteria,
           function(i, e){
             var old_date = new Date(e.start_date);
-            e.start_date = new Date(old_date.getFullYear() + offset[0], old_date.getMonth() + offset[1], old_date.getDate() + offset[2], old_date.getHours(), old_date.getMinutes(), old_date.getSeconds(), old_date.getMilliseconds());
+            e.start_date = new Date(old_date.getFullYear() + offset[0], old_date.getMonth() + offset[1], old_date.getDate() + offset[2], old_date.getHours(), old_date.getMinutes(), old_date.getSeconds(), old_date.getMilliseconds()).getTime();
             old_date = new Date(e.end_date);
-            e.end_date = new Date(old_date.getFullYear() + offset[0], old_date.getMonth() + offset[1], old_date.getDate() + offset[2], old_date.getHours(), old_date.getMinutes(), old_date.getSeconds(), old_date.getMilliseconds());
+            e.end_date = new Date(old_date.getFullYear() + offset[0], old_date.getMonth() + offset[1], old_date.getDate() + offset[2], old_date.getHours(), old_date.getMinutes(), old_date.getSeconds(), old_date.getMilliseconds()).getTime();
+            if (e.id == $('#element_id').val()){
+              $('#element_start').datetimepicker('setDate', new Date(e.start_date));
+              $('#element_end').datetimepicker('setDate', new Date(e.end_date));
+            }
           }
         );
 
@@ -617,7 +623,12 @@
       <%= link_to 'Back', measures_path %>
 
       <div id="dataCriteria" style="overflow-y: auto; height: 650px;">
-        <%= render partial: 'data_criteria', locals: {criteria_by_category: data_criteria_by_category(@measure.source_data_criteria.reject{|k,v| ['patient_characteristic_birthdate','patient_characteristic_gender', 'patient_characteristic_expired'].include?(v['definition']) }), patient_builder: true}%>
+        <%=
+          render partial: 'data_criteria', locals: {
+            criteria_by_category: data_criteria_by_category(@data_criteria),
+            patient_builder: true
+          }
+        %>
       </div>
     </div>
   </div>
@@ -683,7 +694,7 @@
               Birthdate:
             </div>
             <div class="span4">
-              <input type="text" class="span3" value="<%= Time.at(@record['birthdate'] || 946715400).strftime('%m/%d/%Y %M:%S') %>" name="birthdate" id="birthdate" style="z-index:5000; position: relative;" >
+              <input type="text" class="span3" value="<%= Time.at(@record['birthdate'] || 946715400).strftime('%m/%d/%Y %H:%M') %>" name="birthdate" id="birthdate" style="z-index:500; position: relative;" >
             </div>
           </div>
           <div class="row">

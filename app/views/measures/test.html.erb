@@ -1,7 +1,6 @@
 <% content_for :head do %>
   <script type="text/javascript">
     $(document).ready(function() {
-      $('#mainTabs a:first').tab('show');
       bind_inspect_highlight();
       $('#select-all').bind('click', select_all_patients);
       $('#deselect-all').bind('click', deselect_all_patients);
@@ -24,6 +23,7 @@
     <%# link_to "Generate Patients", generate_patients_measure_url(@measure), :method => :post, :class => "btn" %>
     <%= link_to "Add Patients", {:action => 'patient_builder'}, {:class => "btn"} %>
     <a href="#downloadPatientsDialog" class="btn" data-toggle="modal" data-backdrop="static" data-keyboard="true">Download Patients</a>
+    <%= link_to "Update Matrix", {:action => 'generate_matrix'}, {:class => "btn"} %>
   </div>
 
   <%= render partial: 'download_patients' %>
@@ -38,7 +38,8 @@
   <% end %>
 
   <ul class="nav nav-tabs" id="mainTabs" style="margin:0.5em">
-    <li class="active"><a href="#patients">All Patients</a></li>
+    <li<%= ' class="active"'.html_safe if !params['measure_patients'] %>><%= link_to 'All Patients', :action => 'test' %></li>
+    <li<%= ' class="active"'.html_safe if params['measure_patients'] %>><%= link_to 'Measure Patients', test_measure_path(:measure_patients => 'measure_patients') %></li>
 
     <li id="selector" style ="float: right; margin-right: 140px;">
       <select id="population_selector">
@@ -59,7 +60,7 @@
 
     <div class="tab-pane active" id="patients">
 
-      <%= simple_form_for(:patients, :url => "/measures/#{params[:id]}/test", :method => :post, :html => { :class => 'form-horizontal', :id => 'measure_form'}) do |f| %>
+      <%= simple_form_for(:patients, :url => test_measure_path(params['measure_patients'] ? {:measure_patients => 'measure_patients'} : nil), :method => :post, :html => { :class => 'form-horizontal', :id => 'measure_form'}) do |f| %>
         <%= f.submit 'Test Measure', :id => 'test-submit-button', :class => 'btn-primary' %><br>
         <input type="hidden" id="population" name="population" value="<%=@population%>"/>
         <div class="row total">
@@ -82,7 +83,7 @@
           <div class="span2 inspect">&nbsp;</div>
         </div>
 
-        <% @patient_names.each do |p| %>
+        <% (params['measure_patients'] ? @patient_names.select{|e| e[4] == @measure['_id'] } : @patient_names).each do |p| %>
         <div class="row">
           <div class="span2 name">
             <%= f.check_box(p[1], :label => p.first, :checked => true) -%>

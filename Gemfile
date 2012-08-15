@@ -9,6 +9,8 @@ gem 'hquery-patient-api', :git => 'https://github.com/pophealth/patientapi.git',
 gem 'health-data-standards', :git => 'https://github.com/projectcypress/health-data-standards.git', :branch => 'develop'
 gem 'test-patient-generator', :git => 'https://github.com/pophealth/test-patient-generator.git', :branch => 'master'
 #gem 'test-patient-generator', :path => '../test-patient-generator'
+gem 'quality-measure-engine', :git => 'http://github.com/pophealth/quality-measure-engine.git', :branch => 'master'
+#gem 'quality-measure-engine', :path => '../quality-measure-engine'
 
 gem 'rails', '3.2.2'
 gem 'jquery-rails'
@@ -19,7 +21,7 @@ gem 'foreman'
 gem 'cancan'
 gem 'factory_girl'
 
-gem "mongo"
+gem "mongo", '1.6.2'
 gem "mongoid"
 gem "bson"
 gem 'bson_ext'
