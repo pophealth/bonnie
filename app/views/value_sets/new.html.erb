@@ -3,7 +3,7 @@
     $(document).ready(function() {
       value_set_functions = new ValueSetFunctions();
       value_set_functions.bind_add_code();
-      // value_set_functions.bind_submit();
+      value_set_functions.bind_add_code_set();
     });
   </script>
 <% end %>
@@ -14,7 +14,7 @@
   <div class="span6 offset1">
 
     <%= form_for @value_set, :html => {:class=>'form-horizontal'}  do |f| %>
-      <fieldset>
+      <fieldset id="value_set">
         <legend>New Value Set</legend>
         
           <div class="control-group">
@@ -52,69 +52,18 @@
             <div class="controls">
               <%= f.text_field :key, :value => 'value_set_key' %>
             </div>
-
           </div>
       
-        <fieldset>
+        <fieldset id="code_sets">
           <legend>Code Sets</legend>
-          <p class="help-block">Add multiple code sets</p>
-          <div id="code_sets[0]" class="well">
-            <%= f.fields_for 'code_sets[0]' do |code_set_fields| %>
-              <div class="control-group row">
-                <p>Code Set 0</p>
-                <%= code_set_fields.label :code_set, :class=>'control-label' %>
-                <div class="controls">
-                  <%= code_set_fields.text_field :code_set, :value => 'ICD-9-CM' %>
-                </div>
-                
-                <%= code_set_fields.label :category, :class=>'control-label' %>
-                <div class="controls">
-                  <%= code_set_fields.text_field :category, :value => 'category' %>
-                </div>
-                
-                <%= code_set_fields.label :concept, :class => 'control-label' %>
-                <div class="controls">
-                  <%= code_set_fields.text_field :concept, :value => 'concept' %>
-                </div>
-                
-                <%= code_set_fields.label :description, :class => 'control-label' %>
-                <div class="controls">
-                  <%= code_set_fields.text_field :description, :value => 'description' %>
-                </div>
-
-                <div class="row span4">
-                <div id="codes" class="control-group">                
-                    <%= code_set_fields.label :codes, :class => "control-label" %>
-                    <a class="btn btn-primary btn-small">+</a>
-                    <div class="controls row span3">
-                      <%= code_set_fields.text_field 'codes[0]', :class => 'input-small', :value => 'code0' %><br>
-                      <%= code_set_fields.text_field 'codes[1]', :class => 'input-small', :value => 'code1' %><br>
-                    </div>
-                </div>
-                
-                <%= code_set_fields.label :key, :class => 'control-label' %>
-                <div class="controls">
-                  <%= code_set_fields.text_field :key, :value => 'key' %>
-                </div>
-                
-                <%= code_set_fields.label :oid, :class => 'control-label' %>
-                <div class="controls">
-                  <%= code_set_fields.text_field :oid, :value => '1.2.3' %>
-                </div>
-
-                <%= code_set_fields.label :organization, :class => 'control-label' %>
-                <div class="controls">
-                  <%= code_set_fields.text_field :organization, :value => 'organization' %>
-                </div>
-                
-                <%= code_set_fields.label :version, :class => 'control-label' %>
-                <div class="controls">
-                  <%= code_set_fields.text_field :version, :value => 'version' %>
-                </div>
-                
-              </div>
-            <% end %><!-- fields_for code_sets[n]-->
-          </div><!-- code_sets end -->
+          <!-- <p class="help-block">Add multiple code sets</p> -->
+          <a class="btn btn-primary btn-small">Add Code Set +</a>
+          
+          <%# TODO: would be nice to refactor this into an ajax partial or something - cdillon %>
+          <% @num_code_sets.times do |code_set_id| %>
+            <%= render :partial => 'code_set', locals: {f: f, code_set_id: code_set_id} %>
+          <% end %>
+        
         </fieldset><!-- code_sets end -->
 
       </fieldset><!-- value_set end -->

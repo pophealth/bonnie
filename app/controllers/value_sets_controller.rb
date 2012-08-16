@@ -1,7 +1,7 @@
 # require 'json'  TODO: does rails3 need this anymore?
 
 class ValueSetsController < ApplicationController
-  respond_to :html, :json
+  respond_to :html, :json, :js
   skip_authorization_check
   
   add_breadcrumb 'value_sets', ""
@@ -21,6 +21,15 @@ class ValueSetsController < ApplicationController
   
   def new
     @value_set = ValueSet.new
+    respond_with do |format|
+      format.html {
+        if params[:code_sets]
+          @num_code_sets = params[:code_sets].to_i
+        else
+          @num_code_sets = 0
+        end
+      }
+    end
   end
   
   def create
