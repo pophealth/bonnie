@@ -658,7 +658,10 @@
 
     <div class="tab-content" id="measureEditContainer">
       <%= form_tag({:action => 'make_patient'}, {:onsubmit => 'bonnie.patientBuilder.save_patient_builder(this); return false', :id => 'save_patient_builder'}) do %>
-        <input type="hidden" name="record_id" value="<%= @record['_id'] if !params[:clone] %>"} />
+        <input type="hidden" name="record_id" value="<%= @record['_id'] %>"} />
+        <% if params[:clone] %>
+          <input type="hidden" name="clone" value="true"} />
+        <% end %>
         <input type="hidden" class="redirect_url" value="<%= url_for :action => 'test' %>"} />
         <div style="margin: 5px 0 0 30px;">
           <div class="row">

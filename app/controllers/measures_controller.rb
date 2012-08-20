@@ -308,7 +308,12 @@ class MeasuresController < ApplicationController
   def make_patient
     @measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
 
-    patient = Record.where({'_id' => params['record_id']}).first || HQMF::Generator.create_base_patient(params.select{|k| ['first', 'last', 'gender', 'expired', 'birthdate'].include?k })
+    patient = Record.where({'_id' => params['record_id']}).first || HQMF::Generator.create_base_patient(params.select{|k| ['first', 'last', 'gender', 'expired', 'birthdate'].include? k })
+
+    if (params['clone'])
+      patient = Record.new(patient.attributes.except('_id'));
+      patient.save!
+    end
 
     # clear out patient data
     if (patient.id)
