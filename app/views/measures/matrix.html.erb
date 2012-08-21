@@ -93,7 +93,7 @@
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
             .style("margin-left", 'auto')
-            .on('mouseover',
+            .on('mousemove',
               function(){
                 var e = d3.event, offsetX = e.pageX - margin.left - $(this).offset().left, offsetY = e.pageY - margin.top - $(this).offset().top;
                 $('#crosshairY').stop().animate({'top': offsetY > 0 ? offsetY : 0});
