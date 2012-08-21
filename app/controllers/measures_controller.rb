@@ -291,14 +291,17 @@ class MeasuresController < ApplicationController
   def patient_builder
     @measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
     @record = Record.where({'_id' => params[:patient_id]}).first || {}
+    measure_list = (@record['measure_ids'] || []) << @measure['measure_id']
     @data_criteria = Hash[
-      *Measure.where({'measure_id' => {'$in' => (@record['measure_ids'] || []) << @measure['measure_id']}}).map{|m|
+      *Measure.where({'measure_id' => {'$in' => measure_list}}).map{|m|
         m.source_data_criteria.reject{|k,v|
           ['patient_characteristic_birthdate','patient_characteristic_gender', 'patient_characteristic_expired'].include?(v['definition'])
+        }.each{|k,v|
+          v['title'] += ' (' + m.measure_id + ')'
         }
       }.map(&:to_a).flatten
     ]
-    @value_sets = Measure.where({'measure_id' => {'$in' => @record['measure_ids'] || []}}).map{|m| m.value_sets}.flatten(1).uniq
+    @value_sets = Measure.where({'measure_id' => {'$in' => measure_list}}).map{|m| m.value_sets}.flatten(1).uniq
 
     add_breadcrumb @measure['measure_id'], '/measures/' + @measure['measure_id']
     add_breadcrumb 'Test', '/measures/' + @measure['measure_id'] + '/test'

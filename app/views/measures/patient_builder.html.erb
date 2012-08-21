@@ -68,6 +68,30 @@
       }
     );
 
+    $('#savebutton_matrix').click(
+      function(){
+        $('form#save_patient_builder').data('redirect_matrix', true).trigger('submit');
+      }
+    );
+
+    $('#workspace').on('click', '#field_new',
+      function(){
+        $('#bonnie_tmpl_data_criteria_field_value').tmpl().insertBefore('#field_new_position');
+      }
+    );
+
+    $('#workspace').on('click', '.field_value > .close',
+      function(e){
+        $(e.target).parent().parent().remove();
+      }
+    );
+
+    $('#workspace').on('change', 'select[name=negation]',
+      function(){
+        $(this).parents('#workspace').find('.negation_reason_oid').slideToggle();
+      }
+    );
+
   });
 
   var fillDrop = function(event, obj){
@@ -499,6 +523,36 @@
        }
   </script>
 
+  <script type="text/html" id="bonnie_tmpl_data_criteria_coded">
+    <select class="data_criteria_oid">
+      <option value="">--</option>
+      {{each bonnie.patientBuilder.value_sets}}
+        <option value="${$index}">${$value.concept}</option>
+      {{/each}}
+    </select>
+  </script>
+
+  <script type="text/html" id="bonnie_tmpl_data_criteria_field_value">
+    <div class="row">
+      <div class="span1">
+        Field Value
+      </div>
+      <div class="span3 field_value">
+        <div style="text-align: right;" class="close">&times;</div>
+        <div>
+          <select class="field_type">
+            <option value="">--</option>
+            <% HQMF::DataCriteria::FIELDS.each do |key,value| %>
+              <option value="<%= key %>"><%= value[:title]%></option>
+            <% end %>
+          </select>
+        </div>
+        <div>
+          {{tmpl '#bonnie_tmpl_data_criteria_coded'}}
+        </div>
+      </div>
+    </div>
+  </script>
 
   <script type="text/html" id="bonnie_tmpl_confirm_shift">
     <div class="modal hide fade in">
@@ -582,14 +636,39 @@
                 <input type="text" style="width: 60px;"{{if value}} value="${value.unit}"{{/if}} id="element_value_unit" >
               </div>
             </div>
-            <select class="data_criteria_oid">
-              <option value="">--</option>
-              {{each bonnie.patientBuilder.value_sets}}
-                <option value="${$index}">${$value.concept}</option>
-              {{/each}}
-            </select>
+            {{tmpl '#bonnie_tmpl_data_criteria_coded'}}
           </div>
         </div>
+      </div>
+      <div class="row">
+        <div class="span1">
+          Not done
+        </div>
+        <div class="span3">
+          <select name="negation">
+            <option value="">False</option>
+            <option value="true">True</option>
+          </select>
+        </div>
+      </div>
+      <div class="row negation_reason_oid" style="display: none">
+        <div class="span1">
+          Negation Reason
+        </div>
+        <div class="span3">
+          <select name="negation_code_list_id">
+            <% @value_sets.map{|s| s.attributes.select{|k,v| ['concept', 'oid'].include?(k) } }.each {|v|%>
+              <option value="<%= v['oid'] %>"><%= v['concept'] %> - <%= v['oid'] %></option>
+            <% } %>
+          </select>
+        </div>
+      </div>
+      {{each field_values}}
+        {{tmpl($value) '#bonnie_tmpl_data_criteria_field_value'}}
+      {{/each}}
+      <div class="row" id="field_new_position">
+        <div class="span1">&nbsp;</div>
+        <div class="span3"><input type="button" id="field_new" value="New Field Value" /></div>
       </div>
       <div class="row">
         <div class="span4">
@@ -606,6 +685,7 @@
 <% content_for :page_content do %>
 
   <div class="pull-right" id="pageButtons">
+    <a href="#" class="btn" id="savebutton_matrix">Save to Matrix</a>
     <a href="#" class="btn" id="savebutton">Save</a>
   </div>
 	<h1 class="measure-title"><%= "#{@measure.endorser}#{@measure.measure_id}: #{@measure.title}" %></h1>
@@ -663,6 +743,7 @@
           <input type="hidden" name="clone" value="true"} />
         <% end %>
         <input type="hidden" class="redirect_url" value="<%= url_for :action => 'test' %>"} />
+        <input type="hidden" class="redirect_matrix_url" value="<%= url_for :action => 'matrix' %>"} />
         <div style="margin: 5px 0 0 30px;">
           <div class="row">
             <div class="span4">

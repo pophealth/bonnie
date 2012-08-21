@@ -11,6 +11,28 @@
   text.active {
     fill: red;
   }
+  #pageContent {
+    position: relative;
+    width: 100%;
+  }
+  .crosshair_container {
+    margin-left: auto;
+    position: absolute;
+    pointer-events: none;
+  }
+  #crosshairX, #crosshairY {
+    background: black;
+    position: absolute;
+    margin: 0;
+  }
+  #crosshairX {
+    width: 1px;
+    height: 100%;
+  }
+  #crosshairY {
+    width: 100%;
+    height: 1px;
+  }
   </style>
 
   <script type="text/javascript">
@@ -23,6 +45,11 @@
           else d3.selectAll('.column text').style('fill', '');
         }
       );
+      $('#toggle_crosshair').change(
+        function(){
+          $('#crosshairX, #crosshairY').toggle();
+        }
+      );
       $('#loading_image').load(
         function(){
           d3.json("<%= url_for :action => 'matrix_data' %>", function(raw_data) {
@@ -33,7 +60,7 @@
 
           n = matrix.length;
 
-          var margin = {top: 120, right: 0, bottom: 10, left: 150},
+          var margin = {top: 120, right: 0, bottom: 0, left: 150},
               width = $('#pageContent').width() - 300 - margin.left - margin.right,
               height = n * 15 + margin.top + margin.bottom + 100;
 
@@ -48,11 +75,6 @@
               d3.select('#key').append('div')
                 .style('background', colors[i])
                 .text(['None','Population','Exceptions','Denominator','Numerator','Exclusions'][i])
-                .on('hover',
-                  function(){
-                    arguments;debugger;
-                  }
-                )
                 .on('click',
                   function(){
                     var hl = $(this).parent().children().toArray().indexOf(this);
@@ -70,8 +92,26 @@
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
             .style("margin-left", 'auto')
+            .on('mouseover',
+              function(){
+                var e = d3.event, offsetX = e.pageX - margin.left - $(this).offset().left, offsetY = e.pageY - margin.top - $(this).offset().top;
+                $('#crosshairY').css('top', offsetY > 0 ? offsetY : 0);
+                $('#crosshairX').css('left', offsetX > 0 ? offsetX : 0);
+              }
+            )
           .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+          $(document.createElement('div'))
+            .addClass('crosshair_container')
+            .css("width", width)
+            .css("height", height)
+            .css('top', margin.top)
+            .css('left', margin.left)
+            .append(
+              $(document.createElement('hr')).attr('id', 'crosshairY'),
+              $(document.createElement('hr')).attr('id', 'crosshairX')
+            ).appendTo('#pageContent')
 
           // Precompute the orders.
           var orders = {
@@ -268,8 +308,14 @@
   <p id="key">Key:<span style="float: right;">(click to highlight)</span></p>
   <p>
     <label>
-      <input type="checkbox" id="toggle_highlight" style="display: inline" />
+      <input type="checkbox" id="toggle_highlight" style="display: inline;" />
       Highlight incompletely tested Measures
+    </label>
+  </p>
+  <p>
+    <label>
+      <input type="checkbox" id="toggle_crosshair" checked="checked" style="display: inline;" />
+      Show crosshairs
     </label>
   </p>
   </aside>
