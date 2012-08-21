@@ -21,7 +21,7 @@
     pointer-events: none;
   }
   #crosshairX, #crosshairY {
-    background: black;
+    background: #999;
     position: absolute;
     margin: 0;
     border: 0
@@ -96,8 +96,8 @@
             .on('mouseover',
               function(){
                 var e = d3.event, offsetX = e.pageX - margin.left - $(this).offset().left, offsetY = e.pageY - margin.top - $(this).offset().top;
-                $('#crosshairY').css('top', offsetY > 0 ? offsetY : 0);
-                $('#crosshairX').css('left', offsetX > 0 ? offsetX : 0);
+                $('#crosshairY').stop().animate({'top': offsetY > 0 ? offsetY : 0});
+                $('#crosshairX').stop().animate({'left': offsetX > 0 ? offsetX : 0});
               }
             )
           .append("g")
