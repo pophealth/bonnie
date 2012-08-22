@@ -13,7 +13,7 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/hqmf-parser.git
-  revision: dca82f67d132c97e0bf82b84a9878e6ac484b616
+  revision: 0f740fcc05ad2062401453f0c856a8095aa18650
   branch: develop
   specs:
     hqmf-parser (0.0.1)
@@ -24,7 +24,7 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/hqmf2js.git
-  revision: 3f9e859f695df00cd612299c738b5f3aee5374c9
+  revision: 8ac87490d33e71fbe82afb6cf05c98cea399c8d8
   branch: develop
   specs:
     hqmf2js (0.1.0)
@@ -42,14 +42,14 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/test-patient-generator.git
-  revision: 479d5f24e4e4af9ebde1a02c74fa1d88469f978d
+  revision: 7fed71531413f472325a9f97083df1f6fbbfc01c
   branch: master
   specs:
     test-patient-generator (0.1.0)
 
 GIT
   remote: https://github.com/projectcypress/health-data-standards.git
-  revision: 11d89f2ee79f5d77492ff94bf7f7642d7b8fa777
+  revision: 3fec40fbf1c550d1a9c7a4299d6d3ff311b54d26
   branch: develop
   specs:
     health-data-standards (1.0.1)
@@ -251,7 +251,7 @@ GEM
     simple_form (2.0.2)
       actionpack (~> 3.0)
       activemodel (~> 3.0)
-    sinatra (1.3.2)
+    sinatra (1.3.3)
       rack (~> 1.3, >= 1.3.6)
       rack-protection (~> 1.2)
       tilt (~> 1.3, >= 1.3.3)
