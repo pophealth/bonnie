@@ -21,7 +21,7 @@
     pointer-events: none;
   }
   #crosshairX, #crosshairY {
-    background: #999;
+    background: #DEDEDE;
     position: absolute;
     margin: 0;
     border: 0
@@ -94,10 +94,13 @@
             .attr("height", height + margin.top + margin.bottom)
             .style("margin-left", 'auto')
             .on('mousemove',
-              function(){
-                var e = d3.event, offsetX = e.pageX - margin.left - $(this).offset().left, offsetY = e.pageY - margin.top - $(this).offset().top;
-                $('#crosshairY').stop().animate({'top': offsetY > 0 ? offsetY : 0});
-                $('#crosshairX').stop().animate({'left': offsetX > 0 ? offsetX : 0});
+              function(e){
+                var e = d3.event
+                var m = margin
+                var offsetX = e.pageX - m.left
+                var offsetY = e.pageY - ($('.background').offset().top);
+                $('#crosshairY').css({'top': offsetY > 0 ? offsetY : 0});
+                $('#crosshairX').css({'left': offsetX > 0 ? offsetX : 0});
               }
             )
           .append("g")
