@@ -5,6 +5,7 @@
   </div>
   <%= form_for([:download_patients, @measure], :html => {:method => "get", :class => 'form-stacked', :onsubmit => '$("#downloadPatientsDialog").modal("hide");'}) do |f| %>
     <div class="modal-body">
+      <% if measure_patients %><input type="hidden" name="measure_patients" value="measure_patients"/><% end %>
       <%= f.label :format, "Select patient format:" %>
       <%= select(:download, :format, ["c32", "ccr", "html"]) %>
     </div>

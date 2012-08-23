@@ -164,7 +164,16 @@ class MeasuresController < ApplicationController
 
   def download_patients
     measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
-    zip = TPG::Exporter.zip(measure.records, "c32")
+    
+    records = []
+    @measure_patients = !params[:measure_patients].nil?
+    if (@measure_patients)
+      records = measure.records
+    else
+      records = Record.all
+    end
+
+    zip = TPG::Exporter.zip(records, params[:download][:format])
 
     send_file zip.path, :type => 'application/zip', :disposition => 'attachment', :filename => "patients.zip"
   end
@@ -201,6 +210,9 @@ class MeasuresController < ApplicationController
   def test
     @population = params[:population] || 0
     @measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
+    
+    @measure_patients = !params[:measure_patients].nil?
+      
     @patient_names = (Record.all.sort {|left, right| left.last <=> right.last }).collect {|r| [
       "#{r[:last]}, #{r[:first]}",
       r[:_id].to_s,
