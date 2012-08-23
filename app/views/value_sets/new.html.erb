@@ -2,78 +2,18 @@
   <script type="text/javascript">
     $(document).ready(function() {
       value_set_functions = new ValueSetFunctions();
-      value_set_functions.bind_add_code();
-      value_set_functions.bind_add_code_set();
+      value_set_functions.new_form();
+      // value_set_functions.bind_add_value_set();
     });
   </script>
 <% end %>
 
 <% content_for :page_content do %>
 
-  <div class="row">
-  <div class="span6 offset1">
-
-    <%= form_for @value_set, :html => {:class=>'form-horizontal'}  do |f| %>
-      <fieldset id="value_set">
-        <legend>New Value Set</legend>
-        
-          <div class="control-group">
-            <%= f.label :oid, :class=>'control-label' %>
-            <div class="controls">
-              <%= f.text_field :oid, :value => '1.2.3' %>
-            </div>
-        
-            <%= f.label :description, :class=>'control-label' %>
-            <div class="controls">
-              <%= f.text_field :description, :value => 'description' %>
-            </div>
-
-            <%= f.label :category, :class=>'control-label' %>
-            <div class="controls">
-              <%= f.text_field :category, :value => 'result' %>
-            </div>
-
-            <%= f.label :concept, :class=>'control-label' %>
-            <div class="controls">
-              <%= f.text_field :concept, :value => 'concept' %>
-            </div>
-          
-            <%= f.label :organization, :class=>'control-label' %>
-            <div class="controls">
-              <%= f.text_field :organization, :value => 'organization' %>
-            </div>
-
-            <%= f.label :version, :class=>'control-label' %>
-            <div class="controls">
-              <%= f.text_field :version, :value => 'version' %>
-            </div>
-
-            <%= f.label :key, :class=>'control-label' %>
-            <div class="controls">
-              <%= f.text_field :key, :value => 'value_set_key' %>
-            </div>
-          </div>
-      
-        <fieldset id="code_sets">
-          <legend>Code Sets</legend>
-          <!-- <p class="help-block">Add multiple code sets</p> -->
-          <a class="btn btn-primary btn-small">Add Code Set +</a>
-          
-          <%# TODO: would be nice to refactor this into an ajax partial or something - cdillon %>
-          <% @num_code_sets.times do |code_set_id| %>
-            <%= render :partial => 'code_set', locals: {f: f, code_set_id: code_set_id} %>
-          <% end %>
-        
-        </fieldset><!-- code_sets end -->
-
-      </fieldset><!-- value_set end -->
-    
-      <div class="form-actions">
-        <%= f.submit :class => "btn btn-primary" %>
-      </div>
-    <% end %><!-- form end -->
-  </div>
+  <div id="backbone-form">
+    <button type="submit" class="btn btn-primary" id="new-value-set">
+      <i class="icon-plus icon-white"></i>Create Value Set
+    </button>
   </div>
   
-  <div id="response"></div>
 <% end %>

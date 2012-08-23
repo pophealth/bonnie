@@ -23,10 +23,11 @@ class ValueSetsController < ApplicationController
     @value_set = ValueSet.new
     respond_with do |format|
       format.html {
-        if params[:code_sets]
-          @num_code_sets = params[:code_sets].to_i
-        else
-          @num_code_sets = 0
+      }
+      format.js {
+        binding.pry
+        render :partial => 'code_set', locals: {f: f, code_set_id: 0} do |page|
+          page.append 'body', 'Hello world!'
         end
       }
     end
@@ -37,9 +38,13 @@ class ValueSetsController < ApplicationController
       format.json {
         # very important to render json here and not text
         # even when debugging because ajaxForm plugin will break
-        json_form = JSON.parse(params[:data])
-        puts json_form.inspect
-        render :json => { :message => "success" }
+        json_form = JSON.parse(params[:data].to_json)
+        vs = ValueSet.new json_form
+        if vs.save
+          render :json => { :message => "success" }
+        else
+          render :json => { :message => "failed", :errors => vs.errors }
+        end
       }
       format.html {
         serialized = FormSerializer.new.serialize_params(params["value_set"])

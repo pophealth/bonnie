@@ -43,9 +43,9 @@ class ValueSetFunctions
       $('#codes .controls').append(codeField)
       $('#codes .controls').append("<br>")
     
-    
+  bind_add_value_set: ->
     # bind form submit button
-    $('#new_value_set').on "submit", (e) ->
+    $('#new-value-set').on "click", (e) ->      
       # extend jQuery to include a serializeObject function for the form submission
       $ = jQuery
       $.extend $.fn,
@@ -66,7 +66,7 @@ class ValueSetFunctions
       
       # e.preventDefault()
       url = '/value_sets.json'
-      form = $(this)
+      form = $("backbone-form")
       o = form.serializeObject()
       delete o.utf8                 # remove the attributes we don't care about
       delete o.authenticity_token   # remove the attributes we don't care about
@@ -78,7 +78,6 @@ class ValueSetFunctions
       # return false
       
   bind_add_code_set: ->
-    
     # fat arrow => very important here so the this in the onClick references the instance variable
     $('#code_sets .btn').on "click", =>
       code_set_elements = $('#code_sets div:first').clone()[0]
@@ -92,3 +91,55 @@ class ValueSetFunctions
         $('#code_sets').append(code_set)
       # $('<%= escape_javascript(render(:partial => "code_set", locals: {f: f, code_set_id: 0}))%>').appendTo
 
+  # create a form using the backbone-form plugin for the new action
+  new_form: ->
+    validate_oid = new RegExp("\d+\.\d+")
+    # Use BootstrapModal for object List editor
+    Backbone.Form.editors.List.Modal.ModalAdapter = Backbone.BootstrapModal;
+
+    # Main model definition
+    ValueSet = Backbone.DeepModel.extend({
+        schema: {
+            oid: { validators: [validate_oid] },
+            description: 'Text',
+            category: { type: 'Select', options: ['encounter', 'procedure', 'communication'] },
+            concept: 'Text',
+            organization: 'Text',
+            version: 'Text',
+            key: 'Text',
+            code_sets:    { type: 'List', itemType: 'Object', subSchema: {
+                code_set: { validators: ['required'] },
+                category:      { type: 'Select', options: ['encounter', 'procedure', 'communication'] },
+                concept: 'Text',
+                description: 'Text',
+                codes:      { type: 'List' },
+                key: 'Text',
+                oid: 'Text',
+                organization: 'Text',
+                version: 'Text'
+            }}
+        }
+    })
+    
+    value_set = new ValueSet({
+            oid: '1.2.3',
+            description: 'description',
+            category: 'procedure',
+            concept: 'concept',
+            organization: 'organization',
+            version: 'version',
+            key: 'key',
+            code_sets: [
+                { code_set: 'ICD-9-CM', category: 'category', codes: [1,2] }
+            ]
+    })
+    
+    form = new Backbone.Form({ model: value_set }).render()
+    $('#backbone-form').prepend(form.el)
+    $('#new-value-set').on "click", (e) ->
+      data = form.getValue();
+      console.log data
+      url = '/value_sets.json'
+      $.post url,
+        data: data
+    
