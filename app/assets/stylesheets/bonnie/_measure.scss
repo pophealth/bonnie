@@ -713,6 +713,11 @@ div.start-drag {color:red !important;background-color:red !important;opacity:0.5
   }
 }
 
+#patients .row:hover {
+    background: none repeat scroll 0 0 #EEEEEE;
+}
+
+
 #patients #population-total {
   background: #EEE;
 }

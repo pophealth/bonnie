@@ -142,10 +142,11 @@ populate_test_table = () ->
 # add row highlighting when rolling over inspect link
 bind_inspect_highlight = () ->
   # select all rows with the inspect link only
-  $('#patients .inspect:contains("inspect")').hover(
-    -> $(this).parent().css('background-color', '#f5f5f5'),
-    -> $(this).parent().css('background-color', 'white')
-  )
+  # $('#patients .inspect:contains("inspect")').hover(
+  #   -> $(this).parent().css('background-color', '#f5f5f5'),
+  #   -> $(this).parent().css('background-color', 'white')
+  # )
+  false
 
 # keep track of population criteria id and update test button href
 # so that the debugger can handle multiple population criterias
