@@ -366,8 +366,8 @@ class MeasuresController < ApplicationController
       data_criteria = HQMF::DataCriteria.from_json(v['id'], @data_criteria[v['id']])
       data_criteria.value = v['value']['type'] == 'CD' ? HQMF::Coded.new('CD', nil, nil, v['value']['code_list_id']) : HQMF::Range.from_json('low' => {'value' => v['value']['value'], 'unit' => v['value']['unit']}) if v['value']
       data_criteria.modify_patient(patient, HQMF::Range.from_json({
-        'low' => {'value' => Time.at(v['start_date'] / 1000).strftime('%Y%m%d')},
-        'high' => {'value' => Time.at(v['end_date'] / 1000).strftime('%Y%m%d')}
+        'low' => {'value' => Time.at(v['start_date'] / 1000).strftime('%Y%m%d%H%M%S')},
+        'high' => {'value' => Time.at(v['end_date'] / 1000).strftime('%Y%m%d%H%M%S')}
       }), values.values)
     }
 
