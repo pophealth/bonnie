@@ -17,7 +17,7 @@ class ValueSetsController < ApplicationController
         render :json => @value_set
       }
       format.html {
-        @value_set = JSON.pretty_generate(JSON.parse(@value_set.to_json))
+        @value_set_html = JSON.pretty_generate(JSON.parse(@value_set.to_json))
       }
     end
   end
