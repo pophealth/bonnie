@@ -2,9 +2,6 @@
 # All this logic will automatically be available in application.js.
 # You can use CoffeeScript in this file: http://jashkenas.github.com/coffee-script/
 
-# scope for debug in browser console
-form = ""
-
 $ ->
 	codeField = $(".codeField:last").clone()
 	$("#addCode").on "click", ->
@@ -15,90 +12,26 @@ $ ->
 		$("#codes").append(codeField.clone())
 		return false
 
+
+validate_oid = new RegExp("\d+\.\d+")
+
+
 # namespace the javascript functions inside a class
 class ValueSetFunctions
-  # method takes input[0] and returns input[1]
-  # used for cloning elements on form
-  increment_form_id: (string) ->
-    new_id = (Number) (string.match(/\[(\d+)\]/))[1]
-    new_id++
-    return new_id
-
-  # method takes value_set[code_sets[0]][category] and returns value_set[code_sets[1]][category]
-  # used for cloning elements on form  
-  increment_form_name: (string) ->
-    matches = string.match(/\[(\d+)\]/g)
-    last_match = matches[matches.length - 1]
-    new_id = (Number) (last_match.match(/\[(\d+)\]/))[1]
-    new_id++
-    return new_id    
   
-  bind_add_code: ->
-    # fat arrow important below for the 'this' within the onClick
-    $('#codes .btn').on "click", =>
-      codeField = $('#codes .input-small:last').clone()[0]
-      new_id = this.increment_form_id(codeField.id)
-      codeField.id = codeField.id.replace /\[(\d+)\]/, "[#{new_id}]"
-      codeField.name = codeField.name.replace /\[(\d+)\]\]$/, "[#{new_id}]]"
-      $('#codes .controls').append(codeField)
-      $('#codes .controls').append("<br>")
+  constructor: ->
+    # set up backbone-forms with some critical defaults and settings
+    # this class should be instantiated only on pages that plan on using it
+    # so we won't get too much overhead or unnecessary client-side js stuff
     
-  bind_add_value_set: ->
-    # bind form submit button
-    $('#new-value-set').on "click", (e) ->      
-      # extend jQuery to include a serializeObject function for the form submission
-      $ = jQuery
-      $.extend $.fn,
-        serializeObject: () ->	
-          e = $(this)
-          a = e.serializeArray()
-          o = {}
-
-          $.each a, ->
-            if o[this.name] != undefined
-              console.log("this")
-              o[this.name] = [o[this.name]] if !o[this.name].push
-              o[this.name].push(this.value || '')
-            else
-              new_key = this.name.match(/\[(.*)\]/)
-              o[this.name] = this.value || ''
-          return o
-      
-      # e.preventDefault()
-      url = '/value_sets.json'
-      form = $("backbone-form")
-      o = form.serializeObject()
-      delete o.utf8                 # remove the attributes we don't care about
-      delete o.authenticity_token   # remove the attributes we don't care about
-      console.log o
-      data = JSON.stringify(o)
-      $.post url,
-        data: data
-        # () -> console.log("run .post")
-      # return false
-      
-  bind_add_code_set: ->
-    # fat arrow => very important here so the this in the onClick references the instance variable
-    $('#code_sets .btn').on "click", =>
-      code_set_elements = $('#code_sets div:first').clone()[0]
-      new_id = this.increment_form_id(code_set_elements.id)
-      code_set_elements.id = code_set_elements.id.replace /\[(\d+)\]/, "[#{new_id}]"
-      
-      # recurse through form elements and replace for, id and name strings with incremented values
-      # $('#code_sets').append("<%= escape_javascript(render :partial => 'posts/comment', :locals => { :comment => @comment }) %>");
-      # $('#code_sets').append(<%= escape_javascript(render(:partial => "code_set", locals: {f: f, code_set_id: 0}))%>)
-      $.getJSON "/value_sets/new.js?code_set_id=1", (code_set) ->
-        $('#code_sets').append(code_set)
-      # $('<%= escape_javascript(render(:partial => "code_set", locals: {f: f, code_set_id: 0}))%>').appendTo
-
-  # create a form using the backbone-form plugin for the new action
-  new_form: ->
-    validate_oid = new RegExp("\d+\.\d+")
     # Use BootstrapModal for object List editor
     Backbone.Form.editors.List.Modal.ModalAdapter = Backbone.BootstrapModal;
 
     # Main model definition
-    ValueSet = Backbone.DeepModel.extend({
+    # declared as a constant to namespace it
+    # TODO: can we just do the Rails inclusion thing where each view includes
+    # it's own coffescript?  Instead of worrying about everyone loading everything?
+    @VALUE_SET_MODEL = Backbone.DeepModel.extend({
         schema: {
             oid: { validators: [validate_oid] },
             description: 'Text',
@@ -121,25 +54,72 @@ class ValueSetFunctions
         }
     })
     
-    value_set = new ValueSet({
-            oid: '1.2.3',
-            description: 'description',
-            category: 'procedure',
-            concept: 'concept',
-            organization: 'organization',
-            version: 'version',
-            key: 'key',
-            code_sets: [
-                { code_set: 'ICD-9-CM', category: 'category', codes: [1,2] }
-            ]
-    })
+  
+  # create a form using the backbone-form plugin for the new action
+  new_form: ->
+    # example pre-populated object that would fill in the form
+    # value_set = new @VALUE_SET_MODEL({
+    #         oid: '1.2.3',
+    #         description: 'description',
+    #         category: 'procedure',
+    #         concept: 'concept',
+    #         organization: 'organization',
+    #         version: 'version',
+    #         key: 'key',
+    #         code_sets: [
+    #             { code_set: 'ICD-9-CM', category: 'category', codes: [1,2] }
+    #         ]
+    # })
+    value_set = new @VALUE_SET_MODEL()
     
     form = new Backbone.Form({ model: value_set }).render()
     $('#backbone-form').prepend(form.el)
     $('#new-value-set').on "click", (e) ->
-      data = form.getValue();
-      console.log data
+      data = form.getValue()
       url = '/value_sets.json'
-      $.post url,
+      # todo: remove this response = below
+      response = $.post url, 
         data: data
+        (response) ->
+          if response.message == 'success'
+            window.location = response.redirect
+  
+  
+  edit_form: ->
+    # get the id from a hidden field
+    id = $('#value_set_id').attr('_id')
     
+    # json fetch
+    value_set_js_object = this.get_value_set(id)
+    
+    # instantiate a backbone model from the plain old js object
+    value_set = new @VALUE_SET_MODEL(value_set_js_object)
+    
+    form = new Backbone.Form({model: value_set}).render()
+    $('#backbone-form').prepend(form.el)
+    
+    # wire up the update button to do an ajax update
+    $('#update-value-set').on "click", (e) ->
+      $.ajax
+        async: false  
+        type: "PUT"
+        url: "/value_sets/#{id}.json"
+        data: form.getValue()
+        dataType: "json"
+        success: (data) =>
+          @value_set = data
+          # TODO: flash notice here
+          # $("#flash_notice").html(<%=escape_javascript(flash.delete(:notice)) %>');
+
+
+  # gets a value_set object from rails into coffeescript as json
+  get_value_set: (id) ->
+    @value_set = ""
+    $.ajax
+      async: false  
+      type: "GET"
+      url:  "/value_sets/#{id}"
+      dataType: "json"
+      success: (data) =>
+        @value_set = data
+    return @value_set

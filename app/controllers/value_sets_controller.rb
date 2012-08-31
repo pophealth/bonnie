@@ -12,7 +12,14 @@ class ValueSetsController < ApplicationController
   
   def show
     @value_set = ValueSet.find(params[:id])
-    @value_set_json = JSON.pretty_generate(JSON.parse(@value_set.to_json))
+    respond_with do |format|
+      format.json {
+        render :json => @value_set
+      }
+      format.html {
+        @value_set = JSON.pretty_generate(JSON.parse(@value_set.to_json))
+      }
+    end
   end
   
   def edit
@@ -21,16 +28,6 @@ class ValueSetsController < ApplicationController
   
   def new
     @value_set = ValueSet.new
-    respond_with do |format|
-      format.html {
-      }
-      format.js {
-        binding.pry
-        render :partial => 'code_set', locals: {f: f, code_set_id: 0} do |page|
-          page.append 'body', 'Hello world!'
-        end
-      }
-    end
   end
   
   def create
@@ -41,18 +38,59 @@ class ValueSetsController < ApplicationController
         json_form = JSON.parse(params[:data].to_json)
         vs = ValueSet.new json_form
         if vs.save
-          render :json => { :message => "success" }
+          render :json => { :message => "success", :redirect => value_set_url(vs) }
         else
           render :json => { :message => "failed", :errors => vs.errors }
         end
+        # redirect_to :action => 'show', :id => vs.id
       }
-      format.html {
-        serialized = FormSerializer.new.serialize_params(params["value_set"])
-        new_value_set = ValueSet.new serialized
-        new_value_set.save
-        # TODO: verify new_value_set has correct number of codesets
-        flash[:notice] = "Created value set."
-        redirect_to :action => 'show', :id => new_value_set.id
+    end
+  end
+  
+  # handle updates, e.g. from the edit form
+  def update
+    respond_with do |format|
+      format.json {
+        id = params["id"]
+        
+        # delete form data we don't need
+        params.delete("id")
+        params.delete("format")
+        params.delete("action")
+        params.delete("controller")
+        
+        vs = ValueSet.find(id)
+        # Whitelist necessary here.  When passing in code_sets it breaks update_attributes.
+        whitelist = [:oid, :description, :category, :concept, :organization, :version, :key]
+        # splat needed below to flatten attributes to slice()
+        if !vs.update_attributes(params.slice(*whitelist))
+          render :json => {:message => "error", :errors => vs.errors}
+        end
+      
+        if params.keys.include?("code_sets")
+          # symbolize our params
+          sliced = params.slice(*whitelist)
+          params_syms = {}
+          sliced.map {|k,v| params_syms[k.to_sym] = v }
+          
+          # our form has embedded code_sets so now we need to add them
+          form_code_sets = params["code_sets"].keys.collect {|i| params["code_sets"][i]}
+          
+          # this was a pain: embedded docs were not saving right
+          vs.update_attributes(:code_sets => form_code_sets)
+          vs.save
+        else
+          # our form has no embedded code_sets so delete them all
+          vs.code_sets.delete_all
+          vs.code_sets = []
+        end
+        
+        if vs.save
+          flash[:notice] = "you just updated over ajax..."
+          render :json => {:message => "success"}
+        else
+          render :json => {:message => "error", :errors => vs.errors}
+        end
       }
     end
   end
