@@ -154,6 +154,8 @@ module Measures
       if (Logger.enabled) enableLogging();
       
       #{gen.to_js(codes, population_index)}
+
+      hqmfjs.initializeSpecifics(patient_api, hqmfjs)
       
       var population = function() {
         return executeIfAvailable(hqmfjs.IPP, patient_api);

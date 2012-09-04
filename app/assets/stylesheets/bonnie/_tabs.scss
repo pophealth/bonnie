@@ -14,7 +14,11 @@
   border:1px solid $borderColor;
   border-bottom:none;
   outline:none;
-  }
+}
+
+.nav-tabs > .active > a {
+  background-color:$numerator;
+}
 
 #tabs {
   padding-top:15px;

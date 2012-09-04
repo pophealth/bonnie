@@ -27,7 +27,7 @@ class Measure
   belongs_to :user
   embeds_many :publishings
   has_many :value_sets
-  has_many :records, dependent: :destroy
+  has_many :records
 
   scope :published, -> { where({'published'=>true}) }
   scope :by_measure_id, ->(id) { where({'measure_id'=>id }) }

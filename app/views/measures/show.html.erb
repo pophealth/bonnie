@@ -248,12 +248,21 @@
 
       $('#text_view').click(
         function(){
+          $('.editing').removeClass('editing');
           if (!$('#text_view_styles').length) $('head').append('<link id="text_view_styles" rel="stylesheet" type="text/css" href="/assets/bonnie/text_view">');
           else $('#text_view_styles').prop('disabled', $('#text_view_styles').prop('disabled') ? null : 'disabled')
 
           $("#measureDetailInformation, #measureDetailInformation .inner, #tabs").stop(false, true)
           if ($("#measureDetailInformation").css('left') != ($('#text_view_styles').prop('disabled') ? '0px' : '-285px')) $('#measureDetailBorder').trigger('click');
 
+        }
+      );
+
+      $('#measureEditContainer').on('click', '.conjunction:first-child',
+        function(){
+          $temp = $(this).parent(':not(.text_view_highlight)');
+          $('.text_view_highlight').css('border-left-color', 'gainsboro').removeClass('text_view_highlight');
+          $temp.css('border-left-color', '#40B3BC').addClass('text_view_highlight');
         }
       );
 

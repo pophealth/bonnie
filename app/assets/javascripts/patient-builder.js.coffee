@@ -96,15 +96,59 @@ class @bonnie.PatientBuilder
       onSelect: (selectedDate) -> $( "#element_start" ).datetimepicker( "option", "maxDate", new Date(selectedDate) )
     }).datetimepicker('setDate', new Date(data_criteria.end_date));
 
-    $('#element_value').val(data_criteria.value)
-    $('#element_value_unit').val(data_criteria.value_unit)
+    element.find('input.value_type[type=radio]').change(
+        ( ->
+          element.find('input.value_type[type=radio]').not(@).prop('checked', null)
+          element.find('.criteria_value_value').children().show().not('.' +
+            switch(if @ instanceof String then @toString() else $(@).val())
+              when 'PQ' then 'data_criteria_value'
+              when 'CD' then 'data_criteria_oid'
+          ).hide()
+          arguments.callee
+        ).call data_criteria.value && data_criteria.value.type || 'PQ'
+      ).filter('[value=' + (data_criteria.value && data_criteria.value.type || 'PQ') + ']').prop('checked', 'checked')
+    element.find('select.data_criteria_oid').val(data_criteria.value && data_criteria.value.code_list_id)
+
+    element.find('select[name=negation]').val('true' if data_criteria.negation)
+    element.find('.negation_reason_oid').slideDown() if data_criteria.negation
+    element.find('select[name=negation_code_list_id]').val(data_criteria.negation_code_list_id)
+
+    field_element = $(element).find('.field_value')
+    i = 0
+    $.each(data_criteria.field_values || {}, (k, e) ->
+      $(f = field_element[i++]).find('.field_type').val(k)
+      $(f).find('.data_criteria_oid').val(e.code_list_id)
+    )
 
     $('#element_update').click(=>
       data_criteria = @selectedDataCriteria($('#element_id').val())
       data_criteria.start_date = new Date($('#element_start').val()).getTime()
       data_criteria.end_date = new Date($('#element_end').val()).getTime()
-      data_criteria.value = $('#element_value').val()
-      data_criteria.value_unit = $('#element_value_unit').val()
+      data_criteria.value = switch $(element).find('.criteria_value input.value_type[type=radio]:checked').val()
+        when 'PQ'
+          {
+            type: 'PQ'
+            value: $('#element_value').val()
+            unit: $('#element_value_unit').val()
+          } if $('#element_value').val()
+        when 'CD'
+          {
+            type: 'CD'
+            code_list_id: $(element).find('.criteria_value .data_criteria_oid').val()
+            title: $(element).find('.criteria_value .data_criteria_oid > option:selected').text()
+          } if $(element).find('.criteria_value .data_criteria_oid').val()
+      data_criteria.negation = $(element).find('select[name=negation]').val()
+      data_criteria.negation_code_list_id = if data_criteria.negation then $(element).find('select[name=negation_code_list_id]').val() else null
+
+      data_criteria.field_values = {}
+      $(element).find('.field_value').each((i, e) =>
+        data_criteria.field_values[$(e).find('.field_type').val()] = {
+          code_list_id: oid = $(e).find('.data_criteria_oid').val()
+          title: @value_sets[oid].concept
+          type: 'CD'
+        } if @value_sets[$(e).find('.data_criteria_oid').val()]
+      )
+
       @updateTimeline()
       @timelineToDataCriteria(data_criteria)
       $('#workspace').empty()
@@ -119,7 +163,7 @@ class @bonnie.PatientBuilder
       left_dc = @selectedDataCriteria($(left).data('criteria-id'))
       right_dc = @selectedDataCriteria($(right).data('criteria-id'))
       @getDateString(left_dc.start_date) > @getDateString(right_dc.start_date) ? 1 : -1;
-      );
+    );
     container.append(children);
 
 
@@ -162,6 +206,9 @@ class @bonnie.PatientBuilder
         end_date: data.end_date
         value: data.value if data.value
         value_unit: data.value_unit if data.value
+        negation: data.negation
+        negation_code_list_id: data.negation_code_list_id
+        field_values: data.field_values
       })
     );
     $(form).ajaxSubmit({
@@ -175,7 +222,7 @@ class @bonnie.PatientBuilder
         data_criteria: JSON.stringify(data_criteria)
       }
       success: (r)->
-        document.location.href = $(form).find('input.redirect_url[type=hidden]').val() if r
+        document.location.href = if $(form).data('redirect_matrix') then $(form).find('input.redirect_matrix_url[type=hidden]').val() else $(form).find('input.redirect_url[type=hidden]').val() if r
       error: (XHR, title, r)->
         alert(title + "\n" + r)
     });
@@ -196,6 +243,10 @@ class PatientBuilderPage
             criteria.end_date = data_criteria.end_date
             criteria.value = data_criteria.value
             criteria.value_unit = data_criteria.value_unit
+            criteria.negation = data_criteria.negation
+            criteria.negation_code_list_id = data_criteria.negation_code_list_id
+            criteria.field_values = data_criteria.field_values
+
             bonnie.patientBuilder.timelineToDataCriteria(criteria)
         bonnie.patientBuilder.updateTimeline()
         $('#workspace .close_edit').click()

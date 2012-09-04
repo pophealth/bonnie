@@ -15,6 +15,7 @@
   border-radius: inherit;
   border: none;
   margin: 0;
+  clear: left;
 }
 
 #measureEditContainer .paramGroup {
@@ -26,6 +27,7 @@
   -moz-border-radius: inherit;
   -webkit-border-radius: inherit;
   padding: 0;
+  margin-left: 15px;
 }
 
 #measureEditContainer .paramItem .paramText {
@@ -68,6 +70,10 @@
 
     .paramItem {
       cursor: inherit;
+
+      &:not(.ui-draggable){
+        border-left: 2px solid gainsboro;
+      }
 
       .block-down-arrow + .paramGroup {
         margin-left: 25px;
