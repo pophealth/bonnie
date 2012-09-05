@@ -94,6 +94,10 @@ namespace :measures do
     if args.delete_existing
       user.measures.each {|measure| measure.value_sets.destroy_all}
       count = user.measures.destroy_all
+      
+      source_dir = File.join(".", "tmp", "measures")
+      FileUtils.rm_r Dir.glob(source_dir)
+      
       puts "Deleted #{count} measures assigned to #{user.username}"
     end
 

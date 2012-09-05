@@ -59,9 +59,9 @@ module Measures
       FileUtils.mkdir_p html_out_path
       FileUtils.cp(html_path, File.join(html_out_path,"#{measure._id}.html")) if html_path
       
-      value_sets_out_path = File.join(".", "tmp", 'measures', 'value_sets')
-      FileUtils.mkdir_p value_sets_out_path
-      FileUtils.cp(value_sets_path, File.join(value_sets_out_path,"#{measure._id}.xls"))
+      value_set_out_path = File.join(".", "tmp", 'measures', 'value_sets')
+      FileUtils.mkdir_p value_set_out_path
+      FileUtils.cp(value_set_path, File.join(value_set_out_path,"#{measure._id}.xls"))
       
       hqmf_out_path = File.join(".", "tmp", "measures", "hqmf")
       FileUtils.mkdir_p hqmf_out_path
