@@ -104,7 +104,7 @@ namespace :measures do
       codes_path = Dir.glob(File.join(measure_dir,'*.xls')).first
       html_path = Dir.glob(File.join(measure_dir,'*.html')).first
       begin
-        measure = Measures::Loader.load(hqmf_path, codes_path, user, nil, true, html_path)
+        measure = Measures::Loader.load(hqmf_path, codes_path, user, nil, true, html_path, codes_path)
         puts "Measure #{measure.measure_id} (#{measure.title}) successfully loaded.\n"
       rescue Exception => e
         puts "Loading Measure #{entry} failed: #{e.message}: [#{hqmf_path},#{codes_path}] \n"

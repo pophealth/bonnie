@@ -3,7 +3,7 @@ module Measures
   # Utility class for loading measure definitions into the database
   class Loader
 
-    def self.load(hqmf_path, value_set_path, user, value_set_format=nil, persist = true, html_path=nil)
+    def self.load(hqmf_path, value_set_path, user, value_set_format=nil, persist = true, html_path=nil, value_sets_path=nil)
 
       measure = Measure.new
 
@@ -57,10 +57,11 @@ module Measures
 
       html_out_path = File.join(".","tmp",'measures','html')
       FileUtils.mkdir_p html_out_path
-
-      if html_path
-        FileUtils.cp(html_path, File.join(html_out_path,"#{measure._id}.html"))
-      end
+      FileUtils.cp(html_path, File.join(html_out_path,"#{measure._id}.html")) if html_path
+      
+      value_sets_out_path = File.join(".", "tmp", 'measures', 'value_sets')
+      FileUtils.mkdir_p value_sets_out_path
+      FileUtils.cp(value_sets_path, File.join(value_sets_out_path,"#{measure._id}.xls")) if value_sets_path
 
       measure.save! if persist
       measure
