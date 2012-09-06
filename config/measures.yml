@@ -1,0 +1,383 @@
+measures: &measures
+  title: Meaningful Use Stage 2 Quality Bundle
+  version: 0.0.1
+  "0002":
+    type: ep
+    category: Misc
+    episode_of_care: false
+  "0004":
+    type: ep
+    category: Alcohol/Drug
+    episode_of_care: false
+  "0018":
+    type: ep
+    category: Blood Pressure
+    episode_of_care: false
+  "0022":
+    type: ep
+    category: Elderly
+    episode_of_care: false
+  "0024":
+    type: ep
+    category: Weight
+    episode_of_care: false
+  "0028":
+    type: ep
+    category: Tobacco
+    episode_of_care: false
+  "0031":
+    type: ep
+    category: Cancer
+    episode_of_care: false
+  "0032":
+    type: ep
+    category: Cancer
+    episode_of_care: false
+  "0033":
+    type: ep
+    category: Women
+    episode_of_care: false
+  "0034":
+    type: ep
+    category: Cancer
+    episode_of_care: false
+  "0036":
+    type: ep
+    category: Asthma
+    episode_of_care: false
+  "0038":
+    type: ep
+    category: Immunization
+    episode_of_care: false
+  "0041":
+    type: ep
+    category: Immunization
+    episode_of_care: false
+  "0043":
+    type: ep
+    category: Immunization
+    episode_of_care: false
+  "0052":
+    type: ep
+    category: Back Pain
+    episode_of_care: false
+  "0055":
+    type: ep
+    category: Diabetes
+    episode_of_care: false
+  "0056":
+    type: ep
+    category: Diabetes
+    episode_of_care: false
+  "0059":
+    type: ep
+    category: HemA1C
+    episode_of_care: false
+  "0060":
+    type: ep
+    category: HemA1C
+    episode_of_care: false
+  "0061":
+    type: ep
+    category: Diabetes
+    episode_of_care: false
+  "0062":
+    type: ep
+    category: Diabetes
+    episode_of_care: false
+  "0064":
+    type: ep
+    category: LDL
+    episode_of_care: false
+  "0068":
+    type: ep
+    category: IVD
+    episode_of_care: false
+  "0069":
+    type: ep
+    category: Misc
+    episode_of_care: false
+  "0070":
+    type: ep
+    category: CAD
+    episode_of_care: false
+  "0073":
+    type: ep
+    category: IVD
+    episode_of_care: false
+  "0075":
+    type: ep
+    category: IVD
+    episode_of_care: false
+  "0081":
+    type: ep
+    category: HF
+    episode_of_care: false
+  "0083":
+    type: ep
+    category: HF
+    episode_of_care: false
+  "0086":
+    type: ep
+    category: Glaucoma
+    episode_of_care: false
+  "0088":
+    type: ep
+    category: Diabetic Retinopathy
+    episode_of_care: false
+  "0089":
+    type: ep
+    category: Diabetic Retinopathy
+    episode_of_care: false
+  "0101":
+    type: ep
+    category: Falls
+    episode_of_care: false
+  "0104":
+    type: ep
+    category: Depression
+    episode_of_care: true
+  "0105":
+    type: ep
+    category: Depression
+    episode_of_care: false
+  "0108":
+    type: ep
+    category: ADHD
+    episode_of_care: false
+  "0110":
+    type: ep
+    category: Depression
+    episode_of_care: false
+  "0384":
+    type: ep
+    category: Oncology
+    episode_of_care: true
+  "0385":
+    type: ep
+    category: Cancer
+    episode_of_care: false
+  "0387":
+    type: ep
+    category: Cancer
+    episode_of_care: false
+  "0389":
+    type: ep
+    category: Cancer
+    episode_of_care: false
+  "0403":
+    type: ep
+    category: HIV
+    episode_of_care: false
+  "0405":
+    type: ep
+    category: HIV
+    episode_of_care: false
+  "0407":
+    type: ep
+    category: HIV
+    episode_of_care: false
+  "0418":
+    type: ep
+    category: Depression
+    episode_of_care: false
+  "0419":
+    type: ep
+    category: Documentation
+    episode_of_care: true
+  "0421":
+    type: ep
+    category: Weight
+    episode_of_care: false
+  "0564":
+    type: ep
+    category: Cataracts
+    episode_of_care: false
+  "0565":
+    type: ep
+    category: Cataracts
+    episode_of_care: false
+  "0608":
+    type: ep
+    category: Women
+    episode_of_care: false
+  "0710":
+    type: ep
+    category: Depression
+    episode_of_care: false
+  "0712":
+    type: ep
+    category: Depression
+    episode_of_care: false
+  "1365":
+    type: ep
+    category: Depression
+    episode_of_care: true
+  "1401":
+    type: ep
+    category: Depression
+    episode_of_care: false
+  "ChildDentalDecay/1335":
+    type: ep
+    category: Dentistry
+    episode_of_care: false
+  "PrimaryCariesPrevention/1419":
+    type: ep
+    category: Dentistry
+    episode_of_care: false
+  "CholesterolScreening_risk":
+    type: ep
+    category: Cholesterol
+    episode_of_care: false
+  "CholesterolScreening_test":
+    type: ep
+    category: Cholesterol
+    episode_of_care: false
+  "DementiaCognitive":
+    type: ep
+    category: Dementia
+    episode_of_care: false
+  "ONC103/HTNImprovement":
+    type: ep
+    category: Hypertension
+    episode_of_care: false
+  "ONC110/referral":
+    type: ep
+    category: Referral
+    episode_of_care: false
+  "ONC104a/FSAKNEE":
+    type: ep
+    category: Knee Replacement
+    episode_of_care: false
+  "ONC104b/FSAHIP":
+    type: ep
+    category: Hip Replacement
+    episode_of_care: false
+  "ONC106/FSACHF":
+    type: ep
+    category: Heart Failure
+    episode_of_care: false
+  "ONC111/ADE":
+    type: ep
+    category: ADE
+    episode_of_care: false
+  "BPScreening":
+    type: ep
+    category: Hypertension
+    episode_of_care: true
+  "0142":
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "0147":
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "0163":
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "0164":
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "0338":
+    type: eh
+    category: Miscellaneous
+    episode_of_care: false
+  "0371":
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "0372":
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "373":
+    type: eh
+    category: Miscellaneous
+    episode_of_care: false
+  "0374":
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "0375":
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "0376":
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "0435":
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "0436":
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "0437":
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "0438":
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "0439":
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "0440":
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "0441":
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "0453":
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "0469":
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "0480":
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "0495":
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "0496":
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "0497":
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "0527":
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "0528":
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "0639":
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "0716":
+    type: eh
+    category: Miscellaneous
+    episode_of_care: false
+  "1354":
+    type: eh
+    category: Miscellaneous
+    episode_of_care: false

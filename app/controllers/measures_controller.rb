@@ -140,10 +140,11 @@ class MeasuresController < ApplicationController
   end
 
   def export_all
+    binding.pry
     measures = Measure.by_user(current_user)
 
     file = Tempfile.new(["#{current_user.id}-#{Time.now.to_i}", ".zip"])
-    Measures::Exporter.export(file, measures)
+    Measures::Exporter.export_bundle(measures, patients, title, version)
 
     send_file file.path, :type => 'application/zip', :disposition => 'attachment', :filename => "measures.zip"
   end

@@ -1,9 +1,133 @@
 module Measures
-
   # Exports measure defintions in a pophealth compatible format
   class Exporter
-    def self.export(file, measures)
+    # Export a list of patients to a zip file. Contains the proper formatting of a bundle for Cypress, i.e.:
+    #
+    # bundle.json
+    #   title
+    #   version
+    #   measure_ids[]
+    #   patient_ids[]
+    #   library_functions[]
+    #   measure_patient_results{}
+    #     effective_date
+    #     measure0000 (contains all populations, including multiples)
+    #       IPP[] (contains patient IDs)
+    # measures/ (contains decks)
+    #   eh/
+    #   ep/
+    # lib/ (contains js libraries for calculation)
+    # patients/ (contains decks)
+    #   qrda/ (contains formats)
+    #     c32/ (contains patients by standard)
+    #     ccr/
+    #     json/
+    #   eh/
+    #   ep/
+    # src/ (contains original documents)
+    #   patients/ (contains html describing patients)
+    #     qrda/ (contains html)
+    #     eh/
+    #     ep/
+    #   measures/ (contains decks)
+    #     eh/
+    #       measure0000/ (contains source files)
+    #         0000.html
+    #         0000.xls
+    #         hqmf1.xml
+    #         hqmf2.xml
+    #     ep/
+    #
+    # @param [Hash] measures Tests mapped to their list of meausres.
+    # @param [Hash] patients Tests mapped to their list of patients.
+    # @param [String] title The title of this bundle.
+    # @param [String] version The version of this bundle.
+    # @return A bundle containing all measures, matching test patients, and some additional goodies.
+    def self.export_bundle(measures, patients, title, version)
+      file = Tempfile.new("bundle-#{Time.now.to_i}")
+      
+      # Define paths to be used while generating the zip file
+      measures_path = "measures"
+      libraries_path = "lib"
+      patients_path = "patients"
+      source_path = "src"
+      source_patients_path = File.join(source_path, "patients")
+      source_measures_path = File.join(source_path, "measures")
+      
+      Zip::ZipOutputStream.open(file.path) do |zip|
+        # Bundle up all of the measure information.
+        measures.each do |test_type, test_measures|
+          test_measures.each do |measure|
+            measure_path = File.join(measure_path, test_type)
+            source_measure_path = File.join(source_measures_path, test_type, measure.measure_id)
+            (0..measure.populations.count-1).each do |population_index|
+              # Generate the JSON for this measure.
+              measure_json = Measures::Exporter.measure_json(measure.measure_id, population_index)
+              zip.put_next_entry(File.join(measure_path, "#{measure.measure_id}#{measure_json[:sub_id]}.json"))
+              zip << measure_json.to_json
+              
+              # Collect the source files.
+              source_html = File.read(File.expand_path(File.join('.', 'tmp', 'measures', 'html', "#{@measure.id}.html")))
+              source_value_sets = File.read(File.expand_path(File.join('.', 'tmp', 'measures', 'value_sets', "#{@measure.id}.xls")))
+              source_hqmf1 = File.read(File.expand_path(File.join('.', 'tmp', 'measures', 'hqmf', "#{@measure.id}.xml")))
+              generated_hqmf2 = HQMF2::Generator::ModelProcessor.to_hqmf(measure.as_hqmf_model)
+              
+              # Add all of the files to the zip.
+              zip.put_next_entry(source_measure_path, "#{measure.measure_id}.html")
+              zip << source_html
+              zip.put_next_entry(source_measure_path, "#{measure.measure_id}.xls")
+              zip << source_value_sets
+              zip.put_next_entry(source_measure_path, "hqmf1.xml")
+              zip << source_hqmf1
+              zip.put_next_entry(source_measure_path, "hqmf2.xml")
+              zip << generated_hqmf2
+            end
+          end
+        end
 
+        # Bundle up all of the test patients.
+        patients.each do |test_type, test_patients|
+          test_patients.each do |patient|
+            filename = TPG::Exporter.patient_filename(patient)
+
+            # Define path names.
+            c32_path = File.join(patients_path, test_type, "c32", "#{filename}.xml")
+            ccr_path = File.join(patients_path, test_type, "ccr", "#{filename}.xml")
+            json_path = File.join(patients_path, test_type, "json", "#{filename}.json")
+
+            # Generate a C32, CCR, and JSON file for each patient.
+            zip.put_next_entry(c32_path)
+            zip << HealthDataStandards::Export::C32.export(patient)
+            zip.put_next_entry(ccr_path)
+            zip << HealthDataStandards::Export::CCR.export(patient)
+            zip.put_next_entry(json_path)
+            zip << JSON.pretty_generate(JSON.parse(patient.to_json))
+            
+            # Generate the source HTML.
+            html_path = File.join(source_patients_path, test_type, "#{filename}.html")
+            zip.put_next_entry(html_path)
+            zip << TPG::Exporter.html_contents(patient)
+          end
+        end
+        
+        # Gather all JS library files.
+        library_functions = Measures::Exporter.library_functions
+        library_functions.each do |name, contents|
+          zip.put_next_entry(File.join(library_path, "#{name}.js"))
+          zip << contents
+        end
+        
+        # Add the bundle metadata.
+        bundle_json = Measures::Exporter.bundle_json(title, version, patients.values.flatten, measure_ids.values.flatten, library_functions.keys)
+        zip.put_next_entry("bundle.json")
+        zip << bundle_json.to_json
+      end
+      
+      file.close
+      file
+    end
+    
+    def self.export(file, measures)
       Zip::ZipOutputStream.open(file.path) do |zip|
         measure_path = "measures"
         json_path = File.join(measure_path, "json")
@@ -38,8 +162,7 @@ module Measures
       library_functions
     end
     
-    def self.measure_json(measure_id, population_index=0)
-      
+    def self.measure_json(measure_id, population_index=0)  
       population_index ||= 0
       
       measure = Measure.by_measure_id(measure_id).first
@@ -71,14 +194,28 @@ module Measures
       json
     end
 
-    def self.bundle_json(library_names)
+    def self.bundle_json(title, version, patients, measures, library_names)
+      patients_ids = patients.values.flatten.map{|patient| patient.id}
+      measures_ids = measures.values.flatten.map{|measure| measure.id}
+        
       {
-        name: "Meaningful Use Stage 2 Clinical Quality Measures",
-        license: "<p>Performance measures and related data specifications (the \"Measures\") are copyrighted by\nthe noted quality measure providers as indicated in the applicable Measure.  Coding\nvocabularies are owned by their copyright owners.  By using the Measures, a user\n(\"User\") agrees to these Terms of Use.  Measures are not clinical guidelines and do not\nestablish a standard of medical care and quality measure providers are not responsible\nfor any use of or reliance on the Measures.</p>\n\n<p><strong>THE MEASURES AND SPECIFICATIONS ARE PROVIDED \"AS IS\" WITHOUT ANY WARRANTY OF\nANY KIND, AND ANY AND ALL IMPLIED WARRANTIES ARE HEREBY DISCLAIMED, INCLUDING ANY\nWARRANTY OF NON-INFRINGEMENT, ACCURACY, MERCHANTABILITY AND FITNESS FOR A PARTICULAR\nPURPOSE.  NO QUALITY MEASURE PROVIDER, NOR ANY OF THEIR TRUSTEES, DIRECTORS, MEMBERS,\nAFFILIATES, OFFICERS, EMPLOYEES, SUCCESSORS AND/OR ASSIGNS WILL BE LIABLE TO YOU FOR\nANY DIRECT, INDIRECT, SPECIAL, EXEMPLARY, INCIDENTAL, PUNITIVE, AND/OR CONSEQUENTIAL\nDAMAGE OF ANY KIND, IN CONTRACT, TORT OR OTHERWISE, IN CONNECTION WITH THE USE OF THE\nPOPHEALTH TOOL OR THE MEASURES, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH LOSS OR DAMAGE.\n</strong></p>\n\n<p>The Measures are licensed to a User for the limited purpose of using, reproducing and\ndistributing the Measures with the popHealth Tool as delivered to User, without any\nmodification, for commercial and noncommercial uses, but such uses are only permitted\nif the copies of the Measures contain this complete Copyright, Disclaimer and Terms\nof Use.  Users of the Measures may not alter, enhance, or otherwise modify the Measures.</p>\n\n<p><strong>NOT A CONTRIBUTION</strong> - The Measures, including specifications and coding,\nas used in the popHealth Tool, are not a contribution under the Apache license. Coding\nin the Measures is provided for convenience only and necessary licenses for use should\nbe obtained from the copyright owners. Current Procedural Terminology \n(CPT<span class=\"reg\">&reg;</span>) &copy; 2004-2010 American Medical Association. \nLOINC<span class=\"reg\">&reg;</span> &copy; 2004 Regenstrief Institute,\nInc. SNOMED Clinical Terms<span class=\"reg\">&reg;</span> \n(SNOMED CT<span class=\"reg\">&reg;</span>) &copy; 2004-2010 International Health\nTerminology Standards Development Organization.</p>",
-        extensions: library_names,
-        measures: []
+        title: title,
+        version: version,
+        measure_ids: measures_ids,
+        patient_ids: patients_ids,
+        library_functions: library_functions.keys,
+        measure_patient_results: {effective_date: {}}
       }
     end
+
+    #def self.bundle_json(library_names)
+    # {
+    #   name: "Meaningful Use Stage 2 Clinical Quality Measures",
+    #   license: "<p>Performance measures and related data specifications (the \"Measures\") are copyrighted by\nthe noted quality measure providers as indicated in the applicable Measure.  Coding\nvocabularies are owned by their copyright owners.  By using the Measures, a user\n(\"User\") agrees to these Terms of Use.  Measures are not clinical guidelines and do not\nestablish a standard of medical care and quality measure providers are not responsible\nfor any use of or reliance on the Measures.</p>\n\n<p><strong>THE MEASURES AND SPECIFICATIONS ARE PROVIDED \"AS IS\" WITHOUT ANY WARRANTY OF\nANY KIND, AND ANY AND ALL IMPLIED WARRANTIES ARE HEREBY DISCLAIMED, INCLUDING ANY\nWARRANTY OF NON-INFRINGEMENT, ACCURACY, MERCHANTABILITY AND FITNESS FOR A PARTICULAR\nPURPOSE.  NO QUALITY MEASURE PROVIDER, NOR ANY OF THEIR TRUSTEES, DIRECTORS, MEMBERS,\nAFFILIATES, OFFICERS, EMPLOYEES, SUCCESSORS AND/OR ASSIGNS WILL BE LIABLE TO YOU FOR\nANY DIRECT, INDIRECT, SPECIAL, EXEMPLARY, INCIDENTAL, PUNITIVE, AND/OR CONSEQUENTIAL\nDAMAGE OF ANY KIND, IN CONTRACT, TORT OR OTHERWISE, IN CONNECTION WITH THE USE OF THE\nPOPHEALTH TOOL OR THE MEASURES, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH LOSS OR DAMAGE.\n</strong></p>\n\n<p>The Measures are licensed to a User for the limited purpose of using, reproducing and\ndistributing the Measures with the popHealth Tool as delivered to User, without any\nmodification, for commercial and noncommercial uses, but such uses are only permitted\nif the copies of the Measures contain this complete Copyright, Disclaimer and Terms\nof Use.  Users of the Measures may not alter, enhance, or otherwise modify the Measures.</p>\n\n<p><strong>NOT A CONTRIBUTION</strong> - The Measures, including specifications and coding,\nas used in the popHealth Tool, are not a contribution under the Apache license. Coding\nin the Measures is provided for convenience only and necessary licenses for use should\nbe obtained from the copyright owners. Current Procedural Terminology \n(CPT<span class=\"reg\">&reg;</span>) &copy; 2004-2010 American Medical Association. \nLOINC<span class=\"reg\">&reg;</span> &copy; 2004 Regenstrief Institute,\nInc. SNOMED Clinical Terms<span class=\"reg\">&reg;</span> \n(SNOMED CT<span class=\"reg\">&reg;</span>) &copy; 2004-2010 International Health\nTerminology Standards Development Organization.</p>",
+    #   extensions: library_names,
+    #   measures: []
+    # }
+    #end
 
     def self.popHealth_denormalize_measure_attributes(measure)
       measure_attributes = {}

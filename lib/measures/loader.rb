@@ -45,7 +45,7 @@ module Measures
         measure.measure_attributes = json["attributes"]
         measure.populations = json['populations']
 
-        measure.category = 'Miscellaneous'
+        measure.category = APP_CONFIG["measures"][measure.measure_id] ? APP_CONFIG["measures"][measure.measure_id]["category"] : "Miscellaneous"
         #measure.endorser = params[:measure][:endorser]
         #measure.steward = params[:measure][:steward]
 
