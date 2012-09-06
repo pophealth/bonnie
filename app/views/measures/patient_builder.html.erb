@@ -791,6 +791,32 @@
               <input type="text" class="span3" value="<%= Time.at(@record['birthdate'] || 946715400).strftime('%m/%d/%Y %H:%M') %>" name="birthdate" id="birthdate" style="z-index:500; position: relative;" >
             </div>
           </div>
+
+          <% if !@dropped_data_criteria.empty? %>
+	          <div class="row" style="padding: 10px; background-color: #ED4337;">
+	            <div class="span4" style="font-weight: bold">
+	              Dropped Data Criteria
+	            </div>
+	            <div class="span6" style="font-weight: bold">
+	              <% @dropped_data_criteria.each do |dropped| %>
+		                 <b><%= dropped['id'] %></b><br>
+		                 <div style="padding-left: 10px;">
+		                 <% dropped.each do |key, value| %>
+                       <% if (key != 'id') %>
+                         <% if (key == 'start_date' || key == 'end_date') %>
+                           <%= key %>: <%= Time.at(value/1000) %> <br/>
+	                       <% else %>
+                           <%= key %>: <%= value%> <br/>
+		                     <% end %>
+	                     <% end %>
+                     <% end %>
+                     </div>
+                  <br/>
+                <% end %>	
+	            </div>
+	          </div>
+          <% end %>
+	
           <div class="row">
             <div class="span4" style="font-weight: bold">
               Clinical Attributes
