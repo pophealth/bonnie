@@ -1,5 +1,3 @@
-# require 'json'  TODO: does rails3 need this anymore?
-
 class ValueSetsController < ApplicationController
   respond_to :html, :json, :js
   skip_authorization_check
@@ -36,11 +34,11 @@ class ValueSetsController < ApplicationController
         # very important to render json here and not text
         # even when debugging because ajaxForm plugin will break
         json_form = JSON.parse(params[:data].to_json)
-        vs = ValueSet.new json_form
-        if vs.save
-          render :json => { :message => "success", :redirect => value_set_url(vs) }
+        @value_set = ValueSet.new json_form
+        if @value_set.save
+          render :json => { :message => "success", :redirect => value_set_url(@value_set) }
         else
-          render :json => { :message => "failed", :errors => vs.errors }
+          render :json => { :message => "failed", :errors => @value_set.errors }
         end
         # redirect_to :action => 'show', :id => vs.id
       }

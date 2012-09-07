@@ -1,13 +1,30 @@
 require 'factory_girl'
 
 FactoryGirl.define do
+  
+  # "2.16.840.1.113883.3.464.0002.1138"
+  sequence :oid do
+    s = ""
+    9.times { s << (1..9).to_a.sample(rand(6)+1).join.to_s << "." }
+    s.chop
+  end
 
   factory :value_set do |f|
     f.category { ValueSet::Categories.sample }
-    f.oid "2.16.840.1.113883.3.464.0002.1138"
-    f.code_set "RxNorm"
+    f.oid { generate :oid }
     f.concept "Encounters ALL inpatient and ambulatory"
-    f.codes { %w(99201 99202 99203 99204 99205) }
+    f.code_sets { [ FactoryGirl.build(:code_set) ] }
+  end
+  
+  factory :code_set do |c|
+    c.oid { generate :oid }
+    c.sequence(:key) {|n| "key#{n}" }
+    c.sequence(:concept) {|n| "concept#{n}" }
+    c.sequence(:category) {|n| "category#{n}" }
+    c.sequence(:description) {|n| "description#{n}" }
+    c.sequence(:organization) {|n| "organization#{n}" }
+    c.sequence(:version) {|n| "version#{n}" }
+    c.codes { (100..200).to_a.sample(rand(3)+1) }   # codes: [165, 173, 119]
   end
 
   factory :measure do |m| 
