@@ -45,7 +45,7 @@ group :test, :develop do
   # Run 'bundle exec autotest' to rerun relevant tests whenever a file/test is changed.
   gem 'autotest-standalone' # The file '.autotest' makes sure the tests are run via test server (spork).
   gem 'autotest-rails-pure' # -pure gives us autotest without ZenTest gem.
-  gem 'autotest-fsevent'    # react to filesystem events, save your CPU
+  gem 'autotest-fsevent'    # react to filesystem events, save your CPU  
   gem 'spork-minitest'
 end
 

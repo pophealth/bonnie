@@ -10,3 +10,6 @@ class Autotest
     end
   end
 end
+
+# tighten up the time before the test is run
+ObjectSpace.each_object(Autotest).first.sleep = 10
