@@ -5,20 +5,19 @@ module Measures
     include Measures::DatabaseAccess
     # Create a new Importer.
     # @param [String] db_name the name of the database to use
-    def initialize(db_name = nil,db_host = nil,db_port = nil)
+    def initialize(db_name = nil, db_host = nil, db_port = nil)
       determine_connection_information(db_name,db_host,db_port)
       @db = get_db
     end
 
     def import(zip)
-
       entries_by_type = {
         libraries: {},
         bundle: nil,
         json: {}
       }
 
-       Zip::ZipFile.open(zip.path) do |zipfile|
+      Zip::ZipFile.open(zip.path) do |zipfile|
         zipfile.entries.each do |entry|
           entries_by_type[:libraries][entry_key(entry.name,"js")] = zipfile.read(entry.name) if entry.name.match /libraries/
           entries_by_type[:json][entry_key(entry.name,"json")] = zipfile.read(entry.name) if entry.name.match /\/json\//
@@ -48,7 +47,6 @@ module Measures
       end
 
       measure_defs.count
-
     end
 
     def drop_measures
@@ -64,7 +62,6 @@ module Measures
     end
 
     def save_system_js_fn(name, fn)
-
       fn = "function () {\n #{fn} \n }"
 
       @db['system.js'].save(

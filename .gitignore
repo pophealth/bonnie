@@ -10,6 +10,9 @@
 # Ignore the default SQLite database.
 /db/*.sqlite3
 
+# IMPORTANT - Houses measure source files on load that cannot be released to github. Be careful.
+/db/measures
+
 # Ignore all logfiles and tempfiles.
 /log/*.log
 /tmp
