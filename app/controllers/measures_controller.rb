@@ -314,10 +314,13 @@ class MeasuresController < ApplicationController
       }.map(&:to_a).flatten
     ]
     
-    # check to see if there are any data criteria that we cannot find.  If there are, we want to remove them.
-    dropped_ids = (@record.source_data_criteria.map{|e| e['id']}).select {|e| @data_criteria[e].nil? && e != 'MeasurePeriod' }
     @dropped_data_criteria = []
-    @record.source_data_criteria.delete_if {|dc| dropped = dropped_ids.include? dc['id']; @dropped_data_criteria << dc if dropped; dropped}
+    if (@record.respond_to? :source_data_criteria)
+      # check to see if there are any data criteria that we cannot find.  If there are, we want to remove them.
+      dropped_ids = (@record.source_data_criteria.map{|e| e['id']}).select {|e| @data_criteria[e].nil? && e != 'MeasurePeriod' }
+
+      @record.source_data_criteria.delete_if {|dc| dropped = dropped_ids.include? dc['id']; @dropped_data_criteria << dc if dropped; dropped}
+    end
     
     @value_sets = Measure.where({'measure_id' => {'$in' => measure_list}}).map{|m| m.value_sets}.flatten(1).uniq
 
