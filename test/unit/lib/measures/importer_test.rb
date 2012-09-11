@@ -42,7 +42,7 @@ class ImporterTest < ActiveSupport::TestCase
     @db['measures'].count.must_equal 1
     @db['bundles'].count.must_equal 1
     
-    measure = @db['measures'].find({id:'0002'}).first
+    measure = @db['measures'].find({nqf_id:'0002'}).first
     bundle = @db['bundles'].find({}).first
     
     expected_bundle_keys = ["_id", "name", "license", "extensions", "measures"]
@@ -59,7 +59,8 @@ class ImporterTest < ActiveSupport::TestCase
     end
 
     measure['_id'].must_equal measure_id
-    measure['id'].must_equal '0002'
+    measure['nqf_id'].must_equal '0002'
+    measure['id'].must_equal '2E679CD2-3FEC-4A75-A75A-61403E5EFEE8'
     measure['name'].must_equal "Appropriate Testing for Children with Pharyngitis"
     measure['bundle'].must_equal bundle['_id']
     refute_nil measure['population']

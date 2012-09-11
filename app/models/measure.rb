@@ -7,6 +7,9 @@ class Measure
 
   field :endorser, type: String
   field :measure_id, type: String
+  field :hqmf_id, type: String
+  field :hqmf_set_id, type: String
+  field :hqmf_version_number, type: Integer
   field :title, type: String
   field :description, type: String
   field :category, type: String

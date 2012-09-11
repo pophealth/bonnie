@@ -205,7 +205,7 @@
             raw_data.forEach(
               function(patient_cache_row){
 
-                var current_measure = [patient_cache_row.value.measure_id, patient_cache_row.value.sub_id];
+                var current_measure = [patient_cache_row.value.nqf_id, patient_cache_row.value.sub_id];
                 var patient_id = patient_cache_row.value.patient_id;
                 var x = getHeaderIndex(headers, current_measure)
                 var y = getPatientIndex(nodes, patient_id)

@@ -40,6 +40,9 @@ module Measures
         json = JSON.parse(hqmf.to_json.to_json,max_nesting: 250)
 
         measure.measure_id = json["id"]
+        measure.hqmf_id = json["hqmf_id"]
+        measure.hqmf_set_id = json["hqmf_set_id"]
+        measure.hqmf_version_number = json["hqmf_version_number"]
         measure.title = json["title"]
         measure.description = json["description"]
         measure.measure_attributes = json["attributes"]

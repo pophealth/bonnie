@@ -58,15 +58,18 @@ class ExporterTest < ActiveSupport::TestCase
 
     measure_json = Measures::Exporter.measure_json(@measure.measure_id)
     
-    expected_keys = [:id,:endorser,:name,:description,:category,:steward,:population,:denominator,:numerator,:exclusions,:map_fn,:measure]
-    required_keys = [:id,:name,:description,:category,:population,:denominator,:numerator,:map_fn,:measure]
+    expected_keys = [:id,:nqf_id,:hqmf_id,:hqmf_set_id,:hqmf_version_number,:endorser,:name,:description,:category,:steward,:population,:denominator,:numerator,:exclusions,:map_fn,:measure,:population_ids]
+    
+    required_keys = [:id, :name,:description,:category,:population,:denominator,:numerator,:map_fn,:measure]
     
     expected_keys.each {|key| assert measure_json.keys.include? key}
     measure_json.keys.size.must_equal expected_keys.size
     required_keys.each {|key| refute_nil measure_json[key]}
     
     measure_json[:measure].size.must_equal 5
-    measure_json[:id].must_equal "0002"
+    measure_json[:nqf_id].must_equal "0002"
+    measure_json[:hqmf_id].must_equal '2E679CD2-3FEC-4A75-A75A-61403E5EFEE8'
+    measure_json[:id].must_equal '2E679CD2-3FEC-4A75-A75A-61403E5EFEE8'
     
   end
   

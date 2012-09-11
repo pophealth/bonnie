@@ -7,6 +7,7 @@ gem 'hqmf2js', :git => 'https://github.com/pophealth/hqmf2js.git', :branch => 'd
 gem 'hquery-patient-api', :git => 'https://github.com/pophealth/patientapi.git', :branch => 'develop'
 #gem 'hquery-patient-api', :path => '../patientapi'
 gem 'health-data-standards', :git => 'https://github.com/projectcypress/health-data-standards.git', :branch => 'develop'
+#gem 'health-data-standards', :path => '../health-data-standards'
 gem 'test-patient-generator', :git => 'https://github.com/pophealth/test-patient-generator.git', :branch => 'develop'
 #gem 'test-patient-generator', :path => '../test-patient-generator'
 gem 'quality-measure-engine', :git => 'http://github.com/pophealth/quality-measure-engine.git', :branch => 'develop'
