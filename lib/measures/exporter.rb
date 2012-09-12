@@ -13,9 +13,12 @@ module Measures
     #     effective_date
     #     measure0000 (contains all populations, including multiples)
     #       IPP[] (contains patient IDs)
-    # measures/ (contains decks)
-    #   eh/
+    # measures/ (contains types)
+    #   eh/ (contains json)
     #   ep/
+    # results/ (contains types)
+    #   by_patient.json (patient cache)
+    #   by_measure.json (query cache)
     # lib/ (contains js libraries for calculation)
     # patients/ (contains decks)
     #   qrda/ (contains formats)
@@ -50,6 +53,7 @@ module Measures
       measures_path = "measures"
       libraries_path = "lib"
       patients_path = "patients"
+      results_path = "results"
       source_path = "src"
       source_patients_path = File.join(source_path, "patients")
       source_measures_path = File.join(source_path, "measures")
@@ -84,6 +88,18 @@ module Measures
             zip << source_hqmf1
             zip.put_next_entry(File.join(source_measure_path, "hqmf2.xml"))
             zip << generated_hqmf2
+            
+            # Delete all old results for this measure because they might be out of date.
+            MONGO_DB['query_cache'].remove({'measure_id' => measure.measure_id})
+            MONGO_DB['patient_cache'].remove({'value.measure_id' => measure.measure_id})
+            
+            # Calculate the results.
+            sub_ids = measure.populations.size > 1 ? ("a".."zz").to_a.first(measure.populations.size) : [nil]
+            sub_ids.each do |sub_id|
+              effective_date = HQMF::Value.new("TS", nil, measure.measure_period["high"]["value"], true, false, false).to_time_object.to_i
+              report = QME::QualityReport.new(measure.measure_id, sub_id, {'effective_date' => effective_date })
+              report.calculate(false) unless report.calculated?
+            end
           end
         end
         
@@ -114,6 +130,16 @@ module Measures
             zip << TPG::Exporter.html_contents(patient)
           end
         end
+        
+        # Gather all measure results by patient and measure.
+        measure_ids = measures.values.flatten.map{|measure| measure.measure_id}
+        results_by_patient = MONGO_DB['patient_cache'].find({'value.measure_id' => {'$in' => measure_ids}}).to_a
+        results_by_measure = MONGO_DB['query_cache'].find({'measure_id' => {'$in' => measure_ids}}).to_a
+        
+        zip.put_next_entry(File.join(results_path, "by_patient.json"))
+        zip << results_by_patient.to_json
+        zip.put_next_entry(File.join(results_path, "by_measure.json"))
+        zip << results_by_measure.to_json
         
         # Gather all JS library files.
         library_functions = Measures::Exporter.library_functions
@@ -167,23 +193,23 @@ module Measures
         json[:sub_id] = sub_ids[population_index]
         population_title = measure.populations[population_index]['title']
         json[:subtitle] = population_title
-        json[:short_subtitle] = population_title   
+        json[:short_subtitle] = population_title
       end
       
       json
     end
 
+    # This assumes that results have already been calculated for all included measures.
     def self.bundle_json(title, version, patients, measures, library_names)
       patients_ids = patients.map{|patient| patient.id}
       measures_ids = measures.map{|measure| measure.id}
-        
+      
       {
         title: title,
         version: version,
         measure_ids: measures_ids,
         patient_ids: patients_ids,
-        library_functions: library_functions.keys,
-        measure_patient_results: {effective_date: {}}
+        library_functions: library_functions.keys
       }
     end
 

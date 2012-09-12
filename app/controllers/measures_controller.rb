@@ -152,9 +152,9 @@ class MeasuresController < ApplicationController
     
     # Gather all of the patients to export, organized by type
     patients = {}
-    patients["ep"] = Record.all.to_a
+    patients["ep"] = Record.all.to_a # TODO - These will be pulled by scope on ep and eh once the eh deck is prepared.
 
-    # Generate QRDA Category 1 patients. TODO - This shouldn't happen as part of the export function. Maybe we can generate upon loading measures.
+    # Generate QRDA Category 1 patients.
     measure_needs = {}
     measure_value_sets = {}
     measures.values.flatten.each do |measure|
