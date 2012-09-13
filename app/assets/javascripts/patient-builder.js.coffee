@@ -95,19 +95,40 @@ class @bonnie.PatientBuilder
     $('#element_end').datetimepicker({
       onSelect: (selectedDate) -> $( "#element_start" ).datetimepicker( "option", "maxDate", new Date(selectedDate) )
     }).datetimepicker('setDate', new Date(data_criteria.end_date));
+    
+    $('#null_element_end').click(->
+      if ($('#null_element_end').is(':checked'))
+        $('#element_end').disableSelection()
+        $('#element_end').datetimepicker('setDate', new Date(3000,0,1));
+        $('#element_end').css('color', '#FFF')
+      else
+        $('#element_end').enableSelection()
+        $('#element_end').datetimepicker('setDate', new Date(new Date($('#element_start').val())));
+        $('#element_end').css('color', '#000')
+    )
 
-    element.find('input.value_type[type=radio]').change(
-        ( ->
-          element.find('input.value_type[type=radio]').not(@).prop('checked', null)
-          element.find('.criteria_value_value').children().show().not('.' +
-            switch(if @ instanceof String then @toString() else $(@).val())
-              when 'PQ' then 'data_criteria_value'
-              when 'CD' then 'data_criteria_oid'
-          ).hide()
-          arguments.callee
-        ).call data_criteria.value && data_criteria.value.type || 'PQ'
-      ).filter('[value=' + (data_criteria.value && data_criteria.value.type || 'PQ') + ']').prop('checked', 'checked')
-    element.find('select.data_criteria_oid').val(data_criteria.value && data_criteria.value.code_list_id)
+    if (new Date($('#element_end').val())).getTime() == (new Date(3000,0,1)).getTime()
+      $('#element_end').disableSelection()
+      $('#element_end').datetimepicker('setDate', new Date(3000,0,1));
+      $('#element_end').css('color', '#FFF')
+      $('#null_element_end').attr('checked', true);
+
+    element.on('change', ('input.value_type[type=radio]')
+      ( ->
+        e = $(@).parentsUntil('.criteria_value').parent().first()
+        e.find('input.value_type[type=radio]').not(@).prop('checked', null)
+        e.find('.criteria_value_value').children().show().not('.' +
+          switch(if @ instanceof String then @toString() else $(@).val())
+            when 'PQ' then 'data_criteria_value'
+            when 'CD' then 'data_criteria_oid'
+        ).hide()
+      )
+    )
+    value_field = element.find('.criteria_value')
+    $.each(data_criteria.value || [], (i, e) =>
+      $(value_field[i]).find('input.value_type[type=radio]').filter('[value=' + (e.type || 'PQ') + ']').trigger('click')
+      $(value_field[i]).find('select.data_criteria_oid').val(e.code_list_id) if e.type == 'CD'
+    )
 
     element.find('select[name=negation]').val('true' if data_criteria.negation)
     element.find('.negation_reason_oid').slideDown() if data_criteria.negation
@@ -124,19 +145,25 @@ class @bonnie.PatientBuilder
       data_criteria = @selectedDataCriteria($('#element_id').val())
       data_criteria.start_date = new Date($('#element_start').val()).getTime()
       data_criteria.end_date = new Date($('#element_end').val()).getTime()
-      data_criteria.value = switch $(element).find('.criteria_value input.value_type[type=radio]:checked').val()
-        when 'PQ'
-          {
-            type: 'PQ'
-            value: $('#element_value').val()
-            unit: $('#element_value_unit').val()
-          } if $('#element_value').val()
-        when 'CD'
-          {
-            type: 'CD'
-            code_list_id: $(element).find('.criteria_value .data_criteria_oid').val()
-            title: $(element).find('.criteria_value .data_criteria_oid > option:selected').text()
-          } if $(element).find('.criteria_value .data_criteria_oid').val()
+      data_criteria.value = []
+
+      $('.criteria_value').each((i, e) =>
+        data_criteria.value.push(switch $(e).find('input.value_type[type=radio]:checked').val()
+          when 'PQ'
+            {
+              type: 'PQ'
+              value: $(e).find('#element_value').val()
+              unit: $(e).find('#element_value_unit').val()
+            } if $(e).find('#element_value').val()
+          when 'CD'
+            {
+              type: 'CD'
+              code_list_id: $(e).find('.data_criteria_oid').val()
+              title: $(e).find('.data_criteria_oid > option:selected').text()
+            } if $(e).find('.data_criteria_oid').val()
+        )
+      )
+
       data_criteria.negation = $(element).find('select[name=negation]').val()
       data_criteria.negation_code_list_id = if data_criteria.negation then $(element).find('select[name=negation_code_list_id]').val() else null
 
@@ -155,7 +182,7 @@ class @bonnie.PatientBuilder
       $('.paramItem').removeClass('editing')
     )
 
-  sortSelectedDataCriteria: () =>
+  sortSelectedDataCriteria: =>
     container = $('#patient_data_criteria');
     children = container.children("div");
 
@@ -209,6 +236,7 @@ class @bonnie.PatientBuilder
         negation: data.negation
         negation_code_list_id: data.negation_code_list_id
         field_values: data.field_values
+        oid: data.oid
       })
     );
     $(form).ajaxSubmit({

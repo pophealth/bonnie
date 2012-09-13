@@ -46,7 +46,11 @@ module Measures
       buckets = measure.parameter_json(population_index, true)
       
       json = {
-        id: measure.measure_id,
+        id: measure.hqmf_id,
+        nqf_id: measure.measure_id,
+        hqmf_id: measure.hqmf_id,
+        hqmf_set_id: measure.hqmf_set_id,
+        hqmf_version_number: measure.hqmf_version_number,
         endorser: measure.endorser,
         name: measure.title,
         description: measure.description,
@@ -65,9 +69,25 @@ module Measures
         json[:sub_id] = sub_ids[population_index]
         population_title = measure.populations[population_index]['title']
         json[:subtitle] = population_title
-        json[:short_subtitle] = population_title   
+        json[:short_subtitle] = population_title
+        json[:hqmf_id] = measure.hqmf_id
+        json[:hqmf_set_id] = measure.hqmf_set_id
+        json[:hqmf_version_number] = measure.hqmf_version_number
       end
       
+      population_ids = {}
+      ['IPP','DENOM','NUMER','EXCL','DENEXCEP'].each do |type|
+        population_key = measure.populations[population_index][type]
+        population_criteria = measure.population_criteria[population_key]
+        if (population_criteria)
+          population_ids[type] = population_criteria['hqmf_id']
+        end
+      end
+      stratification = measure['populations'][population_index]['stratification']
+      if stratification
+        population_ids['stratification'] = stratification 
+      end
+      json[:population_ids] = population_ids
       json
     end
 
