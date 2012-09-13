@@ -142,6 +142,7 @@ GEM
     hike (1.2.1)
     httpauth (0.1)
     i18n (0.6.0)
+    interception (0.1)
     journey (1.0.3)
     jquery-rails (2.0.2)
       railties (>= 3.2.0, < 5.0)
@@ -190,6 +191,9 @@ GEM
       slop (>= 2.4.4, < 3)
     pry-nav (0.2.1)
       pry (~> 0.9.9)
+    pry-rescue (0.8)
+      interception
+      pry
     rack (1.4.1)
     rack-cache (1.2)
       rack (>= 0.4)
@@ -318,6 +322,7 @@ DEPENDENCIES
   mongoid
   pry
   pry-nav
+  pry-rescue
   quality-measure-engine!
   rails (= 3.2.2)
   rb-fsevent (~> 0.9.0)

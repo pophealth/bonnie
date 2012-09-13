@@ -31,6 +31,7 @@ gem 'coderay'   # for javascript syntax highlighting
 
 gem 'pry'
 gem 'pry-nav'
+gem 'pry-rescue'
 
 group :test, :develop do
   # Pretty printed test output
