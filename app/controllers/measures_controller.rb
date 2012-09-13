@@ -331,7 +331,15 @@ class MeasuresController < ApplicationController
 
       dropped_ids = (@record.source_data_criteria.select {|e| @data_criteria[e['id']].nil? && e['id'] != 'MeasurePeriod' }).map {|dc| dc['id'] }
       
+      # fix values that are not arrays
+      @record.source_data_criteria.each do |dc|
+        if (!dc['value'].nil? and !dc['value'].is_a? Array)
+          dc['value'] = [dc['value']]
+        end
+      end
+      
       @record.source_data_criteria.delete_if {|dc| dropped = dropped_ids.include? dc['id']; @dropped_data_criteria << dc if dropped; dropped}
+      
     end
     
     @value_sets = Measure.where({'measure_id' => {'$in' => measure_list}}).map{|m| m.value_sets}.flatten(1).uniq
@@ -398,7 +406,6 @@ class MeasuresController < ApplicationController
       low = {'value' => Time.at(v['start_date'] / 1000).strftime('%Y%m%d%H%M%S') }
       high = {'value' => Time.at(v['end_date'] / 1000).strftime('%Y%m%d%H%M%S') }
       high = nil if v['end_date'] == JAN_ONE_THREE_THOUSAND
-      binding.pry
       data_criteria.modify_patient(patient, HQMF::Range.from_json({'low' => low,'high' => high}), values.values)
     }
 
