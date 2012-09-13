@@ -3,6 +3,8 @@ class MeasuresController < ApplicationController
   layout :select_layout
   before_filter :authenticate_user!
   before_filter :validate_authorization!
+  
+  JAN_ONE_THREE_THOUSAND=32503698000000
 
   add_breadcrumb 'measures', "/measures"
 
@@ -317,8 +319,18 @@ class MeasuresController < ApplicationController
     @dropped_data_criteria = []
     if (@record.respond_to? :source_data_criteria)
       # check to see if there are any data criteria that we cannot find.  If there are, we want to remove them.
-      dropped_ids = (@record.source_data_criteria.map{|e| e['id']}).select {|e| @data_criteria[e].nil? && e != 'MeasurePeriod' }
+      dropped_source_criteria = @record.source_data_criteria.select {|e| @data_criteria[e['id']].nil? && e['id'] != 'MeasurePeriod' }
+      dropped_source_criteria.each do |dc|
+        alternates = @data_criteria.select {|key,value| value['code_list_id'] == dc['oid']}.keys
+        if (!alternates.empty?)
+          alternate = (alternates.sort {|left, right| Text::Levenshtein.distance(left, dc['id']) <=> Text::Levenshtein.distance(right, dc['id'])}).first
+          # update the source data criteria to set the alternate id with the closes id and a matching code set id
+          dc['id'] = alternate
+        end
+      end
 
+      dropped_ids = (@record.source_data_criteria.select {|e| @data_criteria[e['id']].nil? && e['id'] != 'MeasurePeriod' }).map {|dc| dc['id'] }
+      
       @record.source_data_criteria.delete_if {|dc| dropped = dropped_ids.include? dc['id']; @dropped_data_criteria << dc if dropped; dropped}
     end
     
@@ -373,11 +385,18 @@ class MeasuresController < ApplicationController
 
     JSON.parse(params['data_criteria']).each {|v|
       data_criteria = HQMF::DataCriteria.from_json(v['id'], @data_criteria[v['id']])
-      data_criteria.value = v['value']['type'] == 'CD' ? HQMF::Coded.new('CD', nil, nil, v['value']['code_list_id']) : HQMF::Range.from_json('low' => {'value' => v['value']['value'], 'unit' => v['value']['unit']}) if v['value']
-      data_criteria.modify_patient(patient, HQMF::Range.from_json({
-        'low' => {'value' => Time.at(v['start_date'] / 1000).strftime('%Y%m%d%H%M%S')},
-        'high' => {'value' => Time.at(v['end_date'] / 1000).strftime('%Y%m%d%H%M%S')}
-      }), values.values)
+      data_criteria.values = []
+      v['value'].each do |value|
+        data_criteria.values << (value['type'] == 'CD' ? HQMF::Coded.new('CD', nil, nil, value['code_list_id']) : HQMF::Range.from_json('low' => {'value' => value['value'], 'unit' => value['unit']}))
+      end if v['value']
+      v['field_values'].each do |key, value|
+        data_criteria.field_values ||= {}
+        data_criteria.field_values[key] = HQMF::Coded.new('CD', nil, nil, value['code_list_id'])
+      end if v['field_values']
+      low = {'value' => Time.at(v['start_date'] / 1000).strftime('%Y%m%d%H%M%S') }
+      high = {'value' => Time.at(v['end_date'] / 1000).strftime('%Y%m%d%H%M%S') }
+      high = nil if v['end_date'] == JAN_ONE_THREE_THOUSAND
+      data_criteria.modify_patient(patient, HQMF::Range.from_json({'low' => low,'high' => high}), values.values)
     }
 
     patient['source_data_criteria'].push({'id' => 'MeasurePeriod', 'start_date' => params['measure_period_start'].to_i, 'end_date' => params['measure_period_end'].to_i})
@@ -417,5 +436,5 @@ class MeasuresController < ApplicationController
   def matrix_data
     render :json => MONGO_DB['patient_cache'].find({}, :fields => ['population', 'denominator', 'numerator', 'denexcep', 'exclusions', 'first', 'last', 'gender', 'measure_id', 'birthdate', 'patient_id', 'sub_id', 'nqf_id'].map{|k| 'value.'+k } )
   end
-
+  
 end

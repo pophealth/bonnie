@@ -27,6 +27,7 @@
     $('#measure_period_end').datepicker({
       onSelect: function(selectedDate) {$( "#measure_period_start" ).datepicker( "option", "maxDate", selectedDate ); onLoadTimeline();}
     });
+
     $('.timepicker-default').timepicker();
 
     $('#tl').on('dragover', '.timeline-band', function(){
@@ -39,7 +40,7 @@
 
       if (data_criteria.id == $('#element_id').val()){
         $('#element_start').datetimepicker('setDate', new Date(data_criteria.start_date));
-        $('#element_end').datetimepicker('setDate', new Date(data_criteria.end_date));
+        $('#element_start').datetimepicker('setDate', new Date(data_criteria.end_date));
       }
 
       bonnie.patientBuilder.updateTimeline();
@@ -61,6 +62,7 @@
     });
 
     $('#patient_data_criteria').droppable({ tolerance: 'pointer', greedy: true, accept: 'label.ui-draggable', drop: function(e,obj){ return fillDrop(e,obj); } });
+
 
     $('#savebutton').click(
       function(){
@@ -647,6 +649,7 @@
         </div>
         <div class="span3">
           <input type="text" style="width: 150px;" value="01/01/2000 05:00 AM" data-date-format="mm/dd/yyyy" id="element_end" >
+          <label style="float: right;"><input type="checkbox" id="null_element_end" style="float:left;"><span style="padding-left: 3px;">null</span></label>
         </div>
       </div>
       {{each value}}

@@ -95,6 +95,23 @@ class @bonnie.PatientBuilder
     $('#element_end').datetimepicker({
       onSelect: (selectedDate) -> $( "#element_start" ).datetimepicker( "option", "maxDate", new Date(selectedDate) )
     }).datetimepicker('setDate', new Date(data_criteria.end_date));
+    
+    $('#null_element_end').click(->
+      if ($('#null_element_end').is(':checked'))
+        $('#element_end').disableSelection()
+        $('#element_end').datetimepicker('setDate', new Date(3000,0,1));
+        $('#element_end').css('color', '#FFF')
+      else
+        $('#element_end').enableSelection()
+        $('#element_end').datetimepicker('setDate', new Date(new Date($('#element_start').val())));
+        $('#element_end').css('color', '#000')
+    )
+
+    if (new Date($('#element_end').val())).getTime() == (new Date(3000,0,1)).getTime()
+      $('#element_end').disableSelection()
+      $('#element_end').datetimepicker('setDate', new Date(3000,0,1));
+      $('#element_end').css('color', '#FFF')
+      $('#null_element_end').attr('checked', true);
 
     element.on('change', ('input.value_type[type=radio]')
       ( ->
@@ -219,6 +236,7 @@ class @bonnie.PatientBuilder
         negation: data.negation
         negation_code_list_id: data.negation_code_list_id
         field_values: data.field_values
+        oid: data.oid
       })
     );
     $(form).ajaxSubmit({
