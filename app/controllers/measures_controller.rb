@@ -386,7 +386,9 @@ class MeasuresController < ApplicationController
     JSON.parse(params['data_criteria']).each {|v|
       data_criteria = HQMF::DataCriteria.from_json(v['id'], @data_criteria[v['id']])
       data_criteria.values = []
-      v['value'].each do |value|
+      result_vals = v['value'] || []
+      result_vals = [result_vals] if !result_vals.nil? and !result_vals.is_a? Array 
+      result_vals.each do |value|
         data_criteria.values << (value['type'] == 'CD' ? HQMF::Coded.new('CD', nil, nil, value['code_list_id']) : HQMF::Range.from_json('low' => {'value' => value['value'], 'unit' => value['unit']}))
       end if v['value']
       v['field_values'].each do |key, value|
@@ -396,6 +398,7 @@ class MeasuresController < ApplicationController
       low = {'value' => Time.at(v['start_date'] / 1000).strftime('%Y%m%d%H%M%S') }
       high = {'value' => Time.at(v['end_date'] / 1000).strftime('%Y%m%d%H%M%S') }
       high = nil if v['end_date'] == JAN_ONE_THREE_THOUSAND
+      binding.pry
       data_criteria.modify_patient(patient, HQMF::Range.from_json({'low' => low,'high' => high}), values.values)
     }
 
