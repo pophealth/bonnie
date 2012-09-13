@@ -435,7 +435,7 @@ class MeasuresController < ApplicationController
       MONGO_DB['query_cache'].remove({'measure_id' => m['hqmf_id']})
       MONGO_DB['patient_cache'].remove({'value.measure_id' => m['hqmf_id']})
       (m['populations'].length > 1 ? ('a'..'zz').to_a.first(m['populations'].length) : [nil]).each{|sub_id|
-        p 'Calculating measure ' + m['hqmf_id'] + (sub_id || '')
+        p 'Calculating measure ' + m.measure_id + (sub_id || '') + " (#{m['hqmf_id']})"
         qr = QME::QualityReport.new(m['hqmf_id'], sub_id, {'effective_date' => (params['effective_date'] || Measure::DEFAULT_EFFECTIVE_DATE).to_i }.merge(params['providers'] ? {'filters' => {'providers' => params['providers']}} : {}))
         qr.calculate(false) unless qr.calculated?
       }
