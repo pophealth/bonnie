@@ -21,5 +21,21 @@ module Concepts
       end
     end
 
+    def self.build_relationships
+      if RUBY_PLATFORM == "java"
+        require 'java'
+        java_import java.util.concurrent.Executors
+        executor = Executors.newFixedThreadPool(10)
+        Concept.all.each do |concept|
+          executor.submit do
+            concept.build_relationships
+          end
+        end
+      else
+        Concept.all.each do |concept|
+          concept.build_relationships
+        end        
+      end
+    end
   end
 end
