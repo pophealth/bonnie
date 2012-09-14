@@ -2,7 +2,6 @@ require File.expand_path('../../../config/environment',  __FILE__)
 require 'pathname'
 require 'fileutils'
 require './lib/measures/database_access'
-require './lib/measures/importer'
 require './lib/measures/exporter'
 
 namespace :measures do
@@ -36,18 +35,6 @@ namespace :measures do
   task :drop_measures do
     loader = Measures::Loader.new()
     loader.drop_measures()
-  end
-
-  desc 'Load a set of measures for popHealth'
-  task :import, [:measures_zip, :db_name, :db_host, :db_port, :keep_existing] do |task, args|
-    raise "The path to the measures zip file must be specified" unless args.measures_zip
-    raise "The database name to load to must be specified" unless args.db_name
-    importer = Measures::Importer.new(args.db_name, args.db_host, args.db_port)
-    importer.drop_measures() unless args.keep_existing
-    zip = File.open(args.measures_zip)
-
-    count = importer.import(zip)
-    puts "Successfully loaded #{count} measures from #{args.measures_zip} to #{args.db_name}"
   end
 
   desc 'Load a measure defintion into the DB'

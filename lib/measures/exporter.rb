@@ -46,15 +46,15 @@ module Measures
     # @param [String] title The title of this bundle.
     # @param [String] version The version of this bundle.
     # @return A bundle containing all measures, matching test patients, and some additional goodies.
-    def self.export_bundle(title, version, measures, patients)
+    def self.export_bundle(measures, patients)
       file = Tempfile.new("bundle-#{Time.now.to_i}")
       
       # Define paths to be used while generating the zip file.
       measures_path = "measures"
-      libraries_path = "lib"
+      libraries_path = "libraries"
       patients_path = "patients"
       results_path = "results"
-      source_path = "src"
+      source_path = "sources"
       source_patients_path = File.join(source_path, "patients")
       source_measures_path = File.join(source_path, "measures")
       
@@ -73,21 +73,21 @@ module Measures
               zip << measure_json.to_json
             end
                         
-            # Collect the source files.
-            source_html = File.read(File.expand_path(File.join(".", "db", "measures", "html", "#{measure.id}.html")))
-            source_value_sets = File.read(File.expand_path(File.join(".", "db", "measures", "value_sets", "#{measure.id}.xls")))
-            source_hqmf1 = File.read(File.expand_path(File.join(".", "db", "measures", "hqmf", "#{measure.id}.xml")))
-            generated_hqmf2 = HQMF2::Generator::ModelProcessor.to_hqmf(measure.as_hqmf_model)
-              
-            # Add source files to the zip.
-            zip.put_next_entry(File.join(source_measure_path, "#{measure.measure_id}.html"))
-            zip << source_html
-            zip.put_next_entry(File.join(source_measure_path, "#{measure.measure_id}.xls"))
-            zip << source_value_sets
-            zip.put_next_entry(File.join(source_measure_path, "hqmf1.xml"))
-            zip << source_hqmf1
-            zip.put_next_entry(File.join(source_measure_path, "hqmf2.xml"))
-            zip << generated_hqmf2
+            # # Collect the source files.
+            # source_html = File.read(File.expand_path(File.join(".", "db", "measures", "html", "#{measure.id}.html")))
+            # source_value_sets = File.read(File.expand_path(File.join(".", "db", "measures", "value_sets", "#{measure.id}.xls")))
+            # source_hqmf1 = File.read(File.expand_path(File.join(".", "db", "measures", "hqmf", "#{measure.id}.xml")))
+            # generated_hqmf2 = HQMF2::Generator::ModelProcessor.to_hqmf(measure.as_hqmf_model)
+            #   
+            # # Add source files to the zip.
+            # zip.put_next_entry(File.join(source_measure_path, "#{measure.measure_id}.html"))
+            # zip << source_html
+            # zip.put_next_entry(File.join(source_measure_path, "#{measure.measure_id}.xls"))
+            # zip << source_value_sets
+            # zip.put_next_entry(File.join(source_measure_path, "hqmf1.xml"))
+            # zip << source_hqmf1
+            # zip.put_next_entry(File.join(source_measure_path, "hqmf2.xml"))
+            # zip << generated_hqmf2
             
             # Delete all old results for this measure because they might be out of date.
             MONGO_DB['query_cache'].remove({'measure_id' => measure.measure_id})
@@ -149,9 +149,11 @@ module Measures
         end
         
         # Add the bundle metadata.
-        bundle_json = Measures::Exporter.bundle_json(title, version, patients.values.flatten, measures.values.flatten, library_functions.keys)
+        patients_ids = patients.values.flatten.map{|patient| patient.id}
+        measures_ids = measures.values.flatten.map{|measure| measure.id}
+        bundle = Measures::Exporter.bundle_json(patient_ids, measure_ids, library_functions.keys)
         zip.put_next_entry("bundle.json")
-        zip << bundle_json.to_json
+        zip << bundle.to_json
       end
       
       file.close
@@ -166,14 +168,18 @@ module Measures
       library_functions
     end
     
-    def self.measure_json(measure_id, population_index=0)  
+    def self.measure_json(measure_id, population_index=0)
       population_index ||= 0
       
       measure = Measure.by_measure_id(measure_id).first
       buckets = measure.parameter_json(population_index, true)
       
       json = {
-        id: measure.measure_id,
+        id: measure.hqmf_id,
+        nqf_id: measure.measure_id,
+        hqmf_id: measure.hqmf_id,
+        hqmf_set_id: measure.hqmf_set_id,
+        hqmf_version_number: measure.hqmf_version_number,
         endorser: measure.endorser,
         name: measure.title,
         description: measure.description,
@@ -191,24 +197,38 @@ module Measures
       if (measure.populations.count > 1)
         sub_ids = ('a'..'az').to_a
         json[:sub_id] = sub_ids[population_index]
-        population_title = measure.populations[population_index]['title']
+        population_index = measure.populations[population_index]['title']
         json[:subtitle] = population_title
         json[:short_subtitle] = population_title
+        json[:hqmf_id] = measure.hqmf_id
+        json[:hqmf_set_id] = measure.hqmf_set_id
+        json[:hqmf_version_number] = measure.hqmf_version_number
       end
       
+      population_ids = {}
+      ['IPP','DENOM','NUMER','EXCL','DENEXCEP'].each do |type|
+        population_key = measure.populations[population_index][type]
+        population_criteria = measure.population_criteria[population_key]
+        if (population_criteria)
+          population_ids[type] = population_criteria['hqmf_id']
+        end
+      end
+      stratification = measure['populations'][population_index]['stratification']
+      if stratification
+        population_ids['stratification'] = stratification 
+      end
+      json[:population_ids] = population_ids
       json
     end
 
     # This assumes that results have already been calculated for all included measures.
-    def self.bundle_json(title, version, patients, measures, library_names)
-      patients_ids = patients.map{|patient| patient.id}
-      measures_ids = measures.map{|measure| measure.id}
-      
+    def self.bundle_json(patient_ids, measure_ids, library_names)
       {
-        title: title,
-        version: version,
-        measure_ids: measures_ids,
-        patient_ids: patients_ids,
+        title: APP_CONFIG["measures"]["title"],
+        version: APP_CONFIG["measures"]["version"],
+        license: APP_CONFIG["measures"]["license"],
+        measure_ids: measure_ids,
+        patient_ids: patient_ids,
         library_functions: library_functions.keys
       }
     end
