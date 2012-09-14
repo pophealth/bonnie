@@ -27,6 +27,7 @@
     $('#measure_period_end').datepicker({
       onSelect: function(selectedDate) {$( "#measure_period_start" ).datepicker( "option", "maxDate", selectedDate ); onLoadTimeline();}
     });
+
     $('.timepicker-default').timepicker();
 
     $('#tl').on('dragover', '.timeline-band', function(){
@@ -39,7 +40,7 @@
 
       if (data_criteria.id == $('#element_id').val()){
         $('#element_start').datetimepicker('setDate', new Date(data_criteria.start_date));
-        $('#element_end').datetimepicker('setDate', new Date(data_criteria.end_date));
+        $('#element_start').datetimepicker('setDate', new Date(data_criteria.end_date));
       }
 
       bonnie.patientBuilder.updateTimeline();
@@ -62,6 +63,7 @@
 
     $('#patient_data_criteria').droppable({ tolerance: 'pointer', greedy: true, accept: 'label.ui-draggable', drop: function(e,obj){ return fillDrop(e,obj); } });
 
+
     $('#savebutton').click(
       function(){
         $('form#save_patient_builder').trigger('submit');
@@ -74,13 +76,19 @@
       }
     );
 
+    $('#workspace').on('click', '#value_new',
+      function(){
+        $('#bonnie_tmpl_data_criteria_value').tmpl().insertBefore('#value_new_position');
+      }
+    );
+
     $('#workspace').on('click', '#field_new',
       function(){
         $('#bonnie_tmpl_data_criteria_field_value').tmpl().insertBefore('#field_new_position');
       }
     );
 
-    $('#workspace').on('click', '.field_value > .close',
+    $('#workspace').on('click', '.field_value > .close, .criteria_value .close',
       function(e){
         $(e.target).parent().parent().remove();
       }
@@ -524,7 +532,7 @@
   </script>
 
   <script type="text/html" id="bonnie_tmpl_data_criteria_coded">
-    <select class="data_criteria_oid">
+    <select class="data_criteria_oid"{{if hidden}} style="display: none;"{{/if}}>
       <option value="">--</option>
       {{each bonnie.patientBuilder.value_sets}}
         <option value="${$index}">${$value.concept}</option>
@@ -583,6 +591,42 @@
     </div>
   </script>
 
+  <script type="text/html" id="bonnie_tmpl_data_criteria_value">
+    <div class="row criteria_value">
+      <div class="span1">
+      Value
+      </div>
+      <div class="span3">
+        <div style="text-align: right;" class="close">&times;</div>
+        <div>
+          <label><input type="radio" class="value_type" value="PQ" checked="checked" />Value</label>
+          <label><input type="radio" class="value_type" value="CD" />Coded</label>
+        </div>
+        <div class="criteria_value_value">
+          <div class="data_criteria_value">
+            <div>
+              <div class="span3">
+                <div class="span1" style="margin:0">
+                  scalar
+                </div>
+                <div class="span1">
+                  unit
+                </div>
+              </div>
+            </div>
+            <div class="span1" style="margin:0">
+              <input type="text" style="width: 60px;"{{if value}} value="${value}"{{/if}} id="element_value" >
+            </div>
+            <div class="span1">
+              <input type="text" style="width: 60px;"{{if value}} value="${unit}"{{/if}} id="element_value_unit" >
+            </div>
+          </div>
+          {{tmpl({hidden:true}) '#bonnie_tmpl_data_criteria_coded'}}
+        </div>
+      </div>
+    </div>
+  </script>
+
   <script type="text/html" id="bonnie_tmpl_data_criteria_edit">
   <div style="position: relative; border-radius:12px;padding:10px; border:1px solid #aaa;background-color:#CCC;">
     <span class="close_edit" style="position:absolute; top: 0; right: 0;">close</span>
@@ -605,40 +649,15 @@
         </div>
         <div class="span3">
           <input type="text" style="width: 150px;" value="01/01/2000 05:00 AM" data-date-format="mm/dd/yyyy" id="element_end" >
+          <label style="float: right;"><input type="checkbox" id="null_element_end" style="float:left;"><span style="padding-left: 3px;">null</span></label>
         </div>
       </div>
-
-      <div class="row criteria_value">
-        <div class="span1">
-        Value
-        </div>
-        <div class="span3">
-          <div>
-            <label><input type="radio" class="value_type" value="PQ" />Value</label>
-            <label><input type="radio" class="value_type" value="CD" />Coded</label>
-          </div>
-          <div class="criteria_value_value">
-            <div class="data_criteria_value">
-              <div>
-                <div class="span3">
-                  <div class="span1" style="margin:0">
-                    scalar
-                  </div>
-                  <div class="span1">
-                    unit
-                  </div>
-                </div>
-              </div>
-              <div class="span1" style="margin:0">
-                <input type="text" style="width: 60px;"{{if value}} value="${value.value}"{{/if}} id="element_value" >
-              </div>
-              <div class="span1">
-                <input type="text" style="width: 60px;"{{if value}} value="${value.unit}"{{/if}} id="element_value_unit" >
-              </div>
-            </div>
-            {{tmpl '#bonnie_tmpl_data_criteria_coded'}}
-          </div>
-        </div>
+      {{each value}}
+        {{tmpl($value) '#bonnie_tmpl_data_criteria_value'}}
+      {{/each}}
+      <div class="row" id="value_new_position">
+        <div class="span1">&nbsp;</div>
+        <div class="span3"><input type="button" id="value_new" value="New Value" /></div>
       </div>
       <div class="row">
         <div class="span1">
