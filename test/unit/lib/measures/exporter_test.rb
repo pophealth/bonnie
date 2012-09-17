@@ -12,31 +12,34 @@ class ExporterTest < ActiveSupport::TestCase
     Measure.all.count.must_equal 1
     
     @measure = Measure.all.first
+    
   end
   
   test "test exporting measures" do
-     file = Tempfile.new(['bundle', '.zip'])
-     measures = { "ep" => [@measure] }
-     patients = { "ep" => [Record.all.first]}
+    binding.pry
+        
+    file = Tempfile.new(['bundle', '.zip'])
+    measures = { "ep" => [@measure] }
+    patients = { "ep" => [Record.all.first]}
 
-     entries = []
-     bundle = Measures::Exporter.export_bundle(measures, patients)
-     Zip::ZipFile.open(bundle.path) do |zipfile|
-       zipfile.entries.each do |entry|
-         entries << entry.name
-         assert entry.size > 0
-       end
-     end
+    entries = []
+    bundle = Measures::Exporter.export_bundle(measures, patients)
+    Zip::ZipFile.open(bundle.path) do |zipfile|
+      zipfile.entries.each do |entry|
+        entries << entry.name
+        assert entry.size > 0
+      end
+    end
      
-     expected = ["measures/libraries/map_reduce_utils.js",
+    expected = ["measures/libraries/map_reduce_utils.js",
       "measures/libraries/underscore_min.js",
       "measures/libraries/hqmf_utils.js",
       "measures/bundle.json",
       "measures/json/0002.json"]
       
-     entries.size.must_equal expected.size
-     entries.each {|entry| assert expected.include? entry}
-     expected.each {|entry| assert entries.include? entry}
+    entries.size.must_equal expected.size
+    entries.each {|entry| assert expected.include? entry}
+    expected.each {|entry| assert entries.include? entry}
   end
 
 
@@ -49,8 +52,7 @@ class ExporterTest < ActiveSupport::TestCase
     
     assert library_functions["map_reduce_utils"].length > 0
     assert library_functions["underscore_min"].length > 0
-    assert library_functions["hqmf_utils"].length > 0
-    
+    assert library_functions["hqmf_utils"].length > 0  
   end
 
   test "test measure json" do
@@ -66,7 +68,6 @@ class ExporterTest < ActiveSupport::TestCase
     measure_json[:nqf_id].must_equal "0002"
     measure_json[:hqmf_id].must_equal '2E679CD2-3FEC-4A75-A75A-61403E5EFEE8'
     measure_json[:id].must_equal '2E679CD2-3FEC-4A75-A75A-61403E5EFEE8'
-    
   end
   
   test "test bundle json" do

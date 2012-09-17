@@ -38,6 +38,7 @@ module Measures
         # go into and out of json to make sure that we've converted all the symbols to strings, this will happen going to mongo anyway if persisted
         json = JSON.parse(hqmf.to_json.to_json, max_nesting: 250)
 
+        measure["id"] = json["hqmf_id"]
         measure.measure_id = json["id"]
         measure.hqmf_id = json["hqmf_id"]
         measure.hqmf_set_id = json["hqmf_set_id"]

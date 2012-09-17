@@ -4,8 +4,9 @@ class Measure
   DEFAULT_EFFECTIVE_DATE = Time.new(2011,1,1).to_i
   TYPES = ["ep", "eh"]
 
-  store_in :draft_measures
+#  store_in :draft_measures
 
+  field :id, type: String
   field :endorser, type: String
   field :measure_id, type: String
   field :hqmf_id, type: String

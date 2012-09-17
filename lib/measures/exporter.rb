@@ -1,52 +1,27 @@
 module Measures
   # Exports measure defintions in a pophealth compatible format
   class Exporter
-    # Export a list of patients to a zip file. Contains the proper formatting of a bundle for Cypress, i.e.:
-    #
-    # bundle.json
-    #   title
-    #   version
-    #   measure_ids[]
-    #   patient_ids[]
-    #   library_functions[]
-    #   measure_patient_results{}
-    #     effective_date
-    #     measure0000 (contains all populations, including multiples)
-    #       IPP[] (contains patient IDs)
-    # measures/ (contains types)
-    #   eh/ (contains json)
-    #   ep/
-    # results/ (contains types)
-    #   by_patient.json (patient cache)
-    #   by_measure.json (query cache)
-    # lib/ (contains js libraries for calculation)
-    # patients/ (contains decks)
-    #   qrda/ (contains formats)
-    #     c32/ (contains patients by standard)
-    #     ccr/
-    #     json/
-    #   eh/
-    #   ep/
-    # src/ (contains original documents)
-    #   patients/ (contains html describing patients)
-    #     qrda/ (contains html)
-    #     eh/
-    #     ep/
-    #   measures/ (contains decks)
-    #     eh/
-    #       measure0000/ (contains source files)
-    #         0000.html
-    #         0000.xls
-    #         hqmf1.xml
-    #         hqmf2.xml
-    #     ep/
+    # Do all preparation for exporting a bundle. Due to the nature of the quality measure engine,
+    # some massaging of the database is necessary so we can calculate expected results for patients
+    # and export all artifacts with persistant IDs.
+    def self.prepare_bundle(calculate_results)
+      # Delete old JS libraries and make sure the ones we want are saved in system.js
+      MONGO_DB['system.js'].drop
+      Measures::Exporter.library_functions.each do |name, contents|
+        save_system_js_fn(name, contents)
+      end
+      
+      
+    end
+    
+    # Export all measures, their test decks, necessary JS libraries, and expected results to a zip file.
     #
     # @param [Hash] measures Tests mapped to their list of meausres.
     # @param [Hash] patients Tests mapped to their list of patients.
     # @param [String] title The title of this bundle.
     # @param [String] version The version of this bundle.
     # @return A bundle containing all measures, matching test patients, and some additional goodies.
-    def self.export_bundle(measures, patients)
+    def self.export_bundle(measures, patients, calculate_results = true)
       file = Tempfile.new("bundle-#{Time.now.to_i}")
       
       # Define paths to be used while generating the zip file.
@@ -59,6 +34,20 @@ module Measures
       source_measures_path = File.join(source_path, "measures")
       
       Zip::ZipOutputStream.open(file.path) do |zip|
+        # Gather all JS library files.
+        library_functions = Measures::Exporter.library_functions
+        library_functions.each do |name, contents|
+          zip.put_next_entry(File.join(libraries_path, "#{name}.js"))
+          zip << contents
+        end
+        
+        # Add the bundle metadata.
+        patients_ids = patients.values.flatten.map{|patient| patient.id}
+        measures_ids = measures.values.flatten.map{|measure| measure.id}
+        bundle = Measures::Exporter.bundle_json(patient_ids, measure_ids, library_functions.keys)
+        zip.put_next_entry("bundle.json")
+        zip << bundle.to_json
+        
         # Bundle up all of the measure information.
         measures.each do |test_type, test_measures|
           test_measures.each do |measure|
@@ -72,7 +61,7 @@ module Measures
               zip.put_next_entry(File.join(measure_path, "#{measure.measure_id}#{measure_json[:sub_id]}.json"))
               zip << measure_json.to_json
             end
-                        
+
             # # Collect the source files.
             # source_html = File.read(File.expand_path(File.join(".", "db", "measures", "html", "#{measure.id}.html")))
             # source_value_sets = File.read(File.expand_path(File.join(".", "db", "measures", "value_sets", "#{measure.id}.xls")))
@@ -94,10 +83,25 @@ module Measures
             MONGO_DB['patient_cache'].remove({'value.measure_id' => measure.measure_id})
             
             # Calculate the results.
-            sub_ids = measure.populations.size > 1 ? ("a".."zz").to_a.first(measure.populations.size) : [nil]
-            sub_ids.each do |sub_id|
+            measure.populations.each_with_index do |population, index|
+              # Convert the Bonnie draft representation of a measure to a QME measure
+              json = Measures::Exporter.measure_json(measure_id, index)
+              json["_id"] = MONGO_DB['measures'] << measure_def
+              ['measures'] << measure_def["_id"]
+              measure_defs << measure_def
+
+              bundle_id = @db['bundles'] << bundle_def
+
+              measure_defs.each do |measure_def|
+                measure_def['bundle'] = bundle_id
+                @db['measures'].update({"_id" => measure_def["_id"]}, measure_def)
+              end
+              
+              
+              
+              
               effective_date = HQMF::Value.new("TS", nil, measure.measure_period["high"]["value"], true, false, false).to_time_object.to_i
-              report = QME::QualityReport.new(measure.measure_id, sub_id, {'effective_date' => effective_date })
+              report = QME::QualityReport.new(measure.hqmf_id, sub_id, {'effective_date' => effective_date })
               report.calculate(false) unless report.calculated?
             end
           end
@@ -140,20 +144,6 @@ module Measures
         zip << results_by_patient.to_json
         zip.put_next_entry(File.join(results_path, "by_measure.json"))
         zip << results_by_measure.to_json
-        
-        # Gather all JS library files.
-        library_functions = Measures::Exporter.library_functions
-        library_functions.each do |name, contents|
-          zip.put_next_entry(File.join(libraries_path, "#{name}.js"))
-          zip << contents
-        end
-        
-        # Add the bundle metadata.
-        patients_ids = patients.values.flatten.map{|patient| patient.id}
-        measures_ids = measures.values.flatten.map{|measure| measure.id}
-        bundle = Measures::Exporter.bundle_json(patient_ids, measure_ids, library_functions.keys)
-        zip.put_next_entry("bundle.json")
-        zip << bundle.to_json
       end
       
       file.close
@@ -221,7 +211,13 @@ module Measures
       json
     end
 
-    # This assumes that results have already been calculated for all included measures.
+    def self.refresh_js_libraries
+      MONGO_DB['system.js'].drop
+      Measures::Exporter.library_functions.each do |name, contents|
+        QME::Bundle.save_system_js_fn(name, contents)
+      end
+    end
+
     def self.bundle_json(patient_ids, measure_ids, library_names)
       {
         title: APP_CONFIG["measures"]["title"],
