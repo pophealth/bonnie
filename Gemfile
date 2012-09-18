@@ -21,6 +21,7 @@ gem 'devise'
 gem 'foreman'
 gem 'cancan'
 gem 'factory_girl'
+gem 'text'
 
 gem "mongo", '1.6.2'
 gem "mongoid"

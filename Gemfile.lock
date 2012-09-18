@@ -280,7 +280,8 @@ GEM
       rack (~> 1.0)
       tilt (~> 1.1, != 1.3.0)
     systemu (2.5.2)
-    therubyracer (0.11.0beta8)
+    text (1.2.1)
+    therubyracer (0.11.0beta6)
       ref
     therubyrhino (2.0.1)
       therubyrhino_jar (>= 1.7.3)
@@ -344,6 +345,7 @@ DEPENDENCIES
   spork (~> 0.9.0)
   spork-testunit (~> 0.0.8)
   test-patient-generator!
+  text
   therubyracer (~> 0.11.0beta5)
   therubyrhino
   turn
