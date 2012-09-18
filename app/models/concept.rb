@@ -32,7 +32,12 @@ class Concept
         count_hash[code] = 1
         count_hash
       end
-      overlaps_on_code_set = concept_relationships.where("code_set_overlaps.code_set" => code_set)
+
+      # Going with the select method as opposed to using Moigoid finders
+      # because I couldn't get them to work with $gt on a child attribute
+      overlaps_on_code_set = concept_relationships.select do |cr|
+        cr.code_set_overlaps.any? { |cso| cso.code_set == code_set && cso.overlap_percentage > 0.3 }
+      end
       overlaps_on_code_set.each do |overlap|
         related_code_set = overlap.related_concept.code_sets.where(code_set: code_set).first
         related_code_set.codes.each do |code|

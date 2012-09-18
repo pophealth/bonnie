@@ -25,12 +25,15 @@ module Concepts
       if RUBY_PLATFORM == "java"
         require 'java'
         java_import java.util.concurrent.Executors
-        executor = Executors.newFixedThreadPool(10)
+        java_import java.util.concurrent.TimeUnit
+        executor = Executors.newFixedThreadPool(20)
         Concept.all.each do |concept|
           executor.submit do
             concept.build_relationships
           end
         end
+        executor.shutdown
+        executor.await_termination(1, TimeUnit::HOURS)
       else
         Concept.all.each do |concept|
           concept.build_relationships
