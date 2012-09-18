@@ -12,15 +12,13 @@ class ExporterTest < ActiveSupport::TestCase
     Measure.all.count.must_equal 1
     
     @measure = Measure.all.first
-    
+    @patient = FactoryGirl.create(:record)
   end
   
   test "test exporting measures" do
-    binding.pry
-        
     file = Tempfile.new(['bundle', '.zip'])
     measures = { "ep" => [@measure] }
-    patients = { "ep" => [Record.all.first]}
+    patients = { "ep" => [@patient]}
 
     entries = []
     bundle = Measures::Exporter.export_bundle(measures, patients)
@@ -31,12 +29,19 @@ class ExporterTest < ActiveSupport::TestCase
       end
     end
      
-    expected = ["measures/libraries/map_reduce_utils.js",
-      "measures/libraries/underscore_min.js",
-      "measures/libraries/hqmf_utils.js",
-      "measures/bundle.json",
-      "measures/json/0002.json"]
-      
+    expected = ["library_functions/map_reduce_utils.js",
+      "library_functions/underscore_min.js",
+      "library_functions/hqmf_utils.js",
+      "bundle.json",
+      "measures/ep/0002.json",
+      "patients/ep/c32/First2_Last2.xml",
+      "patients/ep/ccda/First2_Last2.xml",
+      "patients/ep/ccr/First2_Last2.xml",
+      "patients/ep/json/First2_Last2.json",
+      "sources/patients/ep/First2_Last2.html",
+      "results/by_patient.json",
+      "results/by_measure.json"]
+    
     entries.size.must_equal expected.size
     entries.each {|entry| assert expected.include? entry}
     expected.each {|entry| assert entries.include? entry}
@@ -57,7 +62,7 @@ class ExporterTest < ActiveSupport::TestCase
 
   test "test measure json" do
     measure_json = Measures::Exporter.measure_json(@measure.measure_id)
-    expected_keys = [:id,:nqf_id,:hqmf_id,:hqmf_set_id,:hqmf_version_number,:endorser,:name,:description,:category,:steward,:population,:denominator,:numerator,:exclusions,:map_fn,:measure,:population_ids]
+    expected_keys = [:id,:nqf_id,:hqmf_id,:hqmf_set_id,:hqmf_version_number,:endorser,:name,:description,:type,:category,:steward,:population,:denominator,:numerator,:exclusions,:map_fn,:measure,:population_ids]
     required_keys = [:id, :name,:description,:category,:population,:denominator,:numerator,:map_fn,:measure]
     
     expected_keys.each {|key| assert measure_json.keys.include? key}
@@ -80,9 +85,9 @@ class ExporterTest < ActiveSupport::TestCase
     bundle_json[:title].must_equal APP_CONFIG["measures"]["title"]
     bundle_json[:version].must_equal APP_CONFIG["measures"]["version"]
     bundle_json[:license].must_equal APP_CONFIG["measures"]["license"]
-    bundle_json[:library_functions].must_equal library_functions
-    bundle_json[:measure_ids].must_equal measure_ids
-    bundle_json[:patient_ids].must_equal patient_ids
+    bundle_json[:extensions].must_equal library_functions
+    bundle_json[:measures].must_equal measure_ids
+    bundle_json[:patients].must_equal patient_ids
   end
 
   test "test measure codes" do

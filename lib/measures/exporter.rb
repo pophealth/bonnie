@@ -5,13 +5,7 @@ module Measures
     # some massaging of the database is necessary so we can calculate expected results for patients
     # and export all artifacts with persistant IDs.
     def self.prepare_bundle(calculate_results)
-      # Delete old JS libraries and make sure the ones we want are saved in system.js
-      MONGO_DB['system.js'].drop
-      Measures::Exporter.library_functions.each do |name, contents|
-        save_system_js_fn(name, contents)
-      end
-      
-      
+
     end
     
     # Export all measures, their test decks, necessary JS libraries, and expected results to a zip file.
@@ -26,7 +20,7 @@ module Measures
       
       # Define paths to be used while generating the zip file.
       measures_path = "measures"
-      libraries_path = "libraries"
+      libraries_path = "library_functions"
       patients_path = "patients"
       results_path = "results"
       source_path = "sources"
@@ -34,6 +28,11 @@ module Measures
       source_measures_path = File.join(source_path, "measures")
       
       Zip::ZipOutputStream.open(file.path) do |zip|
+        # Delete old JS libraries and make sure the ones we want are saved in system.js
+        Measures::Exporter.library_functions.each do |name, contents|
+          QME::Bundle.save_system_js_fn(name, contents)
+        end
+        
         # Gather all JS library files.
         library_functions = Measures::Exporter.library_functions
         library_functions.each do |name, contents|
@@ -42,22 +41,41 @@ module Measures
         end
         
         # Add the bundle metadata.
-        patients_ids = patients.values.flatten.map{|patient| patient.id}
-        measures_ids = measures.values.flatten.map{|measure| measure.id}
-        bundle = Measures::Exporter.bundle_json(patient_ids, measure_ids, library_functions.keys)
+        patient_ids = patients.values.flatten.map{|patient| patient.id}
+        measure_ids = measures.values.flatten.map{|measure| measure.id}
+        bundle = Measures::Exporter.bundle_json(patient_ids, [], library_functions.keys)
+
+        MONGO_DB['bundles'].drop
+        MONGO_DB["bundles"] << bundle
+        
         zip.put_next_entry("bundle.json")
         zip << bundle.to_json
         
         # Bundle up all of the measure information.
+        MONGO_DB['measures'].drop
         measures.each do |test_type, test_measures|
           test_measures.each do |measure|
             measure_path = File.join(measures_path, test_type)
             source_measure_path = File.join(source_measures_path, test_type, measure.measure_id)
             
+            measure.category = APP_CONFIG["measures"][measure.measure_id]["category"] if APP_CONFIG["measures"][measure.measure_id]
+            
+            # Delete all old results for this measure because they might be out of date.
+            MONGO_DB['query_cache'].remove({'measure_id' => measure.measure_id})
+            MONGO_DB['patient_cache'].remove({'value.measure_id' => measure.measure_id})
+            
             # Add JSON definitions of all measures and sub-measures.
+            sub_ids = ("aa".."zz").to_a
             (0..measure.populations.count-1).each do |population_index|
-              # Generate the JSON for this measure.
               measure_json = Measures::Exporter.measure_json(measure.measure_id, population_index)
+              measure_id = MONGO_DB["measures"] << measure_json
+              
+              bundle = MONGO_DB["bundles"].update({}, {"$push" => {"measures" => measure_id}})
+              
+              effective_date = HQMF::Value.new("TS", nil, measure.measure_period["high"]["value"], true, false, false).to_time_object.to_i
+              report = QME::QualityReport.new(measure.hqmf_id, nil, {'effective_date' => effective_date })
+              report.calculate(false) if calculate_results && !report.calculated?
+              
               zip.put_next_entry(File.join(measure_path, "#{measure.measure_id}#{measure_json[:sub_id]}.json"))
               zip << measure_json.to_json
             end
@@ -77,33 +95,6 @@ module Measures
             # zip << source_hqmf1
             # zip.put_next_entry(File.join(source_measure_path, "hqmf2.xml"))
             # zip << generated_hqmf2
-            
-            # Delete all old results for this measure because they might be out of date.
-            MONGO_DB['query_cache'].remove({'measure_id' => measure.measure_id})
-            MONGO_DB['patient_cache'].remove({'value.measure_id' => measure.measure_id})
-            
-            # Calculate the results.
-            measure.populations.each_with_index do |population, index|
-              # Convert the Bonnie draft representation of a measure to a QME measure
-              json = Measures::Exporter.measure_json(measure_id, index)
-              json["_id"] = MONGO_DB['measures'] << measure_def
-              ['measures'] << measure_def["_id"]
-              measure_defs << measure_def
-
-              bundle_id = @db['bundles'] << bundle_def
-
-              measure_defs.each do |measure_def|
-                measure_def['bundle'] = bundle_id
-                @db['measures'].update({"_id" => measure_def["_id"]}, measure_def)
-              end
-              
-              
-              
-              
-              effective_date = HQMF::Value.new("TS", nil, measure.measure_period["high"]["value"], true, false, false).to_time_object.to_i
-              report = QME::QualityReport.new(measure.hqmf_id, sub_id, {'effective_date' => effective_date })
-              report.calculate(false) unless report.calculated?
-            end
           end
         end
         
@@ -187,7 +178,7 @@ module Measures
       if (measure.populations.count > 1)
         sub_ids = ('a'..'az').to_a
         json[:sub_id] = sub_ids[population_index]
-        population_index = measure.populations[population_index]['title']
+        population_title = measure.populations[population_index]['title']
         json[:subtitle] = population_title
         json[:short_subtitle] = population_title
         json[:hqmf_id] = measure.hqmf_id
@@ -223,9 +214,9 @@ module Measures
         title: APP_CONFIG["measures"]["title"],
         version: APP_CONFIG["measures"]["version"],
         license: APP_CONFIG["measures"]["license"],
-        measure_ids: measure_ids,
-        patient_ids: patient_ids,
-        library_functions: library_functions.keys
+        measures: measure_ids,
+        patients: patient_ids,
+        extensions: library_functions.keys
       }
     end
 

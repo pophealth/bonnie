@@ -164,6 +164,7 @@ class MeasuresController < ApplicationController
     
     # Create and return the bundle
     file = Measures::Exporter.export_bundle(measures, patients)
+    version = APP_CONFIG["measures"]["version"]
     send_file file.path, :type => 'application/zip', :disposition => 'attachment', :filename => "bundle-#{version}.zip"
   end
 
