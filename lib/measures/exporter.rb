@@ -31,11 +31,6 @@ module Measures
         # Delete old JS libraries and make sure the ones we want are saved in system.js
         Measures::Exporter.library_functions.each do |name, contents|
           QME::Bundle.save_system_js_fn(name, contents)
-        end
-        
-        # Gather all JS library files.
-        library_functions = Measures::Exporter.library_functions
-        library_functions.each do |name, contents|
           zip.put_next_entry(File.join(libraries_path, "#{name}.js"))
           zip << contents
         end
@@ -58,6 +53,7 @@ module Measures
             measure_path = File.join(measures_path, test_type)
             source_measure_path = File.join(source_measures_path, test_type, measure.measure_id)
             
+            measure.type = APP_CONFIG["measures"][measure.measure_id]["type"] if APP_CONFIG["measures"][measure.measure_id]
             measure.category = APP_CONFIG["measures"][measure.measure_id]["category"] if APP_CONFIG["measures"][measure.measure_id]
             
             # Delete all old results for this measure because they might be out of date.
@@ -65,15 +61,16 @@ module Measures
             MONGO_DB['patient_cache'].remove({'value.measure_id' => measure.measure_id})
             
             # Add JSON definitions of all measures and sub-measures.
-            sub_ids = ("aa".."zz").to_a
+            sub_ids = ("a".."zz").to_a
             (0..measure.populations.count-1).each do |population_index|
               measure_json = Measures::Exporter.measure_json(measure.measure_id, population_index)
               measure_id = MONGO_DB["measures"] << measure_json
               
-              bundle = MONGO_DB["bundles"].update({}, {"$push" => {"measures" => measure_id}})
+              MONGO_DB["bundles"].update({}, {"$push" => {"measures" => measure_id}})
               
+              sub_id = population_index > 0 ? nil : sub_ids[population_index]
               effective_date = HQMF::Value.new("TS", nil, measure.measure_period["high"]["value"], true, false, false).to_time_object.to_i
-              report = QME::QualityReport.new(measure.hqmf_id, nil, {'effective_date' => effective_date })
+              report = QME::QualityReport.new(measure.hqmf_id, sub_id, {'effective_date' => effective_date })
               report.calculate(false) if calculate_results && !report.calculated?
               
               zip.put_next_entry(File.join(measure_path, "#{measure.measure_id}#{measure_json[:sub_id]}.json"))

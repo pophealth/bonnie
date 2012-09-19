@@ -94,9 +94,8 @@ namespace :measures do
     library_functions['underscore_min'] = File.read(File.join('.','app','assets','javascripts','_underscore-min.js'))
     library_functions['hqmf_utils'] = HQMF2JS::Generator::JS.library_functions
 
-    importer = Measures::Importer.new
     library_functions.each do |library, contents|
-      importer.save_system_js_fn(library, contents)
+      QME::Bundle.save_system_js_fn(library, contents)
     end
 
     # Load each measure from the measures directory

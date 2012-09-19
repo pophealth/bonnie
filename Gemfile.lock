@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/pophealth/hqmf-parser.git
-  revision: cde10f303bd7fda028cfb7a7103458ae5974faa8
+  revision: d2158d3c7a53ef76dc2f6a79dfdcf9538a12f281
   branch: develop
   specs:
     hqmf-parser (0.0.1)
@@ -22,7 +22,7 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/patientapi.git
-  revision: 55a54ba17dd7cf591626fc297bcd584e2f3d6f6b
+  revision: a5ef61f17ab0a30d8ae9e1270448486f2d1393fc
   branch: develop
   specs:
     hquery-patient-api (0.1.0)
@@ -122,7 +122,7 @@ GEM
     faraday (0.8.4)
       multipart-post (~> 1.1)
     ffi (1.1.5)
-    foreman (0.58.0)
+    foreman (0.59.0)
       thor (>= 0.13.6)
     google-spreadsheet-ruby (0.1.8)
       nokogiri (>= 1.4.3.1)

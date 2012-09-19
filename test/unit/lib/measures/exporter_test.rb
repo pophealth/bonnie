@@ -57,7 +57,7 @@ class ExporterTest < ActiveSupport::TestCase
     
     assert library_functions["map_reduce_utils"].length > 0
     assert library_functions["underscore_min"].length > 0
-    assert library_functions["hqmf_utils"].length > 0  
+    assert library_functions["hqmf_utils"].length > 0
   end
 
   test "test measure json" do
