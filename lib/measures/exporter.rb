@@ -46,6 +46,12 @@ module Measures
         zip.put_next_entry("bundle.json")
         zip << bundle.to_json
         
+        # Delete all old results for this measure because they might be out of date.
+        if calculate_results
+          MONGO_DB['query_cache'].remove({})
+          MONGO_DB['patient_cache'].remove({})
+        end
+        
         # Bundle up all of the measure information.
         MONGO_DB['measures'].drop
         measures.each do |test_type, test_measures|
@@ -56,10 +62,6 @@ module Measures
             measure.type = APP_CONFIG["measures"][measure.measure_id]["type"] if APP_CONFIG["measures"][measure.measure_id]
             measure.category = APP_CONFIG["measures"][measure.measure_id]["category"] if APP_CONFIG["measures"][measure.measure_id]
             
-            # Delete all old results for this measure because they might be out of date.
-            MONGO_DB['query_cache'].remove({'measure_id' => measure.measure_id})
-            MONGO_DB['patient_cache'].remove({'value.measure_id' => measure.measure_id})
-            
             # Add JSON definitions of all measures and sub-measures.
             sub_ids = ("a".."zz").to_a
             (0..measure.populations.count-1).each do |population_index|
@@ -68,9 +70,8 @@ module Measures
               
               MONGO_DB["bundles"].update({}, {"$push" => {"measures" => measure_id}})
               
-              sub_id = population_index > 0 ? nil : sub_ids[population_index]
               effective_date = HQMF::Value.new("TS", nil, measure.measure_period["high"]["value"], true, false, false).to_time_object.to_i
-              report = QME::QualityReport.new(measure.hqmf_id, sub_id, {'effective_date' => effective_date })
+              report = QME::QualityReport.new(measure_json[:id], measure_json[:sub_id], {'effective_date' => effective_date })
               report.calculate(false) if calculate_results && !report.calculated?
               
               zip.put_next_entry(File.join(measure_path, "#{measure.measure_id}#{measure_json[:sub_id]}.json"))
@@ -125,8 +126,8 @@ module Measures
         
         # Gather all measure results by patient and measure.
         measure_ids = measures.values.flatten.map{|measure| measure.measure_id}
-        results_by_patient = MONGO_DB['patient_cache'].find({'value.measure_id' => {'$in' => measure_ids}}).to_a
-        results_by_measure = MONGO_DB['query_cache'].find({'measure_id' => {'$in' => measure_ids}}).to_a
+        results_by_patient = MONGO_DB['patient_cache'].find({}).to_a
+        results_by_measure = MONGO_DB['query_cache'].find({}).to_a
         
         zip.put_next_entry(File.join(results_path, "by_patient.json"))
         zip << results_by_patient.to_json
@@ -153,9 +154,9 @@ module Measures
       buckets = measure.parameter_json(population_index, true)
       
       json = {
-        id: measure.hqmf_id,
+        id: measure.population_criteria["IPP"]["hqmf_id"],#measure.hqmf_id,
         nqf_id: measure.measure_id,
-        hqmf_id: measure.hqmf_id,
+        hqmf_id: measure.population_criteria["IPP"]["hqmf_id"],#measure.hqmf_id,
         hqmf_set_id: measure.hqmf_set_id,
         hqmf_version_number: measure.hqmf_version_number,
         endorser: measure.endorser,
