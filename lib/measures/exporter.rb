@@ -5,7 +5,47 @@ module Measures
     # some massaging of the database is necessary so we can calculate expected results for patients
     # and export all artifacts with persistant IDs.
     def self.prepare_bundle(calculate_results)
-
+      measures = {}
+      Measure::TYPES.each do |type|
+        matching_measures = Measure.by_user(current_user).by_type(type).to_a
+        measures[type] = matching_measures if matching_measures.present?
+      end
+      
+      library_functions = Measures::Exporter.library_functions
+      library_functions.each {|name, contents| QME::Bundle.save_system_js_fn(name, contents)}
+      
+      bundle = Measures::Exporter.bundle_json([], [], library_functions.keys)
+      MONGO_DB['bundles'].drop
+      MONGO_DB["bundles"] << bundle
+      
+      # Delete all old results for this measure because they might be out of date.
+      if calculate_results
+        MONGO_DB['query_cache'].remove({})
+        MONGO_DB['patient_cache'].remove({})
+      end
+      MONGO_DB['measures'].drop
+      
+      # Bundle up all of the measure information.
+      measures.each do |test_type, test_measures|
+        test_measures.each do |measure|
+          
+          measure.type = APP_CONFIG["measures"][measure.measure_id]["type"] if APP_CONFIG["measures"][measure.measure_id]
+          measure.category = APP_CONFIG["measures"][measure.measure_id]["category"] if APP_CONFIG["measures"][measure.measure_id]
+          
+          # Add JSON definitions of all measures and sub-measures.
+          sub_ids = ("a".."zz").to_a
+          (0..measure.populations.count-1).each do |population_index|
+            measure_json = Measures::Exporter.measure_json(measure.measure_id, population_index)
+            measure_id = MONGO_DB["measures"] << measure_json
+            
+            MONGO_DB["bundles"].update({}, {"$push" => {"measures" => measure_id}})
+            
+            effective_date = HQMF::Value.new("TS", nil, measure.measure_period["high"]["value"], true, false, false).to_time_object.to_i
+            report = QME::QualityReport.new(measure_json[:id], measure_json[:sub_id], {'effective_date' => effective_date })
+            report.calculate(false) if calculate_results && !report.calculated?
+          end
+        end
+      end
     end
     
     # Export all measures, their test decks, necessary JS libraries, and expected results to a zip file.

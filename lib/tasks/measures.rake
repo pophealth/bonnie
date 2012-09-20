@@ -113,6 +113,19 @@ namespace :measures do
       end
     end
   end
+  
+  desc 'Load a quality bundle into the database'
+  task :import_bundle, [:bundle_path, :username, :delete_existing] do |task, args|
+    raise "The path to the measures zip file must be specified" unless args.bundle_path
+    raise "A username to assign the measures to must be specified" unless args.username
+
+    bundle = File.open(args.bundle_path)
+    importer = QME::Bundle::Importer.new(args.db_name)
+    importer.import(bundle, args.delete_existing)
+    
+    user = User.by_username args.username
+    Measure.all.each {|measure| measure.user = user }
+  end
 
   desc 'Drop all measure defintions from the DB'
   task :drop_all, [:username] do |t, args|
