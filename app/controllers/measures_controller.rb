@@ -25,8 +25,8 @@ class MeasuresController < ApplicationController
 
   def show_nqf
     @measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
-    @contents = File.read(File.expand_path(File.join('.','tmp','measures','html',"#{@measure.id}.html")))
-    add_breadcrumb @measure['measure_id'], '/measures/' + @measure['measure_id']
+    @contents = File.read(File.expand_path(File.join(".", "db", "measures", "html", "#{@measure.id}.html")))
+    add_breadcrumb @measure["measure_id"], "/measures/" + @measure["measure_id"]
     add_breadcrumb 'NQF Definition', ''
   end
 
@@ -142,12 +142,30 @@ class MeasuresController < ApplicationController
   end
 
   def export_all
-    measures = Measure.by_user(current_user)
+    # Gather all the measures to export, organized by type
+    measures = {}
+    Measure::TYPES.each do |type|
+      matching_measures = Measure.by_user(current_user).by_type(type).to_a
+      measures[type] = matching_measures if matching_measures.present?
+    end
+    
+    # Gather all of the patients to export, organized by type
+    patients = {}
+    patients["ep"] = Record.all.to_a # TODO - These will be pulled by scope on ep and eh once the eh deck is prepared.
 
-    file = Tempfile.new(["#{current_user.id}-#{Time.now.to_i}", ".zip"])
-    Measures::Exporter.export(file, measures)
-
-    send_file file.path, :type => 'application/zip', :disposition => 'attachment', :filename => "measures.zip"
+    # Generate QRDA Category 1 patients.
+    measure_needs = {}
+    measure_value_sets = {}
+    measures.values.flatten.each do |measure|
+      measure_needs[measure.measure_id] = measure.as_hqmf_model.referenced_data_criteria
+      measure_value_sets[measure.measure_id] = measure.value_sets
+    end
+    patients["qrda"] = HQMF::Generator.generate_qrda_patients(measure_needs, measure_value_sets).values.flatten
+    
+    # Create and return the bundle
+    file = Measures::Exporter.export_bundle(measures, patients)
+    version = APP_CONFIG["measures"]["version"]
+    send_file file.path, :type => 'application/zip', :disposition => 'attachment', :filename => "bundle-#{version}.zip"
   end
 
   def generate_patients

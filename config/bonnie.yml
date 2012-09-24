@@ -3,7 +3,7 @@ defaults: &defaults
   version: 0.0.1
   generate_denormalization: true
   disable_logging: false
-  
+
 development:
   <<: *defaults
   

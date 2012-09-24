@@ -2,16 +2,14 @@ require File.expand_path('../../../config/environment',  __FILE__)
 require 'pathname'
 require 'fileutils'
 require './lib/measures/database_access'
-require './lib/measures/importer'
 require './lib/measures/exporter'
 
 namespace :measures do
-
   desc 'Export definition fo a single measure'
   task :export,[:id] do |t, args|
     measure = Measure.by_measure_id(args.id)
 
-    measure_path = File.join(".", "tmp", "measures")
+    measure_path = File.join(".", "db", "measures")
     FileUtils.mkdir_p measure_path
 
     out_file = File.expand_path(File.join(measure_path, "measures.zip"))
@@ -23,7 +21,7 @@ namespace :measures do
 
   desc 'Export definitions for all measures'
   task :export_all do |t, args|
-    measure_path = File.join(".", "tmp", "measures")
+    measure_path = File.join(".", "db", "measures")
     FileUtils.mkdir_p measure_path
     out_file = File.expand_path(File.join(measure_path, "measures.zip"))
     file = File.open(out_file, 'w')
@@ -37,18 +35,6 @@ namespace :measures do
   task :drop_measures do
     loader = Measures::Loader.new()
     loader.drop_measures()
-  end
-
-  desc 'Load a set of measures for popHealth'
-  task :import, [:measures_zip, :db_name, :db_host, :db_port, :keep_existing] do |task, args|
-    raise "The path to the measures zip file must be specified" unless args.measures_zip
-    raise "The database name to load to must be specified" unless args.db_name
-    importer = Measures::Importer.new(args.db_name, args.db_host, args.db_port)
-    importer.drop_measures() unless args.keep_existing
-    zip = File.open(args.measures_zip)
-
-    count = importer.import(zip)
-    puts "Successfully loaded #{count} measures from #{args.measures_zip} to #{args.db_name}"
   end
 
   desc 'Load a measure defintion into the DB'
@@ -83,7 +69,6 @@ namespace :measures do
 
   desc 'Load a measure defintion into the DB'
   task :load_all, [:measures_dir, :username, :delete_existing] do |t, args|
-
     measures_dir = args.measures_dir.empty? ? './test/fixtures/measure-defs' : args.measures_dir
     raise "The path the the measure definitions must be specified" unless measures_dir
     raise "The username to load the measures for must be specified" unless args.username
@@ -92,11 +77,28 @@ namespace :measures do
     raise "The user #{args.username} could not be found." unless user
 
     if args.delete_existing
+      # Delete all of this user's measures out of the DB
       user.measures.each {|measure| measure.value_sets.destroy_all}
       count = user.measures.destroy_all
+      
+      # Remove any lingering files saved from the last load
+      source_dir = File.join(".", "db", "measures")
+      FileUtils.rm_r Dir.glob(source_dir)
+      
       puts "Deleted #{count} measures assigned to #{user.username}"
     end
+    
+    # Add all necessary JS libraries to system
+    library_functions = {}
+    library_functions['map_reduce_utils'] = File.read(File.join('.','lib','assets','javascripts','libraries','map_reduce_utils.js'))
+    library_functions['underscore_min'] = File.read(File.join('.','app','assets','javascripts','_underscore-min.js'))
+    library_functions['hqmf_utils'] = HQMF2JS::Generator::JS.library_functions
 
+    library_functions.each do |library, contents|
+      QME::Bundle.save_system_js_fn(library, contents)
+    end
+
+    # Load each measure from the measures directory
     Dir.foreach(measures_dir) do |entry|
       next if entry.starts_with? '.'
       measure_dir = File.join(measures_dir,entry)
@@ -109,9 +111,7 @@ namespace :measures do
       rescue Exception => e
         puts "Loading Measure #{entry} failed: #{e.message}: [#{hqmf_path},#{codes_path}] \n"
       end
-
     end
-
   end
 
   desc 'Drop all measure defintions from the DB'
@@ -127,8 +127,7 @@ namespace :measures do
 
   desc 'Convert a measure defintion to a format that can be loaded into popHealth'
   task :build, [:hqmf, :codes, :include_library, :patient] do |t, args|
-
-    FileUtils.mkdir_p File.join(".","tmp",'measures')
+    FileUtils.mkdir_p File.join(".", "db", "measures")
     hqmf_path = File.expand_path(args.hqmf)
     codes_path = File.expand_path(args.codes)
     filename = Pathname.new(hqmf_path).basename
@@ -141,12 +140,11 @@ namespace :measures do
       patient_json = File.read(patient_file)
     end
 
-    out_file = File.join(".","tmp",'measures',"#{filename}.js")
+    out_file = File.join(".", "db", "measures", "#{filename}.js")
     File.open(out_file, 'w') do |f|
-
       if args.include_library
         library_functions = Measures::Exporter.library_functions
-        ['underscore_min','map_reduce_utils'].each do |function|
+        ['underscore_min', 'map_reduce_utils'].each do |function|
           f.write("#{function}_js = function () { #{library_functions[function]} }\n")
           f.write("#{function}_js();\n")
         end
@@ -178,20 +176,17 @@ namespace :measures do
       end
     end
 
-    template_str = File.read(File.join('.','test','fixtures','html','test_measure.html.erb'))
+    template_str = File.read(File.join('.', 'test', 'fixtures', 'html', 'test_measure.html.erb'))
     template = ERB.new(template_str, nil, '-', "_templ_html")
     params = {'measure_id' => filename}
     context = ErbContext.new(params)
     result = template.result(context.get_binding)
 
-    out_file = File.join(".","tmp",'measures',"#{filename}.html")
+    out_file = File.join(".", "db", "measures", "#{filename}.html")
     File.open(out_file, 'w') do |f|
       f.write(result)
     end
 
     puts "wrote test html to: #{out_file}"
-
   end
-
-
 end

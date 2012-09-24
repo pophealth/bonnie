@@ -1,10 +1,12 @@
 class Measure
   include Mongoid::Document
 
-  DEFAULT_EFFECTIVE_DATE=Time.new(2011,1,1).to_i
+  DEFAULT_EFFECTIVE_DATE = Time.new(2011,1,1).to_i
+  TYPES = ["ep", "eh"]
 
   store_in :draft_measures
 
+  field :id, type: String
   field :endorser, type: String
   field :measure_id, type: String
   field :hqmf_id, type: String
@@ -12,8 +14,10 @@ class Measure
   field :hqmf_version_number, type: Integer
   field :title, type: String
   field :description, type: String
+  field :type, type: String
   field :category, type: String
   field :steward, type: String    # organization who's writing the measure
+  field :episode_of_care, type: Boolean
 
   field :published, type: Boolean
   field :publish_date, type: Date
@@ -35,6 +39,7 @@ class Measure
   scope :published, -> { where({'published'=>true}) }
   scope :by_measure_id, ->(id) { where({'measure_id'=>id }) }
   scope :by_user, ->(user) { where({'user_id'=>user.id}) }
+  scope :by_type, ->(type) { where({'type'=>type}) }
 
   TYPE_MAP = {
     'problem' => 'conditions',
@@ -93,8 +98,8 @@ class Measure
 
   def population_criteria_json(criteria, inline=false)
     {
-        conjunction: "and",
-        items: parse_hqmf_preconditions(criteria, inline)
+      conjunction: "and",
+      items: parse_hqmf_preconditions(criteria, inline)
     }
   end
 
