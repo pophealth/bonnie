@@ -13,17 +13,17 @@ class ExporterTest < ActiveSupport::TestCase
     
     @measure = Measure.all.first
     @patient = FactoryGirl.create(:record)
+    @measure.records << @patient
   end
   
   test "test exporting measures" do
     file = Tempfile.new(['bundle', '.zip'])
-    measures = { "ep" => [@measure] }
-    patients = { "ep" => [@patient]}
+    measures = [@measure]
 
     entries = []
-    bundle = Measures::Exporter.export_bundle(measures, patients)
-    Zip::ZipFile.open(bundle.path) do |zipfile|
-      zipfile.entries.each do |entry|
+    bundle = Measures::Exporter.export_bundle(measures, true)
+    Zip::ZipFile.open(bundle.path) do |zip|
+      zip.entries.each do |entry|
         entries << entry.name
         assert entry.size > 0
       end
@@ -38,7 +38,7 @@ class ExporterTest < ActiveSupport::TestCase
       "patients/ep/ccda/First2_Last2.xml",
       "patients/ep/ccr/First2_Last2.xml",
       "patients/ep/json/First2_Last2.json",
-      "sources/patients/ep/First2_Last2.html",
+      "patients/ep/html/First2_Last2.html",
       "results/by_patient.json",
       "results/by_measure.json"]
     
@@ -46,7 +46,6 @@ class ExporterTest < ActiveSupport::TestCase
     entries.each {|entry| assert expected.include? entry}
     expected.each {|entry| assert entries.include? entry}
   end
-
 
   test "test library functions" do
     library_functions = Measures::Exporter.library_functions
@@ -63,7 +62,7 @@ class ExporterTest < ActiveSupport::TestCase
   test "test measure json" do
     measure_json = Measures::Exporter.measure_json(@measure.measure_id)
     expected_keys = [:id,:nqf_id,:hqmf_id,:hqmf_set_id,:hqmf_version_number,:endorser,:name,:description,:type,:category,:steward,:population,:denominator,:numerator,:exclusions,:map_fn,:measure,:population_ids]
-    required_keys = [:id, :name,:description,:category,:population,:denominator,:numerator,:map_fn,:measure]
+    required_keys = [:id,:name,:description,:category,:population,:denominator,:numerator,:map_fn,:measure]
     
     expected_keys.each {|key| assert measure_json.keys.include? key}
     measure_json.keys.size.must_equal expected_keys.size

@@ -12,6 +12,7 @@
 
 # IMPORTANT - Houses measure source files on load that cannot be released to github. Be careful.
 /db/measures
+/db/bundles
 
 # Ignore all logfiles and tempfiles.
 /log/*.log

@@ -5,30 +5,25 @@ require './lib/measures/database_access'
 require './lib/measures/exporter'
 
 namespace :measures do
-  desc 'Export definition fo a single measure'
-  task :export,[:id] do |t, args|
-    measure = Measure.by_measure_id(args.id)
-
-    measure_path = File.join(".", "db", "measures")
-    FileUtils.mkdir_p measure_path
-
-    out_file = File.expand_path(File.join(measure_path, "measures.zip"))
-    file = File.open(out_file, 'w')
-
-    zip = Measures::Exporter.export(file, measure)
-    puts "wrote measure #{args.id} definition to: #{out_file}"
+  desc 'Export definition for a single measure.'
+  task :export,[:hqmf_id] do |t, args|
+    measures = Measure.where(:hqmf_id => args.hqmf_id).to_a
+    zip = Measures::Exporter.export_bundle(measure, true)
+    
+    bundle_path = File.join(".", "db", "bundles")
+    FileUtils.mkdir_p bundle_path
+    FileUtils.mv(zip.path, File.join(bundle_path, "bundle-#{measure.hqmf_id}.zip"))
   end
 
   desc 'Export definitions for all measures'
   task :export_all do |t, args|
-    measure_path = File.join(".", "db", "measures")
-    FileUtils.mkdir_p measure_path
-    out_file = File.expand_path(File.join(measure_path, "measures.zip"))
-    file = File.open(out_file, 'w')
-
-    measures = Measure.all
-    zip = Measures::Exporter.export(file, measures)
-    puts "wrote #{measures.count} measure definitions to: #{out_file}"
+    measures = Measure.all.to_a
+    zip = Measures::Exporter.export_bundle(measures, true)
+    
+    version = APP_CONFIG["measures"]["version"]
+    bundle_path = File.join(".", "db", "bundles")
+    FileUtils.mkdir_p bundle_path
+    FileUtils.mv(zip.path, File.join(bundle_path, "bundle-#{version}.zip"))
   end
 
   desc 'Remove the measures and bundles collection'
@@ -95,7 +90,7 @@ namespace :measures do
     library_functions['hqmf_utils'] = HQMF2JS::Generator::JS.library_functions
 
     library_functions.each do |library, contents|
-      QME::Bundle.save_system_js_fn(library, contents)
+      QME::Bundle.save_system_js_fn(MONGO_DB, library, contents)
     end
 
     # Load each measure from the measures directory

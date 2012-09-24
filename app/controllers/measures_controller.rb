@@ -135,35 +135,14 @@ class MeasuresController < ApplicationController
   def export
     measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
 
-    file = Tempfile.new(["#{measure.id}-#{Time.now.to_i}", ".zip"])
-    Measures::Exporter.export(file, [measure])
-
-    send_file file.path, :type => 'application/zip', :disposition => 'attachment', :filename => "measures.zip"
+    file = Measures::Exporter.export_bundle([measure], true)
+    send_file file.path, :type => 'application/zip', :disposition => 'attachment', :filename => "bundle-#{measure.id}.zip"
   end
 
   def export_all
-    # Gather all the measures to export, organized by type
-    measures = {}
-    Measure::TYPES.each do |type|
-      matching_measures = Measure.by_user(current_user).by_type(type).to_a
-      measures[type] = matching_measures if matching_measures.present?
-    end
-    
-    # Gather all of the patients to export, organized by type
-    patients = {}
-    patients["ep"] = Record.all.to_a # TODO - These will be pulled by scope on ep and eh once the eh deck is prepared.
+    measures = Measure.by_user(current_user).to_a
 
-    # Generate QRDA Category 1 patients.
-    measure_needs = {}
-    measure_value_sets = {}
-    measures.values.flatten.each do |measure|
-      measure_needs[measure.measure_id] = measure.as_hqmf_model.referenced_data_criteria
-      measure_value_sets[measure.measure_id] = measure.value_sets
-    end
-    patients["qrda"] = HQMF::Generator.generate_qrda_patients(measure_needs, measure_value_sets).values.flatten
-    
-    # Create and return the bundle
-    file = Measures::Exporter.export_bundle(measures, patients)
+    file = Measures::Exporter.export_bundle(measures, true)
     version = APP_CONFIG["measures"]["version"]
     send_file file.path, :type => 'application/zip', :disposition => 'attachment', :filename => "bundle-#{version}.zip"
   end
@@ -321,9 +300,11 @@ class MeasuresController < ApplicationController
   end
   
   def patient_builder
+    
     @measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
     @record = Record.where({'_id' => params[:patient_id]}).first || {}
     measure_list = (@record['measure_ids'] || []) << @measure['measure_id']
+    
     @data_criteria = Hash[
       *Measure.where({'measure_id' => {'$in' => measure_list}}).map{|m|
         m.source_data_criteria.reject{|k,v|
@@ -421,6 +402,10 @@ class MeasuresController < ApplicationController
         data_criteria.field_values ||= {}
         data_criteria.field_values[key] = HQMF::Coded.new('CD', nil, nil, value['code_list_id'])
       end if v['field_values']
+      if v['negation'] == 'true'
+        data_criteria.negation = true
+        data_criteria.negation_code_list_id = v['negation_code_list_id']
+      end
       low = {'value' => Time.at(v['start_date'] / 1000).strftime('%Y%m%d%H%M%S') }
       high = {'value' => Time.at(v['end_date'] / 1000).strftime('%Y%m%d%H%M%S') }
       high = nil if v['end_date'] == JAN_ONE_THREE_THOUSAND
