@@ -2,12 +2,28 @@ require 'factory_girl'
 
 FactoryGirl.define do
 
-  factory :value_set do |f|
+  factory :code_set do |f|
     f.category { ValueSet::Categories.sample }
     f.oid "2.16.840.1.113883.3.464.0002.1138"
     f.code_set "RxNorm"
     f.concept "Encounters ALL inpatient and ambulatory"
-    f.codes { %w(99201 99202 99203 99204 99205) }
+    f.sequence(:codes) { |n| ["99201", "99202", "99203", "99204", "1234#{n}"] }
+  end
+
+  factory :unrelated_code_set, :parent => :code_set do |f|
+    f.codes ["abc", "123"]
+  end
+
+  factory :value_set do |f|
+    f.category { ValueSet::Categories.sample }
+    f.oid "1.2.3.4"
+    f.concept "Encounters ALL inpatient and ambulatory"
+    measure
+  end
+
+  factory :concept do |f|
+    f.sequence(:name) { |n| "concept#{n}"}
+    f.sequence(:oids) { |n| ["1.2.0.#{n}", "2.3.0.#{n}"]}
   end
 
   factory :measure do |m| 

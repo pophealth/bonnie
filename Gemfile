@@ -33,6 +33,7 @@ gem 'coderay'   # for javascript syntax highlighting
 
 gem 'pry'
 gem 'pry-nav'
+gem 'pry-rescue'
 
 group :test, :develop do
   # Pretty printed test output
@@ -50,8 +51,8 @@ group :test, :develop do
 end
 
 group :production do
-  gem 'libv8', '~> 3.11.8.3'                                          # 10.8 mountain lion compatibility
-  gem 'therubyracer', '~> 0.11.0beta5', :platforms => [:ruby, :jruby] # 10.8 mountain lion compatibility
+  gem 'therubyracer', '~> 0.11.0beta5', :platforms => [:ruby] # 10.8 mountain lion compatibility
+  gem 'therubyrhino', :platforms => [:jruby] # 10.8 mountain lion compatibility
 end
 
 # Gems used only for assets and not required

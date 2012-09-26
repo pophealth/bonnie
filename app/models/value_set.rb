@@ -9,7 +9,7 @@ class ValueSet
   field :organization, type: String
   field :version, type: String
   
-  embeds_many :code_sets, class_name: "CodeSet", inverse_of: :parent
+  embeds_many :code_sets, as: :code_settable
   belongs_to :measure
   
   # diagnosis_condition_problem
