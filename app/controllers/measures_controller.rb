@@ -363,6 +363,7 @@ class MeasuresController < ApplicationController
       ['allergies', 'care_goals', 'conditions', 'encounters', 'immunizations', 'medical_equipment', 'medications', 'procedures', 'results', 'social_history', 'vital_signs'].each do |section|
         patient[section] = [] if patient[section]
       end
+      patient.medical_record_number = "#{patient.first} #{patient.last}".hash.abs
       patient.save!
     end
 

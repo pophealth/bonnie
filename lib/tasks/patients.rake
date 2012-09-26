@@ -11,7 +11,7 @@ namespace :patients do
     
     json_array.each do |e|
       r = Record.new(e)
-      r.id = r.id['$oid']   # fix {"$oid"=>"4fa98071431a5fb25f000002"} as ID problem
+#      r.id = r.id['$oid']   # fix {"$oid"=>"4fa98071431a5fb25f000002"} as ID problem
       r.save
     end
     

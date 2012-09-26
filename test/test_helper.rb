@@ -25,7 +25,7 @@ end
 
 class ActiveSupport::TestCase
   def dump_database
-    Mongoid::Config.master.collections.each do |collection|
+    Mongoid.session(:default).collections.each do |collection|
       collection.drop unless collection.name.include?('system.')
     end
   end

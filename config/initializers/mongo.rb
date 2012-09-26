@@ -1,4 +1,6 @@
-MONGO_DB = Mongoid.database
+
+connection  = Mongo::Connection.new
+MONGO_DB = connection[Mongoid.default_session.options[:database]]
 
 module QME
   module DatabaseAccess

@@ -1,16 +1,22 @@
 development:
-  host: localhost
-  database: bonnie-development
+  sessions:
+    default:
+      database: bonnie-development
+      hosts:
+        - localhost:27017
 
 test:
-  host: <%= ENV['TEST_DB_HOST'] || 'localhost' %>
-  database: bonnie-test
+  sessions:
+    default:
+      database: bonnie-test
+      hosts:
+        - <%= ENV['TEST_DB_HOST'] || 'localhost' %>:27017
 
-# set these environment variables on your prod server
 production:
-  host: <%= ENV['MONGOID_HOST'] || 'localhost' %>
-  port: <%= ENV['MONGOID_PORT'] || 27017 %>
-  # database must be set
-  database: <%= ENV['MONGOID_DATABASE'] %>  
-  <% if (ENV['MONGOID_USERNAME']) %>username: <%= ENV['MONGOID_USERNAME'] %><% end %>
-  <% if (ENV['MONGOID_PASSWORD']) %>password: <%= ENV['MONGOID_PASSWORD'] %><% end %>
+  sessions:
+    default:
+      database: <%= ENV['MONGOID_DATABASE'] || 'bonnie-production' %>
+      <% if (ENV['MONGOID_USERNAME']) %>username: <%= ENV['MONGOID_USERNAME'] %><% end %>
+      <% if (ENV['MONGOID_PASSWORD']) %>password: <%= ENV['MONGOID_PASSWORD'] %><% end %>
+      hosts:
+        - <%= ENV['MONGOID_HOST'] || 'localhost' %>:<%= ENV['MONGOID_PORT'] || 27017 %>

@@ -19,11 +19,15 @@ module Measures
       MONGO_DB['measures'].drop
       
       # Break apart each measure into its submeasures and store as JSON into the measures collection for QME
-      measures.each do |measure|
-        measure.type = APP_CONFIG["measures"][measure.measure_id]["type"] if APP_CONFIG["measures"][measure.measure_id]
-        measure.category = APP_CONFIG["measures"][measure.measure_id]["category"] if APP_CONFIG["measures"][measure.measure_id]
+      measures.each_with_index do |measure,measure_index|
+        # measure.type = APP_CONFIG["measures"][measure.measure_id]["type"] if APP_CONFIG["measures"][measure.measure_id]
+        # measure.category = APP_CONFIG["measures"][measure.measure_id]["category"] if APP_CONFIG["measures"][measure.measure_id]
+        # measure.save!
         sub_ids = ("a".."zz").to_a
+        
         (0..measure.populations.count-1).each do |population_index|
+          puts "calculating (#{measure_index+1}/#{measures.count}): #{measure.measure_id}#{sub_ids[population_index]}"
+          
           measure_json = Measures::Exporter.measure_json(measure.measure_id, population_index)
           measure_id = MONGO_DB["measures"] << measure_json
 
@@ -53,16 +57,17 @@ module Measures
         
         Measure::TYPES.each do |type|
           Measure.where(:id.in => measures.map{|m| m.hqmf_id}, :type => type).each do |measure|
+            puts "Exporting: #{measure.measure_id}"
+            
             source_to_zip(zip, File.join("sources", type), measure) rescue nil
-            measure.records.each do |patient|
-              patient_ids << patient_to_zip(zip, File.join("patients", type), patient)
-            end  
-            measure_ids.concat measures_to_zip(zip, File.join("measures", type))
           end
-          # patient_ids << patient_to_zip(zip, path, qrda_patient(measures))
+          Record.where(type: type).each do |patient|
+            patient_ids << patient_to_zip(zip, File.join("patients", type), patient)
+          end
+          measure_ids.concat measures_to_zip(zip, type)
         end
         
-        bundle_to_zip(zip, patient_ids, measure_ids)
+        bundle_to_zip(zip, measure_ids, patient_ids)
         results_to_zip(zip, "results", measures)
       end
       
@@ -77,12 +82,12 @@ module Measures
       end
     end
     
-    def self.measures_to_zip(zip, path)
+    def self.measures_to_zip(zip, type)
       measure_ids = []
-      MONGO_DB["measures"].find({}).each do |measure_json|
+      MONGO_DB["measures"].find({type: type}).each do |measure_json|
         measure_ids << measure_json["id"]
-        zip.put_next_entry(File.join(path, "#{measure_json['nqf_id']}#{measure_json['sub_id']}.json"))
-        zip << measure_json.to_json
+        zip.put_next_entry(File.join(File.join("measures", type), "#{measure_json['nqf_id']}#{measure_json['sub_id']}.json"))
+        zip << JSON.pretty_generate(measure_json.as_json(:except => [ '_id' ]), max_nesting: 250)
       end
       
       measure_ids
@@ -109,7 +114,7 @@ module Measures
     def self.bundle_to_zip(zip, measure_ids, patient_ids)
       bundle = Measures::Exporter.bundle_json(patient_ids, measure_ids, library_functions.keys)
       zip.put_next_entry("bundle.json")
-      zip << bundle.to_json
+      zip << JSON.pretty_generate(bundle)
     end
     
     def self.results_to_zip(zip, path, measures)
@@ -135,12 +140,12 @@ module Measures
       zip << HealthDataStandards::Export::CCR.export(patient)
       
       zip.put_next_entry(File.join(path, "json", "#{filename}.json"))
-      zip << JSON.pretty_generate(JSON.parse(patient.to_json))
+      zip << JSON.pretty_generate(JSON.parse(patient.as_json(:except => [ '_id', 'measure_id' ]).to_json))
       
       zip.put_next_entry(File.join(path, "html", "#{filename}.html"))
       zip << TPG::Exporter.html_contents(patient)
       
-      patient.id
+      patient.medical_record_number
     end
 
     def self.qrda_patient(zip, path, measures)
@@ -229,6 +234,7 @@ module Measures
         license: APP_CONFIG["measures"]["license"],
         measures: measure_ids,
         patients: patient_ids,
+        exported: Time.now.strftime("%Y-%m-%d"),
         extensions: library_functions.keys
       }
     end

@@ -6,11 +6,10 @@ class User
   
   before_create :set_defaults
   
-  devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :trackable, :validatable, :authentication_keys => [:username]
+  devise :database_authenticatable, :registerable, :recoverable, :rememberable, :trackable, :validatable, :authentication_keys => [:username]
 
   ## Database authenticatable
-  field :encrypted_password, :type => String, :null => false
+  field :encrypted_password, :type => String
 
   ## Recoverable
   field :reset_password_token,   :type => String

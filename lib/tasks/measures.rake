@@ -16,14 +16,18 @@ namespace :measures do
   end
 
   desc 'Export definitions for all measures'
-  task :export_all do |t, args|
+  task :export_all, [:calculate] do |t, args|
+    calculate = args.calculate != 'false'
+    
     measures = Measure.all.to_a
-    zip = Measures::Exporter.export_bundle(measures, true)
+    zip = Measures::Exporter.export_bundle(measures, calculate)
     
     version = APP_CONFIG["measures"]["version"]
-    bundle_path = File.join(".", "db", "bundles")
+    bundle_path = File.join(".", "tmp", "bundles")
     FileUtils.mkdir_p bundle_path
-    FileUtils.mv(zip.path, File.join(bundle_path, "bundle-#{version}.zip"))
+    date_string = Time.now.strftime("%Y-%m-%d")
+    FileUtils.mv(zip.path, File.join(bundle_path, "bundle-#{date_string}-#{version}.zip"))
+    puts "Exported #{measures.size} measures to #{File.join(bundle_path, "bundle-#{date_string}-#{version}.zip")}"
   end
 
   desc 'Remove the measures and bundles collection'

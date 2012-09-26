@@ -218,19 +218,19 @@ measures: &measures
     type: ep
     category: Depression
     episode_of_care: false
-  "ChildDentalDecay/1335":
+  "ChildDentalDecay":
     type: ep
     category: Dentistry
     episode_of_care: false
-  "PrimaryCariesPrevention/1419":
+  "PrimaryCariesPrevention":
     type: ep
     category: Dentistry
     episode_of_care: false
-  "CholesterolScreening_risk":
+  "CholesterolScreeningRisk":
     type: ep
     category: Cholesterol
     episode_of_care: false
-  "CholesterolScreening_test":
+  "CholesterolScreeningTest":
     type: ep
     category: Cholesterol
     episode_of_care: false
@@ -238,27 +238,27 @@ measures: &measures
     type: ep
     category: Dementia
     episode_of_care: false
-  "ONC103/HTNImprovement":
+  "HypertensionImprovement":
     type: ep
     category: Hypertension
     episode_of_care: false
-  "ONC110/referral":
+  "ClosingReferralLoop":
     type: ep
     category: Referral
     episode_of_care: false
-  "ONC104a/FSAKNEE":
+  "FSAKnee":
     type: ep
     category: Knee Replacement
     episode_of_care: false
-  "ONC104b/FSAHIP":
+  "FSAHip":
     type: ep
     category: Hip Replacement
     episode_of_care: false
-  "ONC106/FSACHF":
+  "FSACHF":
     type: ep
     category: Heart Failure
     episode_of_care: false
-  "ONC111/ADE":
+  "ADE_TTR":
     type: ep
     category: ADE
     episode_of_care: false
