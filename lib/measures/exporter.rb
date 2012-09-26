@@ -17,18 +17,15 @@ module Measures
       MONGO_DB['query_cache'].remove({})
       MONGO_DB['patient_cache'].remove({})
       MONGO_DB['measures'].drop
+      Record.where(type: 'qrda').destroy
       
       # Break apart each measure into its submeasures and store as JSON into the measures collection for QME
-      measures.each_with_index do |measure,measure_index|
-        # measure.type = APP_CONFIG["measures"][measure.measure_id]["type"] if APP_CONFIG["measures"][measure.measure_id]
-        # measure.category = APP_CONFIG["measures"][measure.measure_id]["category"] if APP_CONFIG["measures"][measure.measure_id]
-        # measure.save!
+      measures.each_with_index do |measure, measure_index|
         sub_ids = ("a".."zz").to_a
-        
-        (0..measure.populations.count-1).each do |population_index|
-          puts "calculating (#{measure_index+1}/#{measures.count}): #{measure.measure_id}#{sub_ids[population_index]}"
+        measure.populations.each_with_index do |population, index|
+          puts "calculating (#{measure_index+1}/#{measures.count}): #{measure.measure_id}#{sub_ids[index]}"
           
-          measure_json = Measures::Exporter.measure_json(measure.measure_id, population_index)
+          measure_json = Measures::Exporter.measure_json(measure.measure_id, index)
           measure_id = MONGO_DB["measures"] << measure_json
 
           MONGO_DB["bundles"].update({}, {"$push" => {"measures" => measure_id}})
@@ -37,6 +34,7 @@ module Measures
           report = QME::QualityReport.new(measure_json[:id], measure_json[:sub_id], {'effective_date' => effective_date })
           report.calculate(false) unless report.calculated?
         end
+        qrda_patient(measure).save
       end
     end
     
@@ -55,16 +53,16 @@ module Measures
       Zip::ZipOutputStream.open(file.path) do |zip|
         library_functions_to_zip(zip, "library_functions")
         
-        Measure::TYPES.each do |type|
-          Measure.where(:id.in => measures.map{|m| m.hqmf_id}, :type => type).each do |measure|
+        types = ["qrda"].concat Measure::TYPES
+        types.each do |type|
+          measure_ids.concat measures_to_zip(zip, type)
+          Measure.where(:type => type).each do |measure|
             puts "Exporting: #{measure.measure_id}"
-            
             source_to_zip(zip, File.join("sources", type), measure) rescue nil
           end
           Record.where(type: type).each do |patient|
             patient_ids << patient_to_zip(zip, File.join("patients", type), patient)
           end
-          measure_ids.concat measures_to_zip(zip, type)
         end
         
         bundle_to_zip(zip, measure_ids, patient_ids)
@@ -98,7 +96,7 @@ module Measures
       source_html = File.read(File.expand_path(File.join(".", "db", "measures", "html", "#{measure.id}.html")))
       source_value_sets = File.read(File.expand_path(File.join(".", "db", "measures", "value_sets", "#{measure.id}.xls")))
       source_hqmf1 = File.read(File.expand_path(File.join(".", "db", "measures", "hqmf", "#{measure.id}.xml")))
-      #generated_hqmf2 = HQMF2::Generator::ModelProcessor.to_hqmf(measure.as_hqmf_model)
+      generated_hqmf2 = HQMF2::Generator::ModelProcessor.to_hqmf(measure.as_hqmf_model)
 
       # Add source files to the zip.
       zip.put_next_entry(File.join(path, measure.measure_id, "#{measure.measure_id}.html"))
@@ -107,8 +105,8 @@ module Measures
       zip << source_value_sets
       zip.put_next_entry(File.join(path, measure.measure_id, "hqmf1.xml"))
       zip << source_hqmf1
-      #zip.put_next_entry(File.join(path, measure.measure_id, "hqmf2.xml"))
-      #zip << generated_hqmf2
+      zip.put_next_entry(File.join(path, measure.measure_id, "hqmf2.xml"))
+      zip << generated_hqmf2
     end
     
     def self.bundle_to_zip(zip, measure_ids, patient_ids)
@@ -128,7 +126,11 @@ module Measures
     end
 
     def self.patient_to_zip(zip, path, patient)
+      begin
       filename = TPG::Exporter.patient_filename(patient)
+    rescue
+      binding.pry
+    end
   
       zip.put_next_entry(File.join(path, "c32", "#{filename}.xml"))
       zip << HealthDataStandards::Export::C32.export(patient)      
@@ -148,15 +150,14 @@ module Measures
       patient.medical_record_number
     end
 
-    def self.qrda_patient(zip, path, measures)
+    def self.qrda_patient(measure)
       measure_needs = {}
       measure_value_sets = {}
-      measures.each do |measure|
-        measure_needs[measure.hqmf_id] = measure.as_hqmf_model.referenced_data_criteria
-        measure_value_sets[measure.hqmf_id] = measure.value_sets
-      end
+      measure_needs[measure.hqmf_id] = measure.as_hqmf_model.referenced_data_criteria
+      measure_value_sets[measure.hqmf_id] = measure.value_sets
       
-      HQMF::Generator.generate_qrda_patients(measure_needs, measure_value_sets)
+      patients = HQMF::Generator.generate_qrda_patients(measure_needs, measure_value_sets)
+      patients[measure.hqmf_id]
     end
 
     def self.library_functions

@@ -12,17 +12,6 @@ GIT
       rubyzip (~> 0.9.4)
 
 GIT
-  remote: https://github.com/pophealth/hqmf-parser.git
-  revision: 832a602ea88fbb7be3e1ec307369583ad06121a0
-  branch: develop
-  specs:
-    hqmf-parser (0.0.1)
-      google-spreadsheet-ruby (= 0.1.8)
-      roo (= 1.10.1)
-      rubyzip
-      spreadsheet (= 0.6.8)
-
-GIT
   remote: https://github.com/pophealth/hqmf2js.git
   revision: c29c4874516ecde37edcb359811317246b8af89f
   branch: develop
@@ -42,7 +31,7 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/test-patient-generator.git
-  revision: 1d1a2eede9202749ac66b7db0e68191b50d5b5b0
+  revision: 85a097b03ec54151e29a2c009596a98ad959fb1e
   branch: develop
   specs:
     test-patient-generator (0.1.0)
@@ -58,6 +47,15 @@ GIT
       mongoid (~> 3.0.6)
       nokogiri (~> 1.5.5)
       uuid (~> 2.3.5)
+
+PATH
+  remote: ../hqmf-parser
+  specs:
+    hqmf-parser (0.0.1)
+      google-spreadsheet-ruby (= 0.1.8)
+      roo (= 1.10.1)
+      rubyzip
+      spreadsheet (= 0.6.8)
 
 GEM
   remote: https://rubygems.org/
@@ -190,7 +188,7 @@ GEM
       multi_json (~> 1.0)
       rack (~> 1.2)
     origin (1.0.9)
-    orm_adapter (0.0.7)
+    orm_adapter (0.4.0)
     polyglot (0.3.3)
     pry (0.9.10)
       coderay (~> 1.0.5)

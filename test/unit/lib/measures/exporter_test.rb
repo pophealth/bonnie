@@ -20,15 +20,22 @@ class ExporterTest < ActiveSupport::TestCase
     file = Tempfile.new(['bundle', '.zip'])
     measures = [@measure]
 
+    Record.where(type: "qrda").size.must_equal 0
+    Measures::Exporter.prepare_export(measures) 
+    
+    qrda_patient = Record.where(type: "qrda").first
+    assert_not_nil qrda_patient
+    qrda_name = TPG::Exporter.patient_filename(qrda_patient)
+    
     entries = []
-    bundle = Measures::Exporter.export_bundle(measures, true)
+    bundle = Measures::Exporter.export_bundle(measures, false)
     Zip::ZipFile.open(bundle.path) do |zip|
       zip.entries.each do |entry|
         entries << entry.name
         assert entry.size > 0
       end
     end
-     
+
     expected = ["library_functions/map_reduce_utils.js",
       "library_functions/underscore_min.js",
       "library_functions/hqmf_utils.js",
@@ -39,6 +46,11 @@ class ExporterTest < ActiveSupport::TestCase
       "patients/ep/ccr/First2_Last2.xml",
       "patients/ep/json/First2_Last2.json",
       "patients/ep/html/First2_Last2.html",
+      "patients/qrda/c32/#{qrda_name}.xml",
+      "patients/qrda/ccda/#{qrda_name}.xml",
+      "patients/qrda/ccr/#{qrda_name}.xml",
+      "patients/qrda/json/#{qrda_name}.json",
+      "patients/qrda/html/#{qrda_name}.html",
       "results/by_patient.json",
       "results/by_measure.json"]
     
