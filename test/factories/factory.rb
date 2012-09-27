@@ -2,6 +2,12 @@ require 'factory_girl'
 
 FactoryGirl.define do
 
+  sequence :oid do
+    s = ""
+    9.times { s << (1..9).to_a.sample(rand(6)+1).join.to_s << "." }
+    s.chop
+  end
+
   factory :code_set do |f|
     f.category { ValueSet::Categories.sample }
     f.oid "2.16.840.1.113883.3.464.0002.1138"

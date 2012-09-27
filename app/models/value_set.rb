@@ -12,6 +12,10 @@ class ValueSet
   embeds_many :code_sets, as: :code_settable
   belongs_to :measure
   
+  accepts_nested_attributes_for :code_sets
+  attr_accessible :key, :concept, :code_sets, :oid, :category, 
+    :description, :organization, :version
+  
   # diagnosis_condition_problem
   Categories = %w(
     encounter

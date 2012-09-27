@@ -1,0 +1,15 @@
+require 'autotest/fsevent'
+
+class Autotest
+  # run tests over drb server (spork)
+  def make_test_cmd files_to_test
+    if files_to_test.empty?
+      "" # no tests to run
+    else
+      "testdrb #{files_to_test.keys.join(' ')}"
+    end
+  end
+end
+
+# tighten up the time before the test is run
+ObjectSpace.each_object(Autotest).first.sleep = 0

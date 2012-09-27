@@ -1,26 +1,31 @@
+require 'cover_me'    # cover_me docs say it needs to be the first line in test_helper
 require 'rubygems'
 require 'spork'
+
+require 'minitest/autorun'
+require 'minitest/unit'
 
 Spork.prefork do
   # Loading more in this block will cause your tests to run faster. However,
   # if you change any configuration or code from libraries loaded here, you'll
   # need to restart spork for it take effect.
-  require 'cover_me'
   ENV["RAILS_ENV"] = "test"
   require File.expand_path('../../config/environment', __FILE__)
-  require 'rails/test_help'
 
   require 'factory_girl'
+  FactoryGirl.find_definitions
+
   require 'mocha'
   require 'rake'
-
-  # you will have to restart guard when you modify factories
-  # if you don't like this, put this line under #each_run()
-  FactoryGirl.find_definitions
+  require 'turn'
+  require 'rails/test_help'
+  require 'autotest/fsevent'
 end
 
 Spork.each_run do
   # This code will be run each time you run your specs.
+  FactoryGirl.reload
+  Rails.application.reload_routes!
 end
 
 class ActiveSupport::TestCase

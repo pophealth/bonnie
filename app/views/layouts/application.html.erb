@@ -24,7 +24,9 @@
     <% unless request.xhr?%>
       <%= render :partial => 'shared/header' %>
     <% end %>
-    <%= yield %>
+    <div id="pageContent">
+      <%= content_for?(:page_content) ? yield(:page_content) : yield %>
+    </div><!-- end #pageContent -->
   </div><!-- end #container -->
 
 </body>
