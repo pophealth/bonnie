@@ -12,6 +12,17 @@ GIT
       rubyzip (~> 0.9.4)
 
 GIT
+  remote: https://github.com/pophealth/hqmf-parser.git
+  revision: c882d8d87db7da44265f0680b730b54cd8f57c45
+  branch: develop
+  specs:
+    hqmf-parser (0.0.1)
+      google-spreadsheet-ruby (= 0.1.8)
+      roo (= 1.10.1)
+      rubyzip
+      spreadsheet (= 0.6.8)
+
+GIT
   remote: https://github.com/pophealth/hqmf2js.git
   revision: c29c4874516ecde37edcb359811317246b8af89f
   branch: develop
@@ -47,15 +58,6 @@ GIT
       mongoid (~> 3.0.6)
       nokogiri (~> 1.5.5)
       uuid (~> 2.3.5)
-
-PATH
-  remote: ../hqmf-parser
-  specs:
-    hqmf-parser (0.0.1)
-      google-spreadsheet-ruby (= 0.1.8)
-      roo (= 1.10.1)
-      rubyzip
-      spreadsheet (= 0.6.8)
 
 GEM
   remote: https://rubygems.org/
