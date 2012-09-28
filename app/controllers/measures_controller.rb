@@ -73,7 +73,7 @@ class MeasuresController < ApplicationController
 
   def upsert_criteria
     @measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
-    criteria = {"id" => params[:criteria_id]  || BSON::ObjectId.new.to_s, "type" => params['type']}
+    criteria = {"id" => params[:criteria_id]  || Moped::BSON::ObjectId.new.to_s, "type" => params['type']}
     ["title", "code_list_id", "description", "qds_data_type", 'negation_code_list_id'].each { |f| criteria[f] = params[f] if !params[f].blank?}
 
 

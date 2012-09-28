@@ -154,7 +154,7 @@ class Measure
         'reference' => data['id'],
       }
       if !data['id']
-        data['id'] = data['precondition_id'] || BSON::ObjectId.new.to_s
+        data['id'] = data['precondition_id'] || Moped::BSON::ObjectId.new.to_s
         if data['reference'] && self['data_criteria'][data['reference']].nil?
           upsert_data_criteria((self['source_data_criteria'][data['reference']]).merge({'id' => data['reference'] += '_' + data['id']}))
         end

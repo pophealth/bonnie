@@ -19,7 +19,8 @@ Spork.prefork do
   require 'rake'
   require 'turn'
   require 'rails/test_help'
-  require 'autotest/fsevent'
+
+#  require 'autotest/fsevent'
 end
 
 Spork.each_run do
