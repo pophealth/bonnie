@@ -8,7 +8,7 @@ measures: &measures
     episode_of_care: false
   "0004":
     type: ep
-    category: Alcohol/Drug
+    category: Alcohol and Drug
     episode_of_care: false
   "0018":
     type: ep
