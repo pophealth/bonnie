@@ -99,7 +99,7 @@ class @bonnie.DataCriteria
         text+=', ' if i > 0
         i+=1
         field_value = ''
-        field_value = @field_values[key].text() if @field_values[key]?
+        field_value = @field_values[key].text() if @field_values[key]? && @field_values[key].text?
         text+="#{bonnie.builder.field_map[key].title}:#{field_value}"
       text += ')'
     text
