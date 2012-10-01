@@ -61,6 +61,7 @@ module Measures
             source_to_zip(zip, File.join("sources", type), measure) rescue nil
           end
           Record.where(type: type).each do |patient|
+            puts "Exporting: #{patient.first}#{patient.last}"
             patient_ids << patient_to_zip(zip, File.join("patients", type), patient)
           end
         end
@@ -120,17 +121,13 @@ module Measures
       results_by_measure = MONGO_DB['query_cache'].find({}).to_a
       
       zip.put_next_entry(File.join(path, "by_patient.json"))
-      zip << results_by_patient.to_json
+      zip << JSON.pretty_generate(JSON.parse(results_by_patient.as_json(:except => [ '_id', 'patient_id' ]).to_json))
       zip.put_next_entry(File.join(path, "by_measure.json"))
-      zip << results_by_measure.to_json
+      zip << JSON.pretty_generate(JSON.parse(results_by_measure.as_json(:except => [ '_id' ]).to_json))
     end
 
     def self.patient_to_zip(zip, path, patient)
-      begin
       filename = TPG::Exporter.patient_filename(patient)
-    rescue
-      binding.pry
-    end
   
       zip.put_next_entry(File.join(path, "c32", "#{filename}.xml"))
       zip << HealthDataStandards::Export::C32.export(patient)      
