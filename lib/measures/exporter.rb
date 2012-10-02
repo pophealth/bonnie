@@ -203,7 +203,7 @@ module Measures
       end
       
       population_ids = {}
-      ['IPP','DENOM','NUMER','EXCL','DENEXCEP'].each do |type|
+      ['IPP','DENOM','NUMER','DENEX','DENEXCEP'].each do |type|
         population_key = measure.populations[population_index][type]
         population_criteria = measure.population_criteria[population_key]
         if (population_criteria)
@@ -324,7 +324,7 @@ module Measures
         return executeIfAvailable(hqmfjs.NUMER, patient_api);
       }
       var exclusion = function() {
-        return executeIfAvailable(hqmfjs.EXCL, patient_api);
+        return executeIfAvailable(hqmfjs.DENEX, patient_api);
       }
       var denexcep = function() {
         return executeIfAvailable(hqmfjs.DENEXCEP, patient_api);
