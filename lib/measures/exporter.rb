@@ -203,7 +203,7 @@ module Measures
       end
       
       population_ids = {}
-      ['IPP','DENOM','NUMER','DENEX','DENEXCEP'].each do |type|
+      HQMF::PopulationCriteria::ALL_POPULATION_CODES.each do |type|
         population_key = measure.populations[population_index][type]
         population_criteria = measure.population_criteria[population_key]
         if (population_criteria)
@@ -315,19 +315,19 @@ module Measures
       hqmfjs.initializeSpecifics(patient_api, hqmfjs)
       
       var population = function() {
-        return executeIfAvailable(hqmfjs.IPP, patient_api);
+        return executeIfAvailable(hqmfjs.#{HQMF::PopulationCriteria::IPP}, patient_api);
       }
       var denominator = function() {
-        return executeIfAvailable(hqmfjs.DENOM, patient_api);
+        return executeIfAvailable(hqmfjs.#{HQMF::PopulationCriteria::DENOM}, patient_api);
       }
       var numerator = function() {
-        return executeIfAvailable(hqmfjs.NUMER, patient_api);
+        return executeIfAvailable(hqmfjs.#{HQMF::PopulationCriteria::NUMER}, patient_api);
       }
       var exclusion = function() {
-        return executeIfAvailable(hqmfjs.DENEX, patient_api);
+        return executeIfAvailable(hqmfjs.#{HQMF::PopulationCriteria::DENEX}, patient_api);
       }
       var denexcep = function() {
-        return executeIfAvailable(hqmfjs.DENEXCEP, patient_api);
+        return executeIfAvailable(hqmfjs.#{HQMF::PopulationCriteria::EXCEP}, patient_api);
       }
       
       var executeIfAvailable = function(optionalFunction, arg) {
