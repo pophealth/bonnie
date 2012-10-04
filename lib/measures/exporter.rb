@@ -11,11 +11,11 @@ module Measures
       # QME requires that the bundle collection be populated.
       MONGO_DB['bundles'].drop
       bundle = Measures::Exporter.bundle_json([], [], library_functions.keys)
-      bundle_id = MONGO_DB["bundles"] << bundle
+      MONGO_DB["bundles"].insert(bundle)
       
       # Delete all old results for these measures because they might be out of date.
-      MONGO_DB['query_cache'].remove({})
-      MONGO_DB['patient_cache'].remove({})
+      MONGO_DB['query_cache'].find({}).remove_all
+      MONGO_DB['patient_cache'].find({}).remove_all
       MONGO_DB['measures'].drop
       Record.where(type: 'qrda').destroy
       
@@ -26,9 +26,10 @@ module Measures
           puts "calculating (#{measure_index+1}/#{measures.count}): #{measure.measure_id}#{sub_ids[index]}"
           
           measure_json = Measures::Exporter.measure_json(measure.measure_id, index)
-          measure_id = MONGO_DB["measures"] << measure_json
+          MONGO_DB["measures"].insert(measure_json)
+          measure_id = MONGO_DB["measures"].find({id: measure_json[:id]}).first
 
-          MONGO_DB["bundles"].update({}, {"$push" => {"measures" => measure_id}})
+          MONGO_DB["bundles"].find({}).update({"$push" => {"measures" => measure_id}})
           
           effective_date = HQMF::Value.new("TS", nil, measure.measure_period["high"]["value"], true, false, false).to_time_object.to_i
           report = QME::QualityReport.new(measure_json[:id], measure_json[:sub_id], {'effective_date' => effective_date })
@@ -121,7 +122,7 @@ module Measures
       results_by_measure = MONGO_DB['query_cache'].find({}).to_a
       
       zip.put_next_entry(File.join(path, "by_patient.json"))
-      zip << JSON.pretty_generate(JSON.parse(results_by_patient.as_json(:except => [ '_id', 'patient_id' ]).to_json))
+      zip << JSON.pretty_generate(JSON.parse(results_by_patient.as_json(:except => [ '_id' ]).to_json))
       zip.put_next_entry(File.join(path, "by_measure.json"))
       zip << JSON.pretty_generate(JSON.parse(results_by_measure.as_json(:except => [ '_id' ]).to_json))
     end
@@ -219,7 +220,7 @@ module Measures
     end
 
     def self.refresh_js_libraries
-      MONGO_DB['system.js'].remove({})
+      MONGO_DB['system.js'].find({}).remove_all
       Measures::Exporter.library_functions.each do |name, contents|
         QME::Bundle.save_system_js_fn(MONGO_DB, name, contents)
       end

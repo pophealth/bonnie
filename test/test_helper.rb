@@ -15,7 +15,6 @@ Spork.prefork do
   require 'factory_girl'
   FactoryGirl.find_definitions
 
-  require 'mocha'
   require 'rake'
   require 'turn'
   require 'rails/test_help'
