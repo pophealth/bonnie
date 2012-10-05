@@ -83,11 +83,11 @@ class Measure
     population = populations[population_index]
 
     title_mapping = {
-      population["IPP"] => "population",
-      population["DENOM"] => "denominator",
-      population["NUMER"] => "numerator",
-      population["EXCL"] => "exclusions",
-      population["DENEXCEP"] => "exceptions"
+      population[HQMF::PopulationCriteria::IPP] => "population",
+      population[HQMF::PopulationCriteria::DENOM] => "denominator",
+      population[HQMF::PopulationCriteria::NUMER] => "numerator",
+      population[HQMF::PopulationCriteria::DENEX] => "exclusions",
+      population[HQMF::PopulationCriteria::EXCEP] => "exceptions"
     }
     self.population_criteria.each do |key, criteria|
       parameter_json[title_mapping[key]] = population_criteria_json(criteria, inline) if title_mapping[key]
