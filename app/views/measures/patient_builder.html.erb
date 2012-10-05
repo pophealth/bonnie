@@ -534,8 +534,8 @@
   <script type="text/html" id="bonnie_tmpl_data_criteria_coded">
     <select class="data_criteria_oid"{{if hidden}} style="display: none;"{{/if}}>
       <option value="">--</option>
-      {{each bonnie.patientBuilder.value_sets}}
-        <option value="${$index}">${$value.concept}</option>
+      {{each bonnie.patientBuilder.orderedValueSets}}
+        <option value="${oid}">${concept} (${measure_id})</option>
       {{/each}}
     </select>
   </script>

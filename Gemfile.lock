@@ -1,6 +1,6 @@
 GIT
   remote: http://github.com/pophealth/quality-measure-engine.git
-  revision: 0b9c01d86aac800808a5893a80b8c41cdbf8f012
+  revision: ffa4cd00dfb85cec4adbc4630a8979def2e94f4d
   branch: develop
   specs:
     quality-measure-engine (1.1.5)
@@ -35,7 +35,7 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/patientapi.git
-  revision: 476f100edd7d6f134bed584b79af672dada1b24a
+  revision: bf55bdef8cd99679c112150099f0bceb00b29b61
   branch: develop
   specs:
     hquery-patient-api (0.1.0)
@@ -49,7 +49,7 @@ GIT
 
 GIT
   remote: https://github.com/projectcypress/health-data-standards.git
-  revision: 71867203819f57f6d962e15b9e619343a68e1769
+  revision: 533bfe78f747d57dea15adf5fd34279d9383f085
   branch: develop
   specs:
     health-data-standards (2.1.0)
@@ -57,6 +57,7 @@ GIT
       erubis (~> 2.7.0)
       mongoid (~> 3.0.6)
       nokogiri (~> 1.5.5)
+      rest-client (~> 1.6.7)
       uuid (~> 2.3.5)
 
 GEM
@@ -160,7 +161,7 @@ GEM
       moped (~> 1.1)
       origin (~> 1.0)
       tzinfo (~> 0.3.22)
-    moped (1.2.5)
+    moped (1.2.6)
     multi_json (1.3.6)
     multipart-post (1.1.5)
     nokogiri (1.5.5)
@@ -226,6 +227,8 @@ GEM
       redisk (>= 0.2.1)
       resque (>= 1.3.1)
       uuid (>= 2.0.2)
+    rest-client (1.6.7)
+      mime-types (>= 1.16)
     roo (1.10.1)
       choice (>= 0.1.4)
       google-spreadsheet-ruby (>= 0.1.5)

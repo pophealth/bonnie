@@ -53,6 +53,7 @@ module MeasuresHelper
       criteria['criteria_id'] = key
       by_category[criteria["type"]] << criteria
     end if data_criteria
+    by_category.each {|category, values| values.sort! {|left,right| left['title'] <=> right['title']}}
     by_category
   end
 

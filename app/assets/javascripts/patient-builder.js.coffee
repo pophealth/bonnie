@@ -17,6 +17,10 @@ class @bonnie.PatientBuilder
     for key in _.keys(data_criteria)
       @data_criteria[key] = new bonnie.DataCriteria(key, data_criteria[key], @measure_period)
 
+  orderedValueSets: =>
+    _.values(@value_sets).sort((left, right) =>
+      left.concept > right.concept)
+
   nextDataCriteriaId: =>
     @data_criteria_counter+=1
 

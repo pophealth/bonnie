@@ -53,6 +53,7 @@ class @bonnie.DataCriteria
       @value = new bonnie.Range(criteria.value) if criteria.value.type == 'IVL_PQ'
       @value = new bonnie.Value(criteria.value) if criteria.value.type == 'PQ'
       @value = new bonnie.Coded(criteria.value) if criteria.value.type == 'CD'
+      @value = new bonnie.AnyNonNull(criteria.value) if criteria.value.type == 'ANYNonNull'
     @category = this.buildCategory()
     @status = criteria.status
     @children_criteria = criteria.children_criteria
@@ -88,6 +89,7 @@ class @bonnie.DataCriteria
         when 'PQ' then @value.value
         when 'IVL_PQ' then @value.low && @value.low.value || @value.high && @value.high.value
         when 'CD' then @value.code_list_id
+        when 'ANYNonNull' then ': Any Not Null'
     ) then "(result #{@value.text()})" else ""
 
   fieldsText: =>
@@ -158,6 +160,17 @@ class @bonnie.Range
       ">#{@low.text(temporal)}"
     else
       ''
+
+class @bonnie.AnyNonNull
+  constructor: (value) ->
+    @type = value['type']
+
+  temporal_unit_text: =>
+      ''
+  text: (temporal=false) =>
+      'Any Value'
+  equals: (other) =>
+    return other && @type == other.type
 
 class @bonnie.Value
   constructor: (value) ->
