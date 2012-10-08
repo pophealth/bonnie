@@ -259,6 +259,7 @@ module Measures
 
           value_set.code_sets.each do |code_set|
             template["codes"] ||= []
+            code_set = CodeSet.new(code_set) if code_set.is_a? Hash
             unless (code_set.oid.nil?)
               template["codes"] << {
                 "set"=> code_set.code_set,

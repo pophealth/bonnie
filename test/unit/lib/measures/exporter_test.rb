@@ -82,8 +82,8 @@ class ExporterTest < ActiveSupport::TestCase
     
     measure_json[:measure].size.must_equal 5
     measure_json[:nqf_id].must_equal "0002"
-    measure_json[:hqmf_id].must_equal '2E679CD2-3FEC-4A75-A75A-61403E5EFEE8'
-    measure_json[:id].must_equal '2E679CD2-3FEC-4A75-A75A-61403E5EFEE8'
+    measure_json[:hqmf_id].must_equal '8A4D92B2-3946-CDAE-0139-77F580AE6690'
+    measure_json[:id].must_equal '8A4D92B2-3946-CDAE-0139-77F580AE6690'
   end
   
   test "test bundle json" do

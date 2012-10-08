@@ -2,383 +2,472 @@ measures: &measures
   title: Meaningful Use Stage 2 Quality Bundle
   version: 0.0.1
   license: <p>Performance measures and related data specifications (the \"Measures\") are copyrighted by\nthe noted quality measure providers as indicated in the applicable Measure. Coding\nvocabularies are owned by their copyright owners. By using the Measures, a user\n(\"User\") agrees to these Terms of Use. Measures are not clinical guidelines and do not\nestablish a standard of medical care and quality measure providers are not responsible\nfor any use of or reliance on the Measures.</p>\n\n<p><strong>THE MEASURES AND SPECIFICATIONS ARE PROVIDED \"AS IS\" WITHOUT ANY WARRANTY OF\nANY KIND, AND ANY AND ALL IMPLIED WARRANTIES ARE HEREBY DISCLAIMED, INCLUDING ANY\nWARRANTY OF NON-INFRINGEMENT, ACCURACY, MERCHANTABILITY AND FITNESS FOR A PARTICULAR\nPURPOSE. NO QUALITY MEASURE PROVIDER, NOR ANY OF THEIR TRUSTEES, DIRECTORS, MEMBERS,\nAFFILIATES, OFFICERS, EMPLOYEES, SUCCESSORS AND/OR ASSIGNS WILL BE LIABLE TO YOU FOR\nANY DIRECT, INDIRECT, SPECIAL, EXEMPLARY, INCIDENTAL, PUNITIVE, AND/OR CONSEQUENTIAL\nDAMAGE OF ANY KIND, IN CONTRACT, TORT OR OTHERWISE, IN CONNECTION WITH THE USE OF THE\nPOPHEALTH TOOL OR THE MEASURES, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH LOSS OR DAMAGE.\n</strong></p>\n\n<p>The Measures are licensed to a User for the limited purpose of using, reproducing and\ndistributing the Measures with the popHealth Tool as delivered to User, without any\nmodification, for commercial and noncommercial uses, but such uses are only permitted\nif the copies of the Measures contain this complete Copyright, Disclaimer and Terms\nof Use. Users of the Measures may not alter, enhance, or otherwise modify the Measures.</p>\n\n<p><strong>NOT A CONTRIBUTION</strong> - The Measures, including specifications and coding,\nas used in the popHealth Tool, are not a contribution under the Apache license. Coding\nin the Measures is provided for convenience only and necessary licenses for use should\nbe obtained from the copyright owners. Current Procedural Terminology \n(CPT<span class=\"reg\">&reg;</span>) &copy; 2004-2010 American Medical Association. \nLOINC<span class=\"reg\">&reg;</span> &copy; 2004 Regenstrief Institute,\nInc. SNOMED Clinical Terms<span class=\"reg\">&reg;</span> \n(SNOMED CT<span class=\"reg\">&reg;</span>) &copy; 2004-2010 International Health\nTerminology Standards Development Organization.</p>",
-  "0002":
+  
+  "8A4D92B2-397A-48D2-0139-9CEA5D84733A":
+    nqf_id: "0385"
     type: ep
-    category: Misc
+    category: Cancer
     episode_of_care: false
-  "0004":
+  "8A4D92B2-3946-CDAE-0139-77E3E23961AB":
+    nqf_id: "0089"
+    type: ep
+    category: Diabetic Retinopathy
+    episode_of_care: false
+  "8A4D92B2-3946-CDAE-0139-78797547731A":
+    nqf_id: "0041"
+    type: ep
+    category: Immunization
+    episode_of_care: false
+  "8A4D92B2-356D-A09E-0135-C4EE09A5153E":
+    nqf_id: "0403"
+    type: ep
+    category: HIV
+    episode_of_care: false
+  "8A4D92B2-356D-A09E-0135-C4D3D6191416":
+    nqf_id: HypertensionImprovement
+    type: ep
+    category: Hypertension
+    episode_of_care: false
+  "8A4D92B2-3946-CDAE-0139-7944ACB700BD":
+    nqf_id: "0004"
     type: ep
     category: Alcohol and Drug
     episode_of_care: false
-  "0018":
+  "8A4D92B2-397A-48D2-0139-C63D3E41543C":
+    nqf_id: "0075"
     type: ep
-    category: Blood Pressure
+    category: IVD
     episode_of_care: false
-  "0022":
-    type: ep
-    category: Elderly
-    episode_of_care: false
-  "0024":
-    type: ep
-    category: Weight
-    episode_of_care: false
-  "0028":
-    type: ep
-    category: Tobacco
-    episode_of_care: false
-  "0031":
-    type: ep
-    category: Cancer
-    episode_of_care: false
-  "0032":
-    type: ep
-    category: Cancer
-    episode_of_care: false
-  "0033":
-    type: ep
-    category: Women
-    episode_of_care: false
-  "0034":
-    type: ep
-    category: Cancer
-    episode_of_care: false
-  "0036":
-    type: ep
-    category: Asthma
-    episode_of_care: false
-  "0038":
-    type: ep
-    category: Immunization
-    episode_of_care: false
-  "0041":
-    type: ep
-    category: Immunization
-    episode_of_care: false
-  "0043":
-    type: ep
-    category: Immunization
-    episode_of_care: false
-  "0052":
+  "8A4D92B2-39CA-AF4B-0139-D49A6C2A1DD7":
+    nqf_id: "0052"
     type: ep
     category: Back Pain
     episode_of_care: false
-  "0055":
-    type: ep
-    category: Diabetes
-    episode_of_care: false
-  "0056":
-    type: ep
-    category: Diabetes
-    episode_of_care: false
-  "0059":
-    type: ep
-    category: HemA1C
-    episode_of_care: false
-  "0060":
-    type: ep
-    category: HemA1C
-    episode_of_care: false
-  "0061":
-    type: ep
-    category: Diabetes
-    episode_of_care: false
-  "0062":
-    type: ep
-    category: Diabetes
-    episode_of_care: false
-  "0064":
-    type: ep
-    category: LDL
-    episode_of_care: false
-  "0068":
-    type: ep
-    category: IVD
-    episode_of_care: false
-  "0069":
-    type: ep
-    category: Misc
-    episode_of_care: false
-  "0070":
-    type: ep
-    category: CAD
-    episode_of_care: false
-  "0073":
-    type: ep
-    category: IVD
-    episode_of_care: false
-  "0075":
-    type: ep
-    category: IVD
-    episode_of_care: false
-  "0081":
-    type: ep
-    category: HF
-    episode_of_care: false
-  "0083":
-    type: ep
-    category: HF
-    episode_of_care: false
-  "0086":
-    type: ep
-    category: Glaucoma
-    episode_of_care: false
-  "0088":
-    type: ep
-    category: Diabetic Retinopathy
-    episode_of_care: false
-  "0089":
-    type: ep
-    category: Diabetic Retinopathy
-    episode_of_care: false
-  "0101":
-    type: ep
-    category: Falls
-    episode_of_care: false
-  "0104":
-    type: ep
-    category: Depression
-    episode_of_care: true
-  "0105":
-    type: ep
-    category: Depression
-    episode_of_care: false
-  "0108":
-    type: ep
-    category: ADHD
-    episode_of_care: false
-  "0110":
-    type: ep
-    category: Depression
-    episode_of_care: false
-  "0384":
-    type: ep
-    category: Oncology
-    episode_of_care: true
-  "0385":
-    type: ep
-    category: Cancer
-    episode_of_care: false
-  "0387":
-    type: ep
-    category: Cancer
-    episode_of_care: false
-  "0389":
-    type: ep
-    category: Cancer
-    episode_of_care: false
-  "0403":
-    type: ep
-    category: HIV
-    episode_of_care: false
-  "0405":
-    type: ep
-    category: HIV
-    episode_of_care: false
-  "0407":
-    type: ep
-    category: HIV
-    episode_of_care: false
-  "0418":
-    type: ep
-    category: Depression
-    episode_of_care: false
-  "0419":
+  "8A4D92B2-3887-5DF3-0138-D87BC9E063D2":
+    nqf_id: "0419"
     type: ep
     category: Documentation
     episode_of_care: true
-  "0421":
+  "8A4D92B2-3927-D7AE-0139-366C49F93102":
+    nqf_id: "1401"
+    type: ep
+    category: Depression
+    episode_of_care: false
+  "8A4D92B2-397A-48D2-0139-C648B33D5582":
+    nqf_id: "0036"
+    type: ep
+    category: Asthma
+    episode_of_care: false
+  "8A4D92B2-39CA-AF4B-0139-DC04769463EC":
+    nqf_id: "0110"
+    type: ep
+    category: Depression
+    episode_of_care: false
+  "8A4D92B2-397A-48D2-0139-B0A6A11F2DA5":
+    nqf_id: "0387"
+    type: ep
+    category: Cancer
+    episode_of_care: false
+  "8A4D92B2-3946-CDAE-0139-77EE2510640E":
+    nqf_id: "0384"
+    type: ep
+    category: Oncology
+    episode_of_care: true
+  "8A4D92B2-397A-48D2-0139-B0A4BCA22CF1":
+    nqf_id: "0389"
+    type: ep
+    category: Cancer
+    episode_of_care: false
+  "8A4D92B2-3946-CDAE-0139-77DE6F785ED7":
+    nqf_id: "0028"
+    type: ep
+    category: Tobacco
+    episode_of_care: false
+  "8A4D92B2-3887-5DF3-0139-10B27E1A794E":
+    nqf_id: "0421"
     type: ep
     category: Weight
     episode_of_care: false
-  "0564":
-    type: ep
-    category: Cataracts
-    episode_of_care: false
-  "0565":
-    type: ep
-    category: Cataracts
-    episode_of_care: false
-  "0608":
-    type: ep
-    category: Women
-    episode_of_care: false
-  "0710":
-    type: ep
-    category: Depression
-    episode_of_care: false
-  "0712":
-    type: ep
-    category: Depression
-    episode_of_care: false
-  "1365":
-    type: ep
-    category: Depression
-    episode_of_care: true
-  "1401":
-    type: ep
-    category: Depression
-    episode_of_care: false
-  "ChildDentalDecay":
-    type: ep
-    category: Dentistry
-    episode_of_care: false
-  "PrimaryCariesPrevention":
-    type: ep
-    category: Dentistry
-    episode_of_care: false
-  "CholesterolScreeningRisk":
-    type: ep
-    category: Cholesterol
-    episode_of_care: false
-  "CholesterolScreeningTest":
-    type: ep
-    category: Cholesterol
-    episode_of_care: false
-  "DementiaCognitive":
-    type: ep
-    category: Dementia
-    episode_of_care: false
-  "HypertensionImprovement":
-    type: ep
-    category: Hypertension
-    episode_of_care: false
-  "ClosingReferralLoop":
-    type: ep
-    category: Referral
-    episode_of_care: false
-  "FSAKnee":
-    type: ep
-    category: Knee Replacement
-    episode_of_care: false
-  "FSAHip":
-    type: ep
-    category: Hip Replacement
-    episode_of_care: false
-  "FSACHF":
-    type: ep
-    category: Heart Failure
-    episode_of_care: false
-  "ADE_TTR":
+  "8A4D92B2-397A-48D2-0139-C0A66E4417FF":
+    nqf_id: ADE_TTR
     type: ep
     category: ADE
     episode_of_care: false
-  "BPScreening":
+  "8A4D92B2-397A-48D2-0139-9BB3331F4C02":
+    nqf_id: "0108"
+    type: ep
+    category: ADHD
+    episode_of_care: false
+  "8A4D92B2-39CA-AF4B-0139-CAF11E27054E":
+    nqf_id: "0105"
+    type: ep
+    category: Depression
+    episode_of_care: false
+  "8A4D92B2-3946-CDAE-0139-78E0235B7B8B":
+    nqf_id: "0070"
+    type: ep
+    category: CAD
+    episode_of_care: false
+  "8A4D92B2-39CA-AF4B-0139-E4D5A20E0B7F":
+    nqf_id: BPScreening
     type: ep
     category: Hypertension
     episode_of_care: true
-  "0142":
-    type: eh
-    category: Miscellaneous
-    episode_of_care: true
-  "0147":
-    type: eh
-    category: Miscellaneous
-    episode_of_care: true
-  "0163":
-    type: eh
-    category: Miscellaneous
-    episode_of_care: true
-  "0164":
-    type: eh
-    category: Miscellaneous
-    episode_of_care: true
-  "0338":
-    type: eh
-    category: Miscellaneous
+  "8A4D92B2-397A-48D2-0139-B0CADCB63221":
+    nqf_id: "0031"
+    type: ep
+    category: Cancer
     episode_of_care: false
-  "0371":
-    type: eh
-    category: Miscellaneous
+  "8A4D92B2-373F-82E2-0137-BE8BF22D0256":
+    nqf_id: "1365"
+    type: ep
+    category: Depression
     episode_of_care: true
-  "0372":
-    type: eh
-    category: Miscellaneous
-    episode_of_care: true
-  "373":
-    type: eh
-    category: Miscellaneous
+  "8A4D92B2-3946-CDAE-0139-79591505044D":
+    nqf_id: "0565"
+    type: ep
+    category: Cataracts
     episode_of_care: false
-  "0374":
-    type: eh
-    category: Miscellaneous
-    episode_of_care: true
-  "0375":
-    type: eh
-    category: Miscellaneous
-    episode_of_care: true
-  "0376":
-    type: eh
-    category: Miscellaneous
-    episode_of_care: true
-  "0435":
-    type: eh
-    category: Miscellaneous
-    episode_of_care: true
-  "0436":
-    type: eh
-    category: Miscellaneous
-    episode_of_care: true
-  "0437":
-    type: eh
-    category: Miscellaneous
-    episode_of_care: true
-  "0438":
-    type: eh
-    category: Miscellaneous
-    episode_of_care: true
-  "0439":
-    type: eh
-    category: Miscellaneous
-    episode_of_care: true
-  "0440":
-    type: eh
-    category: Miscellaneous
-    episode_of_care: true
-  "0441":
-    type: eh
-    category: Miscellaneous
-    episode_of_care: true
-  "0453":
-    type: eh
-    category: Miscellaneous
-    episode_of_care: true
-  "0469":
-    type: eh
-    category: Miscellaneous
-    episode_of_care: true
-  "0480":
-    type: eh
-    category: Miscellaneous
-    episode_of_care: true
-  "0495":
-    type: eh
-    category: Miscellaneous
-    episode_of_care: true
-  "0496":
-    type: eh
-    category: Miscellaneous
-    episode_of_care: true
-  "0497":
-    type: eh
-    category: Miscellaneous
-    episode_of_care: true
-  "0527":
-    type: eh
-    category: Miscellaneous
-    episode_of_care: true
-  "0528":
-    type: eh
-    category: Miscellaneous
-    episode_of_care: true
-  "0639":
-    type: eh
-    category: Miscellaneous
-    episode_of_care: true
-  "0716":
-    type: eh
-    category: Miscellaneous
+  "8A4D92B2-3946-CDAE-0139-795264D90290":
+    nqf_id: "0564"
+    type: ep
+    category: Cataracts
     episode_of_care: false
-  "1354":
+  "8A4D92B2-397A-48D2-0139-B0CBA8DB32C3":
+    nqf_id: "0032"
+    type: ep
+    category: Cancer
+    episode_of_care: false
+  "8A4D92B2-39CA-AF4B-0139-CAE9ED8A01BD":
+    nqf_id: "0038"
+    type: ep
+    category: Immunization
+    episode_of_care: false
+  "8A4D92B2-370B-19FA-0137-282DDBCF35DC":
+    nqf_id: ChildDentalDecay
+    type: ep
+    category: Dentistry
+    episode_of_care: false
+  "8A4D92B2-397A-48D2-0139-B0CC617E335D":
+    nqf_id: "0033"
+    type: ep
+    category: Women
+    episode_of_care: false
+  "8A4D92B2-34EE-D9D7-0134-FCE50FBD3064":
+    nqf_id: CholesterolScreeningTest
+    type: ep
+    category: Cholesterol
+    episode_of_care: false
+  "8A4D92B2-36AF-5758-0137-044468672E12":
+    nqf_id: CholesterolScreeningRisk
+    type: ep
+    category: Cholesterol
+    episode_of_care: false
+  "8A4D92B2-356D-A09E-0135-C5FFA8972292":
+    nqf_id: ClosingReferralLoop
+    type: ep
+    category: Referral
+    episode_of_care: false
+  "8A4D92B2-35FB-4AA7-0136-403AD4504573":
+    nqf_id: "0034"
+    type: ep
+    category: Cancer
+    episode_of_care: false
+  "8A4D92B2-3946-CDAE-0139-77EF07B664E1":
+    nqf_id: DementiaCognitive
+    type: ep
+    category: Dementia
+    episode_of_care: false
+  "8A4D92B2-397A-48D2-0139-A27B83221F9A":
+    nqf_id: "0712"
+    type: ep
+    category: Depression
+    episode_of_care: false
+  "8A4D92B2-397A-48D2-0139-B0DC53B034A7":
+    nqf_id: "0710"
+    type: ep
+    category: Depression
+    episode_of_care: false
+  "8A4D92B2-39CA-AF4B-0139-D472724E0C46":
+    nqf_id: "0055"
+    type: ep
+    category: Diabetes
+    episode_of_care: false
+  "8A4D92B2-397A-48D2-0139-7CCB48F6025D":
+    nqf_id: "0056"
+    type: ep
+    category: Diabetes
+    episode_of_care: false
+  "8A4D92B2-397A-48D2-0139-9CD4937E6C86":
+    nqf_id: "0059"
+    type: ep
+    category: HemA1C
+    episode_of_care: false
+  "8A4D92B2-3946-CDAE-0139-7941863D7FFD":
+    nqf_id: "0064"
+    type: ep
+    category: LDL
+    episode_of_care: false
+  "8A4D92B2-3946-CDAE-0139-77E3674A60FC":
+    nqf_id: "0088"
+    type: ep
+    category: Diabetic Retinopathy
+    episode_of_care: false
+  "8A4D92B2-397A-48D2-0139-7E243C8B15B6":
+    nqf_id: "0062"
+    type: ep
+    category: Diabetes
+    episode_of_care: false
+  "8A4D92B2-3946-CDAE-0139-5A8AF3E97BDB":
+    nqf_id: "0101"
+    type: ep
+    category: Falls
+    episode_of_care: false
+  "8A4D92B2-356D-A09E-0135-C5EE417421A0":
+    nqf_id: FSACHF
+    type: ep
+    category: Heart Failure
+    episode_of_care: false
+  "8A4D92B2-356D-A09E-0135-9B065EFA5D47":
+    nqf_id: FSAKnee
+    type: ep
+    category: Knee Replacement
+    episode_of_care: false
+  "8A4D92B2-356D-A09E-0135-AF80862E655B":
+    nqf_id: FSAHip
+    type: ep
+    category: Hip Replacement
+    episode_of_care: false
+  "8A4D92B2-397A-48D2-0139-C61D57895039":
+    nqf_id: "0060"
+    type: ep
+    category: HemA1C
+    episode_of_care: false
+  "8A4D92B2-3946-CDAE-0139-78E4E5077D41":
+    nqf_id: "0081"
+    type: ep
+    category: HF
+    episode_of_care: false
+  "8A4D92B2-3676-1350-0136-9768076550F0":
+    nqf_id: "0083"
+    type: ep
+    category: HF
+    episode_of_care: false
+  "8A4D92B2-397A-48D2-0139-C6208B875109":
+    nqf_id: "0018"
+    type: ep
+    category: Blood Pressure
+    episode_of_care: false
+  "8A4D92B2-3946-CDAE-0139-77E59FA3632E":
+    nqf_id: "0022"
+    type: ep
+    category: Elderly
+    episode_of_care: false
+  "8A4D92B2-356D-A09E-0135-C07D5F930AD8":
+    nqf_id: "0405"
+    type: ep
+    category: HIV
+    episode_of_care: false
+  "8A4D92B2-397A-48D2-0139-C626C0935307":
+    nqf_id: "0068"
+    type: ep
+    category: IVD
+    episode_of_care: false
+  "8A4D92B2-397A-48D2-0139-A1E9806F0EF4":
+    nqf_id: "0104"
+    type: ep
+    category: Depression
+    episode_of_care: true
+  "8A4D9281-3429-435B-0134-3DA95B8B02CB":
+    nqf_id: "0418"
+    type: ep
+    category: Depression
+    episode_of_care: false
+  "8A4D92B2-3946-CDAE-0139-77F580AE6690":
+    nqf_id: "0002"
+    type: ep
+    category: Misc
+    episode_of_care: false
+  "8A4D92B2-35FB-4AA7-0136-5A26000D30BD":
+    nqf_id: "0043"
+    type: ep
+    category: Immunization
+    episode_of_care: false
+  "8A4D92B2-35FB-4AA7-0136-5A7418FF37E8":
+    nqf_id: "0086"
+    type: ep
+    category: Glaucoma
+    episode_of_care: false
+  "8A4D92B2-35FB-4AA7-0136-1CB01C4D758C":
+    nqf_id: "0608"
+    type: ep
+    category: Women
+    episode_of_care: false
+  "8A4D92B2-370B-19FA-0137-27737C4300FA":
+    nqf_id: PrimaryCariesPrevention
+    type: ep
+    category: Dentistry
+    episode_of_care: false
+  "8A4D92B2-370B-19FA-0137-2DD882061CB1":
+    nqf_id: "0407"
+    type: ep
+    category: HIV
+    episode_of_care: false
+  "8A4D92B2-3946-CDAE-0139-77FE9FDC6853":
+    nqf_id: "0069"
+    type: ep
+    category: Misc
+    episode_of_care: false
+  "8A4D92B2-397A-48D2-0139-7CC6B5B8011E":
+    nqf_id: "0024"
+    type: ep
+    category: Weight
+    episode_of_care: false
+    
+
+
+  "8A4D92B2-39CA-AF4B-0139-E44759E27DF3":
+    nqf_id: "0716"
     type: eh
     category: Miscellaneous
-    episode_of_care: false
+    episode_of_care: true
+  "8A4D92B2-39CA-AF4B-0139-E493E6C6040E":
+    nqf_id: "0372"
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "8A4D92B2-3887-5DF3-0139-0D071EE37793":
+    nqf_id: "0639"
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "8A4D92B2-3887-5DF3-0139-0D01C6626E46":
+    nqf_id: "0142"
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "8A4D92B2-3887-5DF3-0139-0D08A4BE7BE6":
+    nqf_id: "0163"
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "8A4D92B2-3887-5DF3-0139-01954AFC63B2":
+    nqf_id: "0441"
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "8A4D92B2-37BF-6F1B-0137-CCD612A40D0E":
+    nqf_id: "0338"
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "8A4D92B2-37BF-6F1B-0137-CDADBA302B85":
+    nqf_id: "0435"
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "8A4D92B2-37D1-F95B-0137-E776B0467BAF":
+    nqf_id: "0439"
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "8A4D92B2-37D1-F95B-0137-DD4B0EB62DE6":
+    nqf_id: "0496"
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "8A4D92B2-3887-5DF3-0139-01965ECF65BE":
+    nqf_id: "0469"
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "8A4D92B2-37D1-F95B-0137-E726AD2F7415":
+    nqf_id: "0480"
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "8A4D92B2-3887-5DF3-0139-11B262260A92":
+    nqf_id: "0164"
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "8A4D92B2-3887-5DF3-0139-0C4E00454B35":
+    nqf_id: "0497"
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "8A4D92B2-3887-5DF3-0139-0C4E41594C98":
+    nqf_id: "0495"
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "8A4D92B2-3887-5DF3-0139-12364AE9126F":
+    nqf_id: "1354"
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "8A4D92B2-3887-5DF3-0139-093E817E209E":
+    nqf_id: "0147"
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "8A4D92B2-39CA-AF4B-0139-DFAAFFD96EFE":
+    nqf_id: "0527"
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "8A4D92B2-3887-5DF3-0139-0C49FB8C4757":
+    nqf_id: "0438"
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "8A4D92B2-3887-5DF3-0139-013B0C87524A":
+    nqf_id: "0436"
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "8A4D92B2-3887-5DF3-0139-0C0D3D783133":
+    nqf_id: "0437"
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "8A4D92B2-373F-82E2-0137-760C4D846851":
+    nqf_id: "0440"
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "8A4D92B2-39CA-AF4B-0139-E3CF14847AF7":
+    nqf_id: "0453"
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "8A4D92B2-3887-5DF3-0138-9B2EABA7321D":
+    nqf_id: "0375"
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "8A4D92B2-3887-5DF3-0139-01959FB76498":
+    nqf_id: "0374"
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "8A4D92B2-3887-5DF3-0139-01A1D2C966BC":
+    nqf_id: "0371"
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "8A4D92B2-3887-5DF3-0139-0C4E6D2B4D6B":
+    nqf_id: "0373"
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "8A4D92B2-3887-5DF3-0139-018CE6F1622A":
+    nqf_id: "0376"
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true
+  "8A4D92B2-37D1-F95B-0137-E1E272994B3F":
+    nqf_id: "0528"
+    type: eh
+    category: Miscellaneous
+    episode_of_care: true

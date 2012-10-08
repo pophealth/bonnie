@@ -48,8 +48,9 @@ module Measures
         measure.measure_attributes = json["attributes"]
         measure.populations = json['populations']
 
-        metadata = APP_CONFIG["measures"][measure.measure_id]
+        metadata = APP_CONFIG["measures"][measure.hqmf_id]
         if metadata
+          measure.measure_id = metadata["nqf_id"]
           measure.type = metadata["type"]
           measure.category = metadata["category"]
           measure.episode_of_care = metadata["episode_of_care"]
