@@ -83,12 +83,12 @@ measures: &measures
     type: ep
     category: Tobacco
     episode_of_care: false
-  "8A4D92B2-3887-5DF3-0139-10B27E1A794E":
+  "8A4D92B2-3A00-2A25-013A-0887F3F411E6":
     nqf_id: "0421"
     type: ep
     category: Weight
     episode_of_care: false
-  "8A4D92B2-397A-48D2-0139-C0A66E4417FF":
+  "8A4D92B2-3A00-2A25-013A-23015AD43373":
     nqf_id: ADE_TTR
     type: ep
     category: ADE
@@ -108,7 +108,7 @@ measures: &measures
     type: ep
     category: CAD
     episode_of_care: false
-  "8A4D92B2-39CA-AF4B-0139-E4D5A20E0B7F":
+  "8A4D9281-34CE-2FC0-0134-D301135603E1":
     nqf_id: BPScreening
     type: ep
     category: Hypertension
@@ -153,12 +153,12 @@ measures: &measures
     type: ep
     category: Women
     episode_of_care: false
-  "8A4D92B2-34EE-D9D7-0134-FCE50FBD3064":
+  "8A4D92B2-3A00-2A25-013A-2D278E9A5DE4":
     nqf_id: CholesterolScreeningTest
     type: ep
     category: Cholesterol
     episode_of_care: false
-  "8A4D92B2-36AF-5758-0137-044468672E12":
+  "8A4D92B2-3A00-2A25-013A-316901EC6CED":
     nqf_id: CholesterolScreeningRisk
     type: ep
     category: Cholesterol
@@ -263,7 +263,7 @@ measures: &measures
     type: ep
     category: Elderly
     episode_of_care: false
-  "8A4D92B2-356D-A09E-0135-C07D5F930AD8":
+  "8A4D92B2-39CA-AF4B-0139-FEDEEAA44F14":
     nqf_id: "0405"
     type: ep
     category: HIV
@@ -278,7 +278,7 @@ measures: &measures
     type: ep
     category: Depression
     episode_of_care: true
-  "8A4D9281-3429-435B-0134-3DA95B8B02CB":
+  "8A4D92B2-3A00-2A25-013A-2D5D450A6367":
     nqf_id: "0418"
     type: ep
     category: Depression
