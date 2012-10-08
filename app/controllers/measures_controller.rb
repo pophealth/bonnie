@@ -258,7 +258,7 @@ class MeasuresController < ApplicationController
     population = {}
     population['title']= params['title']
 
-    ['IPP','DENOM','NUMER','EXCL','DENEXCEP'].each do |key|
+    HQMF::PopulationCriteria::ALL_POPULATION_CODES.each do |key|
       population[key]= params[key] unless params[key].empty?
     end
 
@@ -278,11 +278,11 @@ class MeasuresController < ApplicationController
     @measure.save!
     render :json => {
       'population_criteria' => {{
-        "IPP" => "population",
-        "DENOM" => "denominator",
-        "NUMER" => "numerator",
-        "EXCL" => "exclusions",
-        "DENEXCEP" => "exceptions"
+        HQMF::PopulationCriteria::IPP => "population",
+        HQMF::PopulationCriteria::DENOM => "denominator",
+        HQMF::PopulationCriteria::NUMER => "numerator",
+        HQMF::PopulationCriteria::DENEX => "exclusions",
+        HQMF::PopulationCriteria::EXCEP => "denexcep"
       }[params['data']['type']] => @measure.population_criteria_json(@measure.population_criteria[params['data']['type']])},
       'data_criteria' => @measure.data_criteria
     }

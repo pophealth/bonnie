@@ -54,7 +54,7 @@ init_js_load = ->
     Logger.logger = [] if Logger?
     log_element.empty()
     patient_api = new hQuery.Patient(patient[0]);
-    executeIfAvailable(hqmfjs.EXCL, patient_api)
+    executeIfAvailable(hqmfjs.DENEX, patient_api)
     for e in Logger.logger
       do (e) ->
         append_div(log_element, e)
@@ -63,7 +63,7 @@ init_js_load = ->
     Logger.logger = [] if Logger?
     log_element.empty()
     patient_api = new hQuery.Patient(patient[0]);
-    executeIfAvailable(hqmfjs.DENEXCEP, patient_api)
+    executeIfAvailable(hqmfjs.EXCEP, patient_api)
     for e in Logger.logger
       do (e) ->
         append_div(log_element, e)

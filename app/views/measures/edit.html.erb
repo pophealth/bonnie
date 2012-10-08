@@ -152,7 +152,7 @@
       <div class="span2">
         <input type="text" value="" id="new_population" name="title" style="width: 130px;">
       </div>
-      <% ['IPP','DENOM','NUMER','EXCL','DENEXCEP'].each do |type| %>
+      <% HQMF::PopulationCriteria::ALL_POPULATION_CODES.each do |type| %>
         <div class="span3">
           <input type="radio" name="<%=type%>" value="" id="<%=type%>_none_radio" style="float:left;" checked="checked" class="none_radio"/>
           <label for="<%=type%>_none_radio" style="float:left;">&nbsp;None</label>
@@ -162,7 +162,7 @@
     <%
       if @measure.population_criteria
         population_criteria_by_type = {}
-        ['IPP','DENOM','NUMER','EXCL','DENEXCEP'].each do |type|
+        HQMF::PopulationCriteria::ALL_POPULATION_CODES.each do |type|
           population_criteria_by_type[type] = @measure.population_criteria.keys.select {|key| key.start_with? type }
           population_criteria_by_type[type].reverse!
         end
@@ -174,7 +174,7 @@
           <div class="span2">
             &nbsp;
           </div>
-          <% ['IPP','DENOM','NUMER','EXCL','DENEXCEP'].each do |type|
+          <% HQMF::PopulationCriteria::ALL_POPULATION_CODES.each do |type|
             value = population_criteria_by_type[type].pop
             if (value)
               count -= 1
