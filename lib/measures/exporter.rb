@@ -203,6 +203,8 @@ module Measures
         json[:hqmf_version_number] = measure.hqmf_version_number
       end
       
+      #json[:data_criteria] = measure.as_hqmf_model.all_data_criteria.to_json
+      
       population_ids = {}
       HQMF::PopulationCriteria::ALL_POPULATION_CODES.each do |type|
         population_key = measure.populations[population_index][type]
