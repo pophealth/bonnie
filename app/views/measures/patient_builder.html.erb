@@ -676,7 +676,7 @@
         </div>
         <div class="span3">
           <select name="negation_code_list_id">
-            <% @value_sets.map{|s| s.attributes.select{|k,v| ['concept', 'oid'].include?(k) } }.each {|v|%>
+            <% @value_sets.map{|s| s.attributes.select{|k,v| ['concept', 'oid'].include?(k) } }.sort{|l,r| l['concept'] <=> r['concept'] }.each {|v|%>
               <option value="<%= v['oid'] %>"><%= v['concept'] %> - <%= v['oid'] %></option>
             <% } %>
           </select>
