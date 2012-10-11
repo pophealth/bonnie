@@ -151,11 +151,11 @@ module Measures
     def self.qrda_patient(measure)
       measure_needs = {}
       measure_value_sets = {}
-      measure_needs[measure.hqmf_id] = measure.as_hqmf_model.referenced_data_criteria
-      measure_value_sets[measure.hqmf_id] = measure.value_sets
+      measure_needs[measure.measure_id] = measure.as_hqmf_model.referenced_data_criteria
+      measure_value_sets[measure.measure_id] = measure.value_sets
       
       patients = HQMF::Generator.generate_qrda_patients(measure_needs, measure_value_sets)
-      patients[measure.hqmf_id]
+      patients[measure.measure_id]
     end
 
     def self.library_functions
@@ -203,7 +203,10 @@ module Measures
         json[:hqmf_version_number] = measure.hqmf_version_number
       end
       
-      #json[:data_criteria] = measure.as_hqmf_model.all_data_criteria.to_json
+      referenced_data_criteria = measure.as_hqmf_model.referenced_data_criteria
+      json[:data_criteria] = referenced_data_criteria.map{|data_criteria| data_criteria.to_json}
+      json[:oids] = referenced_data_criteria.map{|data_criteria| data_criteria.code_list_id}.compact
+      json[:value_sets] = measure.value_sets.map{|value_set| value_set.as_json}
       
       population_ids = {}
       HQMF::PopulationCriteria::ALL_POPULATION_CODES.each do |type|
@@ -231,6 +234,7 @@ module Measures
     def self.bundle_json(patient_ids, measure_ids, library_names)
       {
         title: APP_CONFIG["measures"]["title"],
+        effective_date: "1293858000",
         version: APP_CONFIG["measures"]["version"],
         license: APP_CONFIG["measures"]["license"],
         measures: measure_ids,

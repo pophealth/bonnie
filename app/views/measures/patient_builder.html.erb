@@ -84,7 +84,8 @@
 
     $('#workspace').on('click', '#field_new',
       function(){
-        $('#bonnie_tmpl_data_criteria_field_value').tmpl().insertBefore('#field_new_position');
+        var newFieldValue = $('#bonnie_tmpl_data_criteria_field_value').tmpl().insertBefore('#field_new_position');
+        newFieldValue.find(".data_criteria_datetime .datetime").datetimepicker();
       }
     );
 
@@ -539,9 +540,17 @@
       {{/each}}
     </select>
   </script>
+  
+  <script type="text/html" id="bonnie_tmpl_data_criteria_datetime">
+    <div class="data_criteria_datetime"{{if hidden}} style="display: none;"{{/if}}>
+      <div>
+        <input type="text" {{if value}} value="${value}"{{/if}} data-date-format="mm/dd/yyyy" class="datetime" />
+      </div>
+    </div>
+  </script>
 
   <script type="text/html" id="bonnie_tmpl_data_criteria_field_value">
-    <div class="row">
+    <div class="row criteria_field_value">
       <div class="span1">
         Field Value
       </div>
@@ -556,7 +565,31 @@
           </select>
         </div>
         <div>
-          {{tmpl '#bonnie_tmpl_data_criteria_coded'}}
+          <label><input type="radio" class="value_type" value="PQ" checked="checked" />Value</label>
+          <label><input type="radio" class="value_type" value="CD" />Coded</label>
+          <label><input type="radio" class="value_type" value="TS" />Time</label>
+        </div>
+        <div class="criteria_value_value">
+          <div class="data_criteria_value">
+            <div>
+              <div class="span3">
+                <div class="span1" style="margin:0">
+                  scalar
+                </div>
+                <div class="span1">
+                  unit
+                </div>
+              </div>
+            </div>
+            <div class="span1" style="margin:0">
+              <input type="text" style="width: 60px;"{{if value}} value="${value}"{{/if}} id="element_value" />
+            </div>
+            <div class="span1">
+              <input type="text" style="width: 60px;"{{if value}} value="${unit}"{{/if}} id="element_value_unit" />
+            </div>
+          </div>
+          {{tmpl({hidden:true}) '#bonnie_tmpl_data_criteria_coded'}}
+          {{tmpl({hidden:true}) '#bonnie_tmpl_data_criteria_datetime'}}
         </div>
       </div>
     </div>

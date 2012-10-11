@@ -123,6 +123,7 @@ class @bonnie.PatientBuilder
         e.find('input.value_type[type=radio]').not(@).prop('checked', null)
         e.find('.criteria_value_value').children().show().not('.' +
           switch(if @ instanceof String then @toString() else $(@).val())
+            when 'TS' then 'data_criteria_datetime'
             when 'PQ' then 'data_criteria_value'
             when 'CD' then 'data_criteria_oid'
         ).hide()
@@ -173,11 +174,24 @@ class @bonnie.PatientBuilder
 
       data_criteria.field_values = {}
       $(element).find('.field_value').each((i, e) =>
-        data_criteria.field_values[$(e).find('.field_type').val()] = {
-          code_list_id: oid = $(e).find('.data_criteria_oid').val()
-          title: @value_sets[oid].concept
-          type: 'CD'
-        } if @value_sets[$(e).find('.data_criteria_oid').val()]
+        data_criteria.field_values[$(e).find('.field_type').val()] = switch $(e).find('input.value_type[type=radio]:checked').val()
+          when 'PQ'
+            {
+              type: 'PQ'
+              value: $(e).find('#element_value').val()
+              unit: $(e).find('#element_value_unit').val()
+            } if $(e).find('#element_value').val()
+          when 'CD'
+            {
+              type: 'CD'
+              code_list_id: $(e).find('.data_criteria_oid').val()
+              title: $(e).find('.data_criteria_oid > option:selected').text()
+            } if $(e).find('.data_criteria_oid').val()
+          when 'TS'
+            {
+              type: 'TS'
+              value: $(e).find('.datetime').val()
+            } if $(e).find('.datetime').val()
       )
 
       @updateTimeline()

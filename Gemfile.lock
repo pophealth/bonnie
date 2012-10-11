@@ -41,13 +41,6 @@ GIT
     hquery-patient-api (0.1.0)
 
 GIT
-  remote: https://github.com/pophealth/test-patient-generator.git
-  revision: 8c4ad03624109bb73e62c758fd53b9f616ee36eb
-  branch: develop
-  specs:
-    test-patient-generator (0.1.0)
-
-GIT
   remote: https://github.com/projectcypress/health-data-standards.git
   revision: af228098daa7c2ac3332cdf5fc1a563cf513f889
   branch: develop
@@ -59,6 +52,11 @@ GIT
       nokogiri (~> 1.5.5)
       rest-client (~> 1.6.7)
       uuid (~> 2.3.5)
+
+PATH
+  remote: ../test-patient-generator
+  specs:
+    test-patient-generator (0.1.0)
 
 GEM
   remote: https://rubygems.org/
