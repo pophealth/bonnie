@@ -795,12 +795,25 @@
             <div class="span4">
               Ethnicity:
             </div>
-            <% hispanic_or_latino = ["2135-2", "2137-8", "2138-6", "2139-4", "2140-2", "2141-0", "2142-8", "2143-6", "2144-4", "2145-1", "2146-9", "2148-5", "2149-3", "2150-1", "2151-9", "2152-7", "2153-5", "2155-0", "2156-8", "2157-6", "2158-4", "2159-2",
-            "2160-0", "2161-8", "2162-6", "2163-4", "2165-9", "2166-7", "2167-5", "2168-3", "2169-1", "2170-9", "2171-7", "2172-5", "2173-3", "2174-1", "2175-8", "2176-6", "2178-2", "2180-8", "2182-4", "2184-0"] %>
             <div class="span4">
               <select id="ethnicity" name="ethnicity">
                 <option value="2186-5"<%= 'selected="selected"' if @record['ethnicity'].try(:[],'code') == '2186-5' %>>Not Hispanic or Latino</option>
-                <option value="2135-2"<%= 'selected="selected"' if hispanic_or_latino.include?(@record['ethnicity'].try(:[],'code')) %>>Hispanic Or Latino</option>
+                <option value="2135-2"<%= 'selected="selected"' if @record['ethnicity'].try(:[],'code') == '2135-2' %>>Hispanic Or Latino</option>
+              </select>
+            </div>
+          </div>
+          <div class="row">
+            <div class="span4">
+              Race:
+            </div>
+            <div class="span4">
+              <select id="race" name="race">
+                <option value="1002-5"<%= 'selected="selected"' if @record['race'].try(:[],'code') == '1002-5' %>>American Indian or Alaska Native</option>
+                <option value="2028-9"<%= 'selected="selected"' if @record['race'].try(:[],'code') == '2028-9' %>>Asian</option>
+                <option value="2054-5"<%= 'selected="selected"' if @record['race'].try(:[],'code') == '2054-5' %>>Black or African American</option>
+                <option value="2076-8"<%= 'selected="selected"' if @record['race'].try(:[],'code') == '2076-8' %>>Native Hawaiian or Other Pacific Islander</option>
+                <option value="2106-3"<%= 'selected="selected"' if @record['race'].try(:[],'code') == '2106-3' %>>White</option>
+                <option value="2131-1"<%= 'selected="selected"' if @record['race'].try(:[],'code') == '2131-1' %>>Other</option>
               </select>
             </div>
           </div>
