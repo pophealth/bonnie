@@ -172,8 +172,11 @@ class MeasuresController < ApplicationController
     else
       records = Record.all
     end
+    
+    concepts_by_code = {}
+    ValueSet.all.each { |vs| vs.code_sets.each {|cs| concepts_by_code[cs.code_set] ||= {} ; cs.codes.each {|code| concepts_by_code[cs.code_set][code] ||= {} ; concepts_by_code[cs.code_set][code][vs.oid] = {concept: vs.concept, oid: vs.oid}}}}
 
-    zip = TPG::Exporter.zip(records, params[:download][:format])
+    zip = TPG::Exporter.zip(records, params[:download][:format], concepts_by_code)
 
     send_file zip.path, :type => 'application/zip', :disposition => 'attachment', :filename => "patients.zip"
   end
@@ -439,8 +442,8 @@ class MeasuresController < ApplicationController
 
   def generate_matrix
     (params[:id] ? [current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first] : Measure.all.to_a).each{|m|
-      MONGO_DB['query_cache'].remove({'measure_id' => m['hqmf_id']})
-      MONGO_DB['patient_cache'].remove({'value.measure_id' => m['hqmf_id']})
+      MONGO_DB['query_cache'].find({'measure_id' => m['hqmf_id']}).remove_all
+      MONGO_DB['patient_cache'].find({'value.measure_id' => m['hqmf_id']}).remove_all
       (m['populations'].length > 1 ? ('a'..'zz').to_a.first(m['populations'].length) : [nil]).each{|sub_id|
         p 'Calculating measure ' + m.measure_id + (sub_id || '') + " (#{m['hqmf_id']})"
         qr = QME::QualityReport.new(m['hqmf_id'], sub_id, {'effective_date' => (params['effective_date'] || Measure::DEFAULT_EFFECTIVE_DATE).to_i }.merge(params['providers'] ? {'filters' => {'providers' => params['providers']}} : {}))
@@ -451,7 +454,9 @@ class MeasuresController < ApplicationController
   end
 
   def matrix_data
-    render :json => MONGO_DB['patient_cache'].find({}, :fields => ['population', 'denominator', 'numerator', 'denexcep', 'exclusions', 'first', 'last', 'gender', 'measure_id', 'birthdate', 'patient_id', 'sub_id', 'nqf_id'].map{|k| 'value.'+k } )
+    select = {}
+    ['population', 'denominator', 'numerator', 'denexcep', 'exclusions', 'first', 'last', 'gender', 'measure_id', 'birthdate', 'patient_id', 'sub_id', 'nqf_id'].each {|k| select['value.'+k]=1 }
+    render :json => MONGO_DB['patient_cache'].find({}).select(select)
   end
   
 end
