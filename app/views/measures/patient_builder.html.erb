@@ -544,7 +544,7 @@
   <script type="text/html" id="bonnie_tmpl_data_criteria_datetime">
     <div class="data_criteria_datetime"{{if hidden}} style="display: none;"{{/if}}>
       <div>
-        <input type="text" {{if value}} value="${value}"{{/if}} data-date-format="mm/dd/yyyy" class="datetime" />
+        <input type="text" {{if type}}{{if type == "TS"}} value="${value}"{{/if}}{{/if}} data-date-format="mm/dd/yyyy" class="datetime" />
       </div>
     </div>
   </script>
@@ -582,14 +582,22 @@
               </div>
             </div>
             <div class="span1" style="margin:0">
-              <input type="text" style="width: 60px;"{{if value}} value="${value}"{{/if}} id="element_value" />
+              <input type="text" style="width: 60px;"{{if type}}{{if type == "PQ"}} value="${value}"{{/if}}{{/if}} id="element_value" />
             </div>
             <div class="span1">
               <input type="text" style="width: 60px;"{{if value}} value="${unit}"{{/if}} id="element_value_unit" />
             </div>
           </div>
           {{tmpl({hidden:true}) '#bonnie_tmpl_data_criteria_coded'}}
-          {{tmpl({hidden:true}) '#bonnie_tmpl_data_criteria_datetime'}}
+          {{if type}}
+            {{if type == "TS"}}
+              {{tmpl({hidden:true,value:value,type:type}) '#bonnie_tmpl_data_criteria_datetime'}}
+            {{else}}
+              {{tmpl({hidden:true}) '#bonnie_tmpl_data_criteria_datetime'}}
+            {{/if}}
+          {{else}}
+            {{tmpl({hidden:true}) '#bonnie_tmpl_data_criteria_datetime'}}
+          {{/if}}
         </div>
       </div>
     </div>
@@ -709,7 +717,7 @@
         </div>
         <div class="span3">
           <select name="negation_code_list_id">
-            <% @value_sets.map{|s| s.attributes.select{|k,v| ['concept', 'oid'].include?(k) } }.each {|v|%>
+            <% @value_sets.map{|s| s.attributes.select{|k,v| ['concept', 'oid'].include?(k) } }.sort{|l,r| l['concept'] <=> r['concept'] }.each {|v|%>
               <option value="<%= v['oid'] %>"><%= v['concept'] %> - <%= v['oid'] %></option>
             <% } %>
           </select>
@@ -821,6 +829,32 @@
               <select id="gender" name="gender">
                 <option value="M"<%= 'selected="selected"' if @record['gender'] == 'M' %>>Male</option>
                 <option value="F"<%= 'selected="selected"' if @record['gender'] == 'F' %>>Female</option>
+              </select>
+            </div>
+          </div>
+          <div class="row">
+            <div class="span4">
+              Ethnicity:
+            </div>
+            <div class="span4">
+              <select id="ethnicity" name="ethnicity">
+                <option value="2186-5"<%= 'selected="selected"' if @record['ethnicity'].try(:[],'code') == '2186-5' %>>Not Hispanic or Latino</option>
+                <option value="2135-2"<%= 'selected="selected"' if @record['ethnicity'].try(:[],'code') == '2135-2' %>>Hispanic Or Latino</option>
+              </select>
+            </div>
+          </div>
+          <div class="row">
+            <div class="span4">
+              Race:
+            </div>
+            <div class="span4">
+              <select id="race" name="race">
+                <option value="1002-5"<%= 'selected="selected"' if @record['race'].try(:[],'code') == '1002-5' %>>American Indian or Alaska Native</option>
+                <option value="2028-9"<%= 'selected="selected"' if @record['race'].try(:[],'code') == '2028-9' %>>Asian</option>
+                <option value="2054-5"<%= 'selected="selected"' if @record['race'].try(:[],'code') == '2054-5' %>>Black or African American</option>
+                <option value="2076-8"<%= 'selected="selected"' if @record['race'].try(:[],'code') == '2076-8' %>>Native Hawaiian or Other Pacific Islander</option>
+                <option value="2106-3"<%= 'selected="selected"' if @record['race'].try(:[],'code') == '2106-3' %>>White</option>
+                <option value="2131-1"<%= 'selected="selected"' if @record['race'].try(:[],'code') == '2131-1' %>>Other</option>
               </select>
             </div>
           </div>

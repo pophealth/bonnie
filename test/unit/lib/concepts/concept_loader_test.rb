@@ -13,8 +13,10 @@ class ConceptLoaderTest < ActiveSupport::TestCase
     cs = FactoryGirl.build(:code_set)
     vs.code_sets << cs
     assert_equal 0, Concept.count
-    Concepts::ConceptLoader.create_concepts
+    
+    Concepts::ConceptLoader.create_concepts(vs)
     assert_equal 1, Concept.count
+    
     concept = Concept.first
     assert concept.oids.include?("2.16.840.1.113883.3.464.0002.1138")
   end

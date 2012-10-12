@@ -234,7 +234,7 @@ module Measures
     def self.bundle_json(patient_ids, measure_ids, library_names)
       {
         title: APP_CONFIG["measures"]["title"],
-        effective_date: "1293858000",
+        effective_date: APP_CONFIG["measures"]["effective_date"],
         version: APP_CONFIG["measures"]["version"],
         license: APP_CONFIG["measures"]["license"],
         measures: measure_ids,

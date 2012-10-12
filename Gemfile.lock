@@ -13,7 +13,7 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/hqmf-parser.git
-  revision: c4b4999dbbf4690c8e43d54c1482be2fc5afd13b
+  revision: 464bdf331563a4d2dc9ae9af8a200b166e416ecf
   branch: develop
   specs:
     hqmf-parser (0.0.1)
@@ -24,7 +24,7 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/hqmf2js.git
-  revision: 06c574a1fe21f55c3482afa97e7d9ac58b32f1e4
+  revision: cf9a1239c6114c5e050d0c78d628a24a012a47b7
   branch: develop
   specs:
     hqmf2js (0.1.0)
@@ -35,14 +35,21 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/patientapi.git
-  revision: bf55bdef8cd99679c112150099f0bceb00b29b61
+  revision: 35be7e6b2b9dc3ce4ff957221bf542e7178edc9b
   branch: develop
   specs:
     hquery-patient-api (0.1.0)
 
 GIT
+  remote: https://github.com/pophealth/test-patient-generator.git
+  revision: 74407397544fadb9800b9e230489673b2472315a
+  branch: develop
+  specs:
+    test-patient-generator (0.1.0)
+
+GIT
   remote: https://github.com/projectcypress/health-data-standards.git
-  revision: af228098daa7c2ac3332cdf5fc1a563cf513f889
+  revision: 0e97552c146c9acb65e03b1b6d3563e889abff19
   branch: develop
   specs:
     health-data-standards (2.1.0)
@@ -52,11 +59,6 @@ GIT
       nokogiri (~> 1.5.5)
       rest-client (~> 1.6.7)
       uuid (~> 2.3.5)
-
-PATH
-  remote: ../test-patient-generator
-  specs:
-    test-patient-generator (0.1.0)
 
 GEM
   remote: https://rubygems.org/

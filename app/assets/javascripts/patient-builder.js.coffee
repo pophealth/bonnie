@@ -100,6 +100,8 @@ class @bonnie.PatientBuilder
       onSelect: (selectedDate) -> $( "#element_start" ).datetimepicker( "option", "maxDate", new Date(selectedDate) )
     }).datetimepicker('setDate', new Date(data_criteria.end_date));
     
+    $(".datetime").datetimepicker()
+    
     $('#null_element_end').click(->
       if ($('#null_element_end').is(':checked'))
         $('#element_end').disableSelection()
@@ -119,7 +121,7 @@ class @bonnie.PatientBuilder
 
     element.on('change', ('input.value_type[type=radio]')
       ( ->
-        e = $(@).parentsUntil('.criteria_value').parent().first()
+        e = $(@).parentsUntil('.criteria_field_value, .criteria_value').parent().first()
         e.find('input.value_type[type=radio]').not(@).prop('checked', null)
         e.find('.criteria_value_value').children().show().not('.' +
           switch(if @ instanceof String then @toString() else $(@).val())
@@ -142,6 +144,7 @@ class @bonnie.PatientBuilder
     field_element = $(element).find('.field_value')
     i = 0
     $.each(data_criteria.field_values || {}, (k, e) ->
+      $(field_element[i]).find('input.value_type[type=radio]').filter('[value=' + (e.type || 'PQ') + ']').trigger('click')
       $(f = field_element[i++]).find('.field_type').val(k)
       $(f).find('.data_criteria_oid').val(e.code_list_id)
     )
