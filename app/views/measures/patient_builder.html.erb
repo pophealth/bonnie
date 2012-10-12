@@ -817,6 +817,24 @@
               </select>
             </div>
           </div>
+
+<!--  Commented out for now since adding an insurance provider breaks the HTML exporter
+          <div class="row">
+            <% insurance_types = @record.insurance_providers.try(:collect) {|provider| provider.type} || [] %>
+            <% insurance_type = insurance_types.length > 0 ? insurance_types[0] : 'OT' %>
+            <div class="span4">
+              Payer:
+            </div>
+            <div class="span4">
+              <select id="payer" name="payer">
+                <option value="MA"<%= 'selected="selected"' if insurance_type == 'MA' %>>Medicare</option>
+                <option value="MC"<%= 'selected="selected"' if insurance_type == 'MC' %>>Medicaid</option>
+                <option value="OT"<%= 'selected="selected"' if insurance_type == 'OT' %>>Other</option>
+              </select>
+            </div>
+          </div>
+-->
+
           <div class="row">
             <div class="span4">
               Expired:
