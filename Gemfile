@@ -23,7 +23,7 @@ gem 'cancan'
 gem 'factory_girl'
 gem 'text'
 
-gem "mongoid", '~> 3.0'
+gem "mongoid", '3.0.6'
 
 gem 'simple_form'
 gem 'coderay'   # for javascript syntax highlighting

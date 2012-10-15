@@ -42,7 +42,7 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/test-patient-generator.git
-  revision: 139c03a1df03a62118c6a3093c0ed414f9cef30e
+  revision: 74407397544fadb9800b9e230489673b2472315a
   branch: develop
   specs:
     test-patient-generator (0.1.0)
@@ -156,7 +156,7 @@ GEM
     minitest (4.0.0)
     mongo (1.7.0)
       bson (~> 1.7.0)
-    mongoid (3.0.9)
+    mongoid (3.0.6)
       activemodel (~> 3.1)
       moped (~> 1.1)
       origin (~> 1.0)
@@ -304,7 +304,7 @@ DEPENDENCIES
   jquery-ui-rails
   libv8 (~> 3.11.8.3)
   minitest
-  mongoid (~> 3.0)
+  mongoid (= 3.0.6)
   pry
   pry-nav
   pry-rescue

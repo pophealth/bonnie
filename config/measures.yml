@@ -471,3 +471,20 @@ measures: &measures
     type: eh
     category: Miscellaneous
     episode_of_care: true
+    
+    
+  "8A4D92B2-3A00-2A25-013A-2D26C69D5CA4":
+    nqf_id: "BPScreen"
+    type: ep
+    category: Miscellaneous
+    episode_of_care: false
+  "8A4D92B2-3A00-2A25-013A-31687D1E6BA7":
+    nqf_id: "FastingLDLTest"
+    type: ep
+    category: Miscellaneous
+    episode_of_care: false
+  "8A4D92B2-3A00-2A25-013A-409617472E41":
+    nqf_id: "HIVRNAControl"
+    type: ep
+    category: Miscellaneous
+    episode_of_care: false
