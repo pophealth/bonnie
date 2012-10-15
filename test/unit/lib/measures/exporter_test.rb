@@ -73,7 +73,7 @@ class ExporterTest < ActiveSupport::TestCase
 
   test "test measure json" do
     measure_json = Measures::Exporter.measure_json(@measure.measure_id)
-    expected_keys = [:id,:nqf_id,:hqmf_id,:hqmf_set_id,:hqmf_version_number,:endorser,:name,:description,:type,:category,:steward,:population,:denominator,:numerator,:exclusions,:map_fn,:measure,:population_ids]
+    expected_keys = [:id,:nqf_id,:hqmf_id,:hqmf_set_id,:hqmf_version_number,:endorser,:name,:description,:type,:category,:steward,:population,:denominator,:numerator,:exclusions,:map_fn,:measure,:population_ids,:oids,:value_sets,:data_criteria]
     required_keys = [:id,:name,:description,:category,:population,:denominator,:numerator,:map_fn,:measure]
     
     expected_keys.each {|key| assert measure_json.keys.include? key}

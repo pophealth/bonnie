@@ -100,6 +100,8 @@ class @bonnie.PatientBuilder
       onSelect: (selectedDate) -> $( "#element_start" ).datetimepicker( "option", "maxDate", new Date(selectedDate) )
     }).datetimepicker('setDate', new Date(data_criteria.end_date));
     
+    $(".datetime").datetimepicker()
+    
     $('#null_element_end').click(->
       if ($('#null_element_end').is(':checked'))
         $('#element_end').disableSelection()
@@ -119,10 +121,11 @@ class @bonnie.PatientBuilder
 
     element.on('change', ('input.value_type[type=radio]')
       ( ->
-        e = $(@).parentsUntil('.criteria_value').parent().first()
+        e = $(@).parentsUntil('.criteria_field_value, .criteria_value').parent().first()
         e.find('input.value_type[type=radio]').not(@).prop('checked', null)
         e.find('.criteria_value_value').children().show().not('.' +
           switch(if @ instanceof String then @toString() else $(@).val())
+            when 'TS' then 'data_criteria_datetime'
             when 'PQ' then 'data_criteria_value'
             when 'CD' then 'data_criteria_oid'
         ).hide()
@@ -141,6 +144,7 @@ class @bonnie.PatientBuilder
     field_element = $(element).find('.field_value')
     i = 0
     $.each(data_criteria.field_values || {}, (k, e) ->
+      $(field_element[i]).find('input.value_type[type=radio]').filter('[value=' + (e.type || 'PQ') + ']').trigger('click')
       $(f = field_element[i++]).find('.field_type').val(k)
       $(f).find('.data_criteria_oid').val(e.code_list_id)
     )
@@ -173,11 +177,24 @@ class @bonnie.PatientBuilder
 
       data_criteria.field_values = {}
       $(element).find('.field_value').each((i, e) =>
-        data_criteria.field_values[$(e).find('.field_type').val()] = {
-          code_list_id: oid = $(e).find('.data_criteria_oid').val()
-          title: @value_sets[oid].concept
-          type: 'CD'
-        } if @value_sets[$(e).find('.data_criteria_oid').val()]
+        data_criteria.field_values[$(e).find('.field_type').val()] = switch $(e).find('input.value_type[type=radio]:checked').val()
+          when 'PQ'
+            {
+              type: 'PQ'
+              value: $(e).find('#element_value').val()
+              unit: $(e).find('#element_value_unit').val()
+            } if $(e).find('#element_value').val()
+          when 'CD'
+            {
+              type: 'CD'
+              code_list_id: $(e).find('.data_criteria_oid').val()
+              title: $(e).find('.data_criteria_oid > option:selected').text()
+            } if $(e).find('.data_criteria_oid').val()
+          when 'TS'
+            {
+              type: 'TS'
+              value: $(e).find('.datetime').val()
+            } if $(e).find('.datetime').val()
       )
 
       @updateTimeline()
