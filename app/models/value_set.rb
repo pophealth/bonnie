@@ -43,5 +43,4 @@ class ValueSet
   
   validates_inclusion_of :category, in: Categories
   validates_format_of :oid, with: /^(\d+)(\.\d+)*$/
-  
 end

@@ -51,4 +51,14 @@ class Concept
       nil
     end
   end
+  
+  def clone_and_filter(value_set)
+    value_set = value_set.clone
+    value_set.code_sets.each_with_index do |code_set, index|
+      common_code = find_common_code_for(code_set.code_set)
+      value_set.code_sets[index].codes = [common_code] if common_code.present?
+    end
+    
+    value_set
+  end
 end

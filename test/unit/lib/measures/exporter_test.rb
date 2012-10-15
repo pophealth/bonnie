@@ -1,7 +1,6 @@
 require 'test_helper'
 
-class ExporterTest < ActiveSupport::TestCase
-  
+class ExporterTest < ActiveSupport::TestCase  
   setup do
     dump_database
     

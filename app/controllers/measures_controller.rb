@@ -376,7 +376,16 @@ class MeasuresController < ApplicationController
 
     values = Hash[
       *Measure.where({'measure_id' => {'$in' => patient['measure_ids'] || []}}).map{|m|
-        m.value_sets.map{|v| [v['oid'], v]}
+        m.value_sets.map do |value_set|
+          preferred_set = WhiteList.where(:oid => value_set.oid).first
+          
+          if preferred_set.nil?
+            concept = Concept.any_in(oids: value_set.oid).first
+            preferred_set = concept.clone_and_filter(value_set) if concept.present?
+          end
+
+          [value_set.oid, preferred_set]
+        end
       }.map(&:to_a).flatten
     ]
 
@@ -427,7 +436,6 @@ class MeasuresController < ApplicationController
       @measure.records.push(patient)
       render :json => @measure.save!
     end
-
   end
 
   def delete_patient

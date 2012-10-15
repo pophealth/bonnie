@@ -22,16 +22,4 @@ namespace :concepts do
     end
     Concepts::ConceptLoader.build_relationships
   end
-  
-  desc "Apply all concepts to filter value sets"
-  task :apply_all do |t, args|
-    ValueSet.all.entries.each do |value_set|
-      concept = Concept.any_in(oids: value_set.oid).first
-      next if concept.nil?
-      
-      value_set.code_sets.each do |code_set|
-        common_code = concept.find_common_code_for(code_set)
-      end
-    end
-  end
 end
