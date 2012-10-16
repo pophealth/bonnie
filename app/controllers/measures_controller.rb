@@ -383,6 +383,7 @@ class MeasuresController < ApplicationController
             concept = Concept.any_in(oids: value_set.oid).first
             preferred_set = concept.clone_and_filter(value_set) if concept.present?
           end
+          preferred_set ||= value_set
 
           [value_set.oid, preferred_set]
         end
