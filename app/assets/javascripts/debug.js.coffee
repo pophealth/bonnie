@@ -125,7 +125,7 @@ populate_test_table = () ->
         cell.css('background-color', '#FFCC99')   #light orange
         cell.html('&#x2713;')
 
-      if e.exceptions == true
+      if e.denexcep == true
         exceptions_total++
         cell = $(row).children(":nth-child(6)")
         cell.css('background-color', '#EEE')
