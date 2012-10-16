@@ -216,7 +216,7 @@ class MeasuresController < ApplicationController
     
     @measure_patients = !params[:measure_patients].nil?
       
-    @patient_names = (Record.all.sort {|left, right| left.last <=> right.last }).collect {|r| [
+    @patient_names = (Record.all.order_by(:last.asc)).collect {|r| [
       "#{r[:last]}, #{r[:first]}",
       r[:_id].to_s,
       {'description' => r['description'], 'category' => r['description_category']},
@@ -400,8 +400,25 @@ class MeasuresController < ApplicationController
     ]
 
     ['first', 'last', 'gender', 'expired', 'birthdate', 'description', 'description_category'].each {|param| patient[param] = params[param]}
-    patient['ethnicity'] = {'code' => params['ethnicity'], 'codeSystem' => 'CDC'}
-    patient['race'] = {'code' => params['race'], 'codeSystem' => 'CDC'}
+    patient['ethnicity'] = {'code' => params['ethnicity'], 'codeSystem' => 'CDC Race'}
+    patient['race'] = {'code' => params['race'], 'codeSystem' => 'CDC Race'}
+
+# Commented out for now since adding an insurance provider breaks the HTML exporter
+#     insurance_types = {
+#       'MA' => 'Medicare',
+#       'MC' => 'Medicaid',
+#       'OT' => 'Other'
+#     }
+#     insurance_provider = InsuranceProvider.new
+#     insurance_provider.type = params['payer']
+#     insurance_provider.member_id = '1234567890'
+#     insurance_provider.name = insurance_types[params['payer']]
+#     insurance_provider.financial_responsibility_type = {'code' => 'SELF', 'codeSystem' => 'HL7 Relationship Code'}
+#     insurance_provider.start_time = Time.new(2008,1,1).to_i
+#     insurance_provider.payer = Organization.new
+#     insurance_provider.payer.name = insurance_provider.name
+#     patient.insurance_providers = [insurance_provider]
+
     patient['source_data_criteria'] = JSON.parse(params['data_criteria'])
     patient['measure_period_start'] = params['measure_period_start'].to_i
     patient['measure_period_end'] = params['measure_period_end'].to_i

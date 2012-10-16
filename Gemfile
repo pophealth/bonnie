@@ -7,7 +7,7 @@ gem 'hqmf2js', :git => 'https://github.com/pophealth/hqmf2js.git', :branch => 'd
 gem 'hquery-patient-api', :git => 'https://github.com/pophealth/patientapi.git', :branch => 'develop'
 #gem 'hquery-patient-api', :path => '../patientapi'
 gem 'health-data-standards', :git => 'https://github.com/projectcypress/health-data-standards.git', :branch => 'develop'
-#gem 'health-data-standards', :path => '../../shared/health-data-standards'
+#gem 'health-data-standards', :path => '../health-data-standards'
 gem 'test-patient-generator', :git => 'https://github.com/pophealth/test-patient-generator.git', :branch => 'develop'
 #gem 'test-patient-generator', :path => '../test-patient-generator'
 gem 'quality-measure-engine', :git => 'http://github.com/pophealth/quality-measure-engine.git', :branch => 'develop'
@@ -23,7 +23,7 @@ gem 'cancan'
 gem 'factory_girl'
 gem 'text'
 
-gem "mongoid", '~> 3.0'
+gem "mongoid", '3.0.6'
 
 gem 'simple_form'
 gem 'coderay'   # for javascript syntax highlighting
