@@ -13,7 +13,7 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/hqmf-parser.git
-  revision: 464bdf331563a4d2dc9ae9af8a200b166e416ecf
+  revision: e239375825e6bd3172a72f5a9d679797dfd4974b
   branch: develop
   specs:
     hqmf-parser (0.0.1)
@@ -49,7 +49,7 @@ GIT
 
 GIT
   remote: https://github.com/projectcypress/health-data-standards.git
-  revision: dd23f390557b2b0c29db3ca49c752019bdfec31d
+  revision: d2c3a4765ae23b827deaabb80b6e672c9ca51b77
   branch: develop
   specs:
     health-data-standards (2.1.0)
@@ -94,7 +94,7 @@ GEM
     arel (3.0.2)
     bcrypt-ruby (3.0.1)
     bson (1.7.0)
-    builder (3.0.3)
+    builder (3.0.4)
     cancan (1.6.8)
     choice (0.1.6)
     coderay (1.0.7)
