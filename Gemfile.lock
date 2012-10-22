@@ -1,10 +1,9 @@
 GIT
   remote: http://github.com/pophealth/quality-measure-engine.git
-  revision: ffa4cd00dfb85cec4adbc4630a8979def2e94f4d
+  revision: 7590872f5249f6211209071802a84592e87cbeea
   branch: develop
   specs:
-    quality-measure-engine (1.1.5)
-      mongo (~> 1.3)
+    quality-measure-engine (2.0.0)
       nokogiri (>= 1.4.4)
       redis (~> 2.2.2)
       resque (~> 1.15.0)
@@ -24,7 +23,7 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/hqmf2js.git
-  revision: cf9a1239c6114c5e050d0c78d628a24a012a47b7
+  revision: f6d41b47f5fbf89c21fb17428965710f9da5927f
   branch: develop
   specs:
     hqmf2js (0.1.0)
@@ -49,7 +48,7 @@ GIT
 
 GIT
   remote: https://github.com/projectcypress/health-data-standards.git
-  revision: d2c3a4765ae23b827deaabb80b6e672c9ca51b77
+  revision: 1aa358d266899e900fc11cd0469f75bb24cd26f9
   branch: develop
   specs:
     health-data-standards (2.1.0)
@@ -93,7 +92,6 @@ GEM
     ansi (1.4.3)
     arel (3.0.2)
     bcrypt-ruby (3.0.1)
-    bson (1.7.0)
     builder (3.0.4)
     cancan (1.6.8)
     choice (0.1.6)
@@ -154,8 +152,6 @@ GEM
     method_source (0.8)
     mime-types (1.19)
     minitest (4.0.0)
-    mongo (1.7.0)
-      bson (~> 1.7.0)
     mongoid (3.0.6)
       activemodel (~> 3.1)
       moped (~> 1.1)
