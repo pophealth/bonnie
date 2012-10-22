@@ -15,7 +15,14 @@ class ExporterTest < ActiveSupport::TestCase
     @measure.records << @patient
   end
   
-  test "test exporting measures" do
+  test "test prepare export" do
+    default_collections = ["bundles", "measures", "patient_cache", "query_cache", "system.js"]
+    default_collections.each {|collection| MONGO_DB[collection].insert(nil) }
+
+
+  end
+
+  test "test export bundle" do
     file = Tempfile.new(['bundle', '.zip'])
     measures = [@measure]
 
@@ -113,5 +120,13 @@ class ExporterTest < ActiveSupport::TestCase
     measure_codes["2.16.840.1.113883.3.464.0001.250"]["CPT"].length.must_equal 8
     measure_codes["2.16.840.1.113883.3.464.0001.250"]["LOINC"].length.must_equal 11
     measure_codes["2.16.840.1.113883.3.464.0001.250"]["SNOMED-CT"].length.must_equal 5
+  end
+
+  test "" do
+    # export_bundle, library functions, measure json, bundle json, measure codes
+
+    # prepare_export, library_functions_to_zip, measures_to_zip, source_to_zip, bundle_to_zip,
+    # results_to_zip, patient_to_zip, qrda_patient, refresh_js_libraries, 
+    # popHealth_denormalize_measure_attributes, measure_js, execution_logic, check_disable_logger
   end
 end
