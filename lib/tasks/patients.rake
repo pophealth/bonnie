@@ -15,7 +15,12 @@ namespace :patients do
     
     total_records = Record.count
     delta_records = total_records - initial_records
-    puts "Deleted #{deleted_records} record#{deleted_records.pluralize}." if args.delete_existing
-    puts "Loaded #{delta_records} record#{delta_records.pluralize}. Total records: #{total_records}."
+    puts "Deleted #{deleted_records} records." if args.delete_existing
+    puts "Loaded #{delta_records} records. Total records: #{total_records}."
+  end
+
+  desc 'Resave all records. Useful when something like code selection has changed but measures do not need to be reloaded'
+  task :resave do [t, args]
+
   end
 end

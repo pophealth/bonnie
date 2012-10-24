@@ -1,12 +1,8 @@
 module Measures
-
   # Utility class for loading measure definitions into the database
   class Loader
-
     def self.load(hqmf_path, value_set_path, user, value_set_format=nil, persist = true, html_path=nil)
       measure = Measure.new
-
-      # Meta data
       measure.user = user
 
       value_sets = nil

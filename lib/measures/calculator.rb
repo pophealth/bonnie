@@ -8,8 +8,8 @@ module Measures
       
       # QME requires that the bundle collection be populated.
       MONGO_DB['bundles'].drop
-      bundle = Measures::Exporter.bundle_json([], [], library_functions.keys)
-      MONGO_DB["bundles"].insert(JSON.parse(bundle))
+      bundle = Measures::Exporter.bundle_json([], [], Measures::Calculator.library_functions.keys)
+      MONGO_DB["bundles"].insert(JSON.parse(bundle.values.first))
       
       # Delete all old results for these measures because they might be out of date.
       MONGO_DB['query_cache'].find({}).remove_all
@@ -28,7 +28,8 @@ module Measures
           MONGO_DB["bundles"].find({}).update({"$push" => {"measures" => measure_id}})
           
           effective_date = HQMF::Value.new("TS", nil, measure.measure_period["high"]["value"], true, false, false).to_time_object.to_i
-          report = QME::QualityReport.new(measure_json[:id], measure_json[:sub_id], {'effective_date' => effective_date })
+          oid_dictionary = HQMF2JS::Generator::CodesToJson.hash_to_js(Measures::Calculator.measure_codes(measure))
+          report = QME::QualityReport.new(measure_json[:id], measure_json[:sub_id], {'effective_date' => effective_date, 'oid_dictionary' => oid_dictionary})
           report.calculate(false) unless report.calculated?
         end
       end
@@ -123,9 +124,9 @@ module Measures
       "
     end
     
-    def self.execution_logic(measure, population_index=0)
+    def self.execution_logic(measure, population_index=0, load_codes=false)
       gen = HQMF2JS::Generator::JS.new(measure.as_hqmf_model)
-      codes = measure_codes(measure)
+      codes = measure_codes(measure) if load_codes
       "
       var patient_api = new hQuery.Patient(patient);
 
@@ -136,7 +137,7 @@ module Measures
       // turn on logging if it is enabled
       if (Logger.enabled) enableLogging();
       
-      #{gen.to_js(codes, population_index)}
+      #{gen.to_js(population_index, codes)}
 
       hqmfjs.initializeSpecifics(patient_api, hqmfjs)
       

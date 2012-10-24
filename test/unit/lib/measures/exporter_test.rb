@@ -14,25 +14,13 @@ class ExporterTest < ActiveSupport::TestCase
     @patient = FactoryGirl.create(:record)
     @measure.records << @patient
   end
-  
-  test "test prepare export" do
-    default_collections = ["bundles", "measures", "patient_cache", "query_cache", "system.js"]
-    default_collections.each {|collection| MONGO_DB[collection].insert(nil) }
-
-
-  end
 
   test "test export bundle" do
     file = Tempfile.new(['bundle', '.zip'])
     measures = [@measure]
 
-    Record.where(type: "qrda").size.must_equal 0
-    Measures::Exporter.prepare_export(measures) 
-    
-    qrda_patient = Record.where(type: "qrda").first
-    assert_not_nil qrda_patient
-    qrda_name = TPG::Exporter.patient_filename(qrda_patient)
-    
+    Measures::Calculator.calculate(measures)
+        
     entries = []
     bundle = Measures::Exporter.export_bundle(measures, false)
     Zip::ZipFile.open(bundle.path) do |zip|
@@ -42,21 +30,17 @@ class ExporterTest < ActiveSupport::TestCase
       end
     end
 
+    patient_name = "#{@patient.first}_#{@patient.last}"
     expected = ["library_functions/map_reduce_utils.js",
       "library_functions/underscore_min.js",
       "library_functions/hqmf_utils.js",
-      "bundle.json",
+      "./bundle.json",
       "measures/ep/0002.json",
-      "patients/ep/c32/First2_Last2.xml",
-      "patients/ep/ccda/First2_Last2.xml",
-      "patients/ep/ccr/First2_Last2.xml",
-      "patients/ep/json/First2_Last2.json",
-      "patients/ep/html/First2_Last2.html",
-      "patients/qrda/c32/#{qrda_name}.xml",
-      "patients/qrda/ccda/#{qrda_name}.xml",
-      "patients/qrda/ccr/#{qrda_name}.xml",
-      "patients/qrda/json/#{qrda_name}.json",
-      "patients/qrda/html/#{qrda_name}.html",
+      "patients/ep/c32/#{patient_name}.xml",
+      "patients/ep/ccda/#{patient_name}.xml",
+      "patients/ep/ccr/#{patient_name}.xml",
+      "patients/ep/json/#{patient_name}.json",
+      "patients/ep/html/#{patient_name}.html",
       "results/by_patient.json",
       "results/by_measure.json"]
     
@@ -65,68 +49,72 @@ class ExporterTest < ActiveSupport::TestCase
     expected.each {|entry| assert entries.include? entry}
   end
 
-  test "test library functions" do
-    library_functions = Measures::Exporter.library_functions
-    
-    refute_nil library_functions["map_reduce_utils"]
-    refute_nil library_functions["underscore_min"]
-    refute_nil library_functions["hqmf_utils"]
-    
-    assert library_functions["map_reduce_utils"].length > 0
-    assert library_functions["underscore_min"].length > 0
-    assert library_functions["hqmf_utils"].length > 0
-  end
-
-  test "test measure json" do
-    measure_json = Measures::Exporter.measure_json(@measure.measure_id)
-    expected_keys = [:id,:nqf_id,:hqmf_id,:hqmf_set_id,:hqmf_version_number,:endorser,:name,:description,:type,:category,:steward,:population,:denominator,:numerator,:exclusions,:map_fn,:measure,:population_ids,:oids,:value_sets,:data_criteria]
-    required_keys = [:id,:name,:description,:category,:population,:denominator,:numerator,:map_fn,:measure]
-    
-    expected_keys.each {|key| assert measure_json.keys.include? key}
-    measure_json.keys.size.must_equal expected_keys.size
-    required_keys.each {|key| refute_nil measure_json[key]}
-    
-    measure_json[:measure].size.must_equal 5
-    measure_json[:nqf_id].must_equal "0002"
-    measure_json[:hqmf_id].must_equal '8A4D92B2-3946-CDAE-0139-77F580AE6690'
-    measure_json[:id].must_equal '8A4D92B2-3946-CDAE-0139-77F580AE6690'
-  end
-  
   test "test bundle json" do
-    library_functions = Measures::Exporter.library_functions.keys
+    library_functions = Measures::Calculator.library_functions.keys
     patient_ids = ["123", "456", "789"]
     measure_ids = ["0001a", "0001b", "0002"]
-    
+
     bundle_json = Measures::Exporter.bundle_json(patient_ids, measure_ids, library_functions)
+    bundle_json = JSON.parse(bundle_json.values.first)
 
-    bundle_json[:title].must_equal APP_CONFIG["measures"]["title"]
-    bundle_json[:version].must_equal APP_CONFIG["measures"]["version"]
-    bundle_json[:license].must_equal APP_CONFIG["measures"]["license"]
-    bundle_json[:extensions].must_equal library_functions
-    bundle_json[:measures].must_equal measure_ids
-    bundle_json[:patients].must_equal patient_ids
+    bundle_json["title"].must_equal APP_CONFIG["measures"]["title"]
+    bundle_json["version"].must_equal APP_CONFIG["measures"]["version"]
+    bundle_json["license"].must_equal APP_CONFIG["measures"]["license"]
+    bundle_json["extensions"].must_equal library_functions
+    bundle_json["measures"].must_equal measure_ids
+    bundle_json["patients"].must_equal patient_ids
   end
 
-  test "test measure codes" do
-    measure_codes = Measures::Exporter.measure_codes(@measure)
+  test "test bundle library functions" do
+    functions = [
+      {"fun1" => "function() {return 1;}"},
+      {"fun2" => "function() {return 2;}"},
+      {"fun3" => "function() {return 3;}"}
+    ]
+    bundled_functions = Measures::Exporter.bundle_library_functions(functions)
+
+    assert_equal functions.size, bundled_functions.size
+    functions.each do |name, contents|
+      assert bundled_functions.include? "#{name}.js"
+      assert_equal bundled_functions["#{name}.js"], contents
+    end
+  end
+
+  test "test bundle measure" do
+    bundled_measure = Measures::Exporter.bundle_measure(@measure)
+
+    # assert_equal 
+    # expected_keys = [:id,:nqf_id,:hqmf_id,:hqmf_set_id,:hqmf_version_number,:endorser,:name,:description,:type,:category,:steward,:population,:denominator,:numerator,:exclusions,:map_fn,:population_ids,:oids,:value_sets,:data_criteria]
+    # required_keys = [:id,:name,:description,:category,:population,:denominator,:numerator,:map_fn]
     
-    measure_codes.length.must_equal 26
-    expected = ["2.16.840.1.113883.3.464.0001.231","2.16.840.1.113883.3.464.0001.250","2.16.840.1.113883.3.464.0001.369","2.16.840.1.113883.3.464.0001.373","2.16.840.1.113883.3.464.0001.157","2.16.840.1.113883.3.464.0001.172","2.16.840.1.113883.3.560.100.4","2.16.840.1.113883.3.464.0001.45",
-     "2.16.840.1.113883.3.464.0001.48","2.16.840.1.113883.3.464.0001.50","2.16.840.1.113883.3.464.0001.246","2.16.840.1.113883.3.464.0001.247","2.16.840.1.113883.3.464.0001.249","2.16.840.1.113883.3.464.0001.251","2.16.840.1.113883.3.464.0001.252","2.16.840.1.113883.3.464.0001.302",
-     "2.16.840.1.113883.3.464.0001.308","2.16.840.1.113883.3.464.0001.341","2.16.840.1.113883.3.464.0001.368","2.16.840.1.113883.3.464.0001.371","2.16.840.1.113883.3.464.0001.385","2.16.840.1.113883.3.464.0001.406","2.16.840.1.113883.3.464.0001.372",
-     "2.16.840.1.113883.3.464.0001.397","2.16.840.1.113883.3.464.0001.408","2.16.840.1.113883.3.464.0001.409"]
-    measure_codes.keys.sort.must_equal expected.sort
-    measure_codes["2.16.840.1.113883.3.464.0001.250"].keys.must_equal ["CPT", "LOINC", "SNOMED-CT"]
-    measure_codes["2.16.840.1.113883.3.464.0001.250"]["CPT"].length.must_equal 8
-    measure_codes["2.16.840.1.113883.3.464.0001.250"]["LOINC"].length.must_equal 11
-    measure_codes["2.16.840.1.113883.3.464.0001.250"]["SNOMED-CT"].length.must_equal 5
+    # expected_keys.each {|key| assert measure_json.keys.include? key}
+    # measure_json.keys.size.must_equal expected_keys.size
+    # required_keys.each {|key| refute_nil measure_json[key]}
+
+    # measure_json[:nqf_id].must_equal "0002"
+    # measure_json[:hqmf_id].must_equal '8A4D92B2-3946-CDAE-0139-77F580AE6690'
+    # measure_json[:id].must_equal '8A4D92B2-3946-CDAE-0139-77F580AE6690'    
+
+    # measure_json = JSON.pretty_generate(measure.as_json(:except => [ '_id' ]), max_nesting: 250)
+
+    #   {
+    #     "#{measure['nqf_id']}#{measure['sub_id']}.json" => measure_json
+    #   }
   end
 
-  test "" do
-    # export_bundle, library functions, measure json, bundle json, measure codes
+  test "test bundle source" do
+    pending "I'm just a lonely lil' test"
+  end
 
-    # prepare_export, library_functions_to_zip, measures_to_zip, source_to_zip, bundle_to_zip,
-    # results_to_zip, patient_to_zip, qrda_patient, refresh_js_libraries, 
-    # popHealth_denormalize_measure_attributes, measure_js, execution_logic, check_disable_logger
+  test "test bundle results" do
+    pending "I'm just a lonely lil' test"
+  end
+
+  test "test bundle patient" do
+    pending "I'm just a lonely lil' test"
+  end
+
+  test "test zip content" do
+    pending "I'm just a lonely lil' test"
   end
 end

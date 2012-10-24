@@ -65,11 +65,9 @@ class ActiveSupport::TestCase
   end
   
   def assert_query_results_equal(factory_result, result)
-    
     factory_result.each do |key, value|
       assert_equal value, result[key] unless key == '_id'
     end
-    
   end
   
   def expose_tempfile(fixture)
