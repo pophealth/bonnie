@@ -15,7 +15,7 @@ module MeasuresHelper
 
     population = population.to_i
     measure = Measure.find(id)
-    measure_js = Measures::Exporter.execution_logic(measure, population)
+    measure_js = Measures::Exporter.execution_logic(measure, population, true)
 
     patient_json = Record.find(patient_ids).to_json
 
