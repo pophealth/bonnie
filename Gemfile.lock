@@ -12,7 +12,7 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/hqmf-parser.git
-  revision: e239375825e6bd3172a72f5a9d679797dfd4974b
+  revision: 77de0f8dea7aa3aa6fa500f2aee0c8701177cecc
   branch: develop
   specs:
     hqmf-parser (0.0.1)
@@ -48,7 +48,7 @@ GIT
 
 GIT
   remote: https://github.com/projectcypress/health-data-standards.git
-  revision: 1aa358d266899e900fc11cd0469f75bb24cd26f9
+  revision: ee6e34d3787f8b7138a83008a65bcbe4a1a1d874
   branch: develop
   specs:
     health-data-standards (2.1.0)
