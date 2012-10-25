@@ -30,7 +30,7 @@ class CalculatorTest < ActiveSupport::TestCase
   #   affected_collections.each {|collection| assert_equal MONGO_DB[collection].find({}).count(), 1}
   # end
 
-  test "test library functions" do
+  test "library functions" do
     library_functions = Measures::Calculator.library_functions
     
     refute_nil library_functions["map_reduce_utils"]
@@ -42,11 +42,11 @@ class CalculatorTest < ActiveSupport::TestCase
     assert library_functions["hqmf_utils"].length > 0
   end
 
-  test "test measure json" do
+  test "measure json" do
     measure_json = Measures::Calculator.measure_json(@measure.measure_id)
-    expected_keys = [:id,:nqf_id,:hqmf_id,:hqmf_set_id,:hqmf_version_number,:endorser,:name,:description,:type,:category,:steward,:population,:denominator,:numerator,:exclusions,:map_fn,:population_ids,:data_criteria]
-    required_keys = [:id,:name,:description,:category,:population,:denominator,:numerator,:map_fn]
-    
+    expected_keys = [:id,:nqf_id,:hqmf_id,:hqmf_set_id,:hqmf_version_number,:endorser,:name,:description,:type,:category,:steward,:population,:denominator,:numerator,:exclusions,:map_fn,:population_ids,:data_criteria,:oids]
+    required_keys = [:id,:name,:description,:category,:population,:denominator,:numerator,:map_fn,:category,:data_criteria,:oids]
+
     expected_keys.each {|key| assert measure_json.keys.include? key}
     measure_json.keys.size.must_equal expected_keys.size
     required_keys.each {|key| refute_nil measure_json[key]}
@@ -56,7 +56,7 @@ class CalculatorTest < ActiveSupport::TestCase
     measure_json[:id].must_equal '8A4D92B2-3946-CDAE-0139-77F580AE6690'
   end
 
-  test "test measure codes" do
+  test "measure codes" do
     measure_codes = Measures::Calculator.measure_codes(@measure)
     
     measure_codes.length.must_equal 26
@@ -71,18 +71,18 @@ class CalculatorTest < ActiveSupport::TestCase
     measure_codes["2.16.840.1.113883.3.464.0001.250"]["SNOMED-CT"].length.must_equal 5
   end
 
-  test "test measure js" do
+  test "measure js" do
     # Actual correct function is tested in the calculate test.
 
   end
 
 
-  test "test execution logic" do
+  test "execution logic" do
     # Actual correct function is tested in the calculate test.
 
   end
 
-  test "test check disable logger" do
+  test "check disable logger" do
     APP_CONFIG["disable_logging"] = true
     logger = Measures::Calculator.check_disable_logger
     assert logger.include? "Logger.enabled = false"

@@ -15,7 +15,7 @@ class ExporterTest < ActiveSupport::TestCase
     @measure.records << @patient
   end
 
-  test "test export bundle" do
+  test "export bundle" do
     file = Tempfile.new(['bundle', '.zip'])
     measures = [@measure]
 
@@ -36,6 +36,9 @@ class ExporterTest < ActiveSupport::TestCase
       "library_functions/hqmf_utils.js",
       "./bundle.json",
       "measures/ep/0002.json",
+      "sources/ep/0002/8A4D92B2-3946-CDAE-0139-77F580AE6690.html",
+      "sources/ep/0002/hqmf1.xml",
+      "sources/ep/0002/hqmf2.xml",
       "patients/ep/c32/#{patient_name}.xml",
       "patients/ep/ccda/#{patient_name}.xml",
       "patients/ep/ccr/#{patient_name}.xml",
@@ -49,7 +52,7 @@ class ExporterTest < ActiveSupport::TestCase
     expected.each {|entry| assert entries.include? entry}
   end
 
-  test "test bundle json" do
+  test "bundle json" do
     library_functions = Measures::Calculator.library_functions.keys
     patient_ids = ["123", "456", "789"]
     measure_ids = ["0001a", "0001b", "0002"]
@@ -65,56 +68,54 @@ class ExporterTest < ActiveSupport::TestCase
     bundle_json["patients"].must_equal patient_ids
   end
 
-  test "test bundle library functions" do
-    functions = [
-      {"fun1" => "function() {return 1;}"},
-      {"fun2" => "function() {return 2;}"},
-      {"fun3" => "function() {return 3;}"}
-    ]
+  test "bundle library functions" do
+    functions = {"fun1" => "function() {return 1;}",
+      "fun2" => "function() {return 2;}",
+      "fun3" => "function() {return 3;}"
+    }
     bundled_functions = Measures::Exporter.bundle_library_functions(functions)
 
     assert_equal functions.size, bundled_functions.size
-    functions.each do |name, contents|
-      assert bundled_functions.include? "#{name}.js"
-      assert_equal bundled_functions["#{name}.js"], contents
-    end
+    assert_equal bundled_functions["fun1.js"], functions["fun1"]
+    assert_equal bundled_functions["fun2.js"], functions["fun2"]
+    assert_equal bundled_functions["fun3.js"], functions["fun3"]
   end
 
-  test "test bundle measure" do
-    bundled_measure = Measures::Exporter.bundle_measure(@measure)
+  test "bundle measure" do
+    Measures::Calculator.calculate
+    measure = MONGO_DB["measures"].find({}).first
+    bundled_measure = Measures::Exporter.bundle_measure(measure)
 
-    # assert_equal 
-    # expected_keys = [:id,:nqf_id,:hqmf_id,:hqmf_set_id,:hqmf_version_number,:endorser,:name,:description,:type,:category,:steward,:population,:denominator,:numerator,:exclusions,:map_fn,:population_ids,:oids,:value_sets,:data_criteria]
-    # required_keys = [:id,:name,:description,:category,:population,:denominator,:numerator,:map_fn]
-    
-    # expected_keys.each {|key| assert measure_json.keys.include? key}
-    # measure_json.keys.size.must_equal expected_keys.size
-    # required_keys.each {|key| refute_nil measure_json[key]}
-
-    # measure_json[:nqf_id].must_equal "0002"
-    # measure_json[:hqmf_id].must_equal '8A4D92B2-3946-CDAE-0139-77F580AE6690'
-    # measure_json[:id].must_equal '8A4D92B2-3946-CDAE-0139-77F580AE6690'    
-
-    # measure_json = JSON.pretty_generate(measure.as_json(:except => [ '_id' ]), max_nesting: 250)
-
-    #   {
-    #     "#{measure['nqf_id']}#{measure['sub_id']}.json" => measure_json
-    #   }
+    assert_equal bundled_measure.size, 1
+    assert_equal bundled_measure.keys.first, "0002.json"
   end
 
-  test "test bundle source" do
+  test "bundle sources" do
+    source_dir = File.join("test", "fixtures", "export", "measure-sources")
+    bundled_sources = Measures::Exporter.bundle_sources(@measure, source_dir)
+
+    assert_equal bundled_sources.size, 3
+
+    source_dir = File.join(source_dir, @measure.hqmf_id)
+    binding.pry
+    assert_not_nil bundled_sources["#{@measure.hqmf_id}.html"]
+    assert_not_nil bundled_sources["hqmf1.xml"]
+    assert_not_nil bundled_sources["hqmf2.xml"]
+  end
+
+  test "bundle results" do
+    Measures::Calculator.calculate
+
     pending "I'm just a lonely lil' test"
   end
 
-  test "test bundle results" do
+  test "bundle patient" do
     pending "I'm just a lonely lil' test"
   end
 
-  test "test bundle patient" do
-    pending "I'm just a lonely lil' test"
-  end
+  test "zip content" do
+    content = 
 
-  test "test zip content" do
     pending "I'm just a lonely lil' test"
   end
 end

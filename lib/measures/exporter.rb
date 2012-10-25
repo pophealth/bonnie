@@ -85,12 +85,12 @@ module Measures
     end
 
     def self.bundle_sources(measure, source_path = File.join(".", "db", "measures"))
-      html = File.read(File.expand_path(File.join(source_path, "html", "#{measure.id}.html")))
-      hqmf1 = File.read(File.expand_path(File.join(source_path, "hqmf", "#{measure.id}.xml")))
+      html = File.read(File.expand_path(File.join(source_path, "html", "#{measure.hqmf_id}.html")))
+      hqmf1 = File.read(File.expand_path(File.join(source_path, "hqmf", "#{measure.hqmf_id}.xml")))
       hqmf2 = HQMF2::Generator::ModelProcessor.to_hqmf(measure.as_hqmf_model)
 
       {
-        File.join(measure.measure_id, "#{measure.measure_id}.html") => html,
+        File.join(measure.measure_id, "#{measure.hqmf_id}.html") => html,
         File.join(measure.measure_id, "hqmf1.xml") => hqmf1,
         File.join(measure.measure_id, "hqmf2.xml") => hqmf2
       }

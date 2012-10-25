@@ -68,15 +68,15 @@ module Measures
       # Save original files
       html_out_path = File.join(".", "db", "measures", "html")
       FileUtils.mkdir_p html_out_path
-      FileUtils.cp(html_path, File.join(html_out_path,"#{measure._id}.html")) if html_path
+      FileUtils.cp(html_path, File.join(html_out_path,"#{measure.hqmf_id}.html")) if html_path
       
       value_set_out_path = File.join(".", "db", "measures", "value_sets")
       FileUtils.mkdir_p value_set_out_path
-      FileUtils.cp(value_set_path, File.join(value_set_out_path,"#{measure._id}.xls"))
+      FileUtils.cp(value_set_path, File.join(value_set_out_path,"#{measure.hqmf_id}.xls"))
       
       hqmf_out_path = File.join(".", "db", "measures", "hqmf")
       FileUtils.mkdir_p hqmf_out_path
-      FileUtils.cp(hqmf_path, File.join(".", "db", "measures", "hqmf", "#{measure._id}.xml"))
+      FileUtils.cp(hqmf_path, File.join(".", "db", "measures", "hqmf", "#{measure.hqmf_id}.xml"))
 
       measure.save! if persist
       measure

@@ -23,7 +23,9 @@ module Measures
           puts "calculating (#{measure_index+1}/#{measures.count}): #{measure.measure_id}#{sub_ids[index]}"
           
           measure_json = Measures::Calculator.measure_json(measure.measure_id, index)
+          binding.pry
           MONGO_DB["measures"].insert(measure_json)
+          binding.pry
           measure_id = MONGO_DB["measures"].find({id: measure_json[:id]}).first
           MONGO_DB["bundles"].find({}).update({"$push" => {"measures" => measure_id}})
           
@@ -88,6 +90,7 @@ module Measures
       
       referenced_data_criteria = measure.as_hqmf_model.referenced_data_criteria
       json[:data_criteria] = referenced_data_criteria.map{|data_criteria| data_criteria.to_json}
+      json[:oids] = measure.value_sets.map{|value_set| value_set.oid}
       
       population_ids = {}
       HQMF::PopulationCriteria::ALL_POPULATION_CODES.each do |type|

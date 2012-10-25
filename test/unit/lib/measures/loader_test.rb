@@ -5,10 +5,9 @@ class LoaderTest < ActiveSupport::TestCase
   setup do
     dump_database
     @user = FactoryGirl.create(:user)
-
   end
 
-  test "test loading measures" do
+  test "loading measures" do
     hqmf_file = "test/fixtures/measure-defs/0002/0002.xml"
     value_set_file = "test/fixtures/measure-defs/0002/0002.xls"
     html_file = "test/fixtures/measure-defs/0002/0002.html"
