@@ -72,14 +72,16 @@ class CalculatorTest < ActiveSupport::TestCase
   end
 
   test "measure js" do
-    # Actual correct function is tested in the calculate test.
-
+    # Testing for code that will execute properly is included in the calculate test.
+    measure_js = Measures::Calculator.measure_js(@measure, 0)
+    assert_not_nil measure_js
   end
 
 
   test "execution logic" do
-    # Actual correct function is tested in the calculate test.
-
+    # Testing for code that will execute properly is included in the calculate test.
+    execution_logic = Measures::Calculator.execution_logic(@measure, 0, false)
+    assert_not_nil execution_logic
   end
 
   test "check disable logger" do

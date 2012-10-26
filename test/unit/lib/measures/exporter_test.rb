@@ -36,7 +36,7 @@ class ExporterTest < ActiveSupport::TestCase
       "library_functions/hqmf_utils.js",
       "./bundle.json",
       "measures/ep/0002.json",
-      "sources/ep/0002/8A4D92B2-3946-CDAE-0139-77F580AE6690.html",
+      "sources/ep/0002/0002.html",
       "sources/ep/0002/hqmf1.xml",
       "sources/ep/0002/hqmf2.xml",
       "patients/ep/c32/#{patient_name}.xml",
@@ -97,25 +97,67 @@ class ExporterTest < ActiveSupport::TestCase
     assert_equal bundled_sources.size, 3
 
     source_dir = File.join(source_dir, @measure.hqmf_id)
-    binding.pry
-    assert_not_nil bundled_sources["#{@measure.hqmf_id}.html"]
-    assert_not_nil bundled_sources["hqmf1.xml"]
-    assert_not_nil bundled_sources["hqmf2.xml"]
+    assert_not_nil bundled_sources[File.join("0002", "#{@measure.measure_id}.html")]
+    assert_not_nil bundled_sources[File.join("0002", "hqmf1.xml")]
+    assert_not_nil bundled_sources[File.join("0002", "hqmf2.xml")]
   end
 
   test "bundle results" do
     Measures::Calculator.calculate
+    bundled_results = Measures::Exporter.bundle_results([@measure])
 
-    pending "I'm just a lonely lil' test"
+    assert_equal bundled_results.size, 2
+
+    expected_by_patient = ["population", "denominator", "numerator", "denexcep", "exclusions", "antinumerator", "patient_id", "medical_record_id", "first", "last", "gender", "birthdate", "test_id", "provider_performances", "race", "ethnicity", "languages", "logger", "measure_id", "nqf_id", "effective_date"]
+    by_patient = JSON.parse(bundled_results["by_patient.json"]).first["value"]
+    assert_equal by_patient.keys.size, expected_by_patient.size
+    expected_by_patient.each {|field| assert by_patient.include? field}
+
+    expected_by_measure = ["measure_id", "sub_id", "nqf_id", "population_ids", "effective_date", "test_id", "filters", "population", "denominator", "numerator", "antinumerator", "exclusions", "denexcep", "considered", "execution_time"]
+    by_measure = JSON.parse(bundled_results["by_measure.json"]).first
+    assert_equal by_measure.keys.size, expected_by_measure.size
+    expected_by_measure.each {|field| assert by_measure.include? field}
   end
 
   test "bundle patient" do
-    pending "I'm just a lonely lil' test"
+    patient_name = "#{@patient.first}_#{@patient.last}"
+    expected_formats = [
+      "c32/#{patient_name}.xml",
+      "ccda/#{patient_name}.xml",
+      "ccr/#{patient_name}.xml",
+      "json/#{patient_name}.json",
+      "html/#{patient_name}.html"]
+
+    bundled_patient = Measures::Exporter.bundle_patient(@patient)
+
+    assert_equal bundled_patient.size, 5
+    expected_formats.each {|format| assert bundled_patient.include? format}
   end
 
   test "zip content" do
-    content = 
+    content = {
+      "blop" => {"blop.js" => "alert('this is a great library')"},
+      "bleep" => {"bleep.json" => "a : b", "bleep2.json" => "c : d"},
+      "bloop" => {"bloop.xml" => "<ha>ha</ha>"}
+    }
+    expected_file_names = ["blop/blop.js", "bleep/bleep.json", "bleep/bleep2.json", "bloop/bloop.xml"]
+    expected_file_content = ["alert('this is a great library')", "a : b", "c : d", "<ha>ha</ha>"]
+    bundle = Measures::Exporter.zip_content(content)
 
-    pending "I'm just a lonely lil' test"
+    file_names = []
+    file_content = []
+    Zip::ZipFile.open(bundle.path) do |zip|
+      zip.entries.each do |entry|
+        file_names << entry.name
+        file_content << zip.read(entry.name)
+        assert entry.size > 0
+      end
+    end
+
+    file_names.size.must_equal expected_file_names.size
+    file_content.size.must_equal expected_file_content.size
+
+    file_names.each {|file_name| assert expected_file_names.include? file_name}
+    file_content.each {|file_content| assert expected_file_content.include? file_content}
   end
 end

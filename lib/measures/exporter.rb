@@ -1,6 +1,7 @@
 module Measures
   class Exporter
     # Export all measures, their test decks, necessary JS libraries, source HQMF files, and expected results to a zip file.
+    # Bundled content is first collected and then zipped all together. Content is a hash with top level keys defining directories (e.g. "library_functions") pointing to hashes with filename keys (e.g. "hqmf_utils.js") pointing to their content.
     #
     # @param [Array] measures All measures that we're exporting. Defaults to all measures.
     # @param [Boolean] preparation_needed Whether or not we need to prepare the export first. Defaults to true.
@@ -90,7 +91,7 @@ module Measures
       hqmf2 = HQMF2::Generator::ModelProcessor.to_hqmf(measure.as_hqmf_model)
 
       {
-        File.join(measure.measure_id, "#{measure.hqmf_id}.html") => html,
+        File.join(measure.measure_id, "#{measure.measure_id}.html") => html,
         File.join(measure.measure_id, "hqmf1.xml") => hqmf1,
         File.join(measure.measure_id, "hqmf2.xml") => hqmf2
       }
