@@ -1,6 +1,6 @@
 GIT
   remote: http://github.com/pophealth/quality-measure-engine.git
-  revision: 58b961a8dd58570727338c957624834df7ff54d2
+  revision: a51564fae4f6eca1f9a9bfcf0d625e25d9511411
   branch: develop
   specs:
     quality-measure-engine (2.0.0)
@@ -23,7 +23,7 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/hqmf2js.git
-  revision: 7a14e77337347d093a0e72a9be21ebcfdaf7320d
+  revision: 6b54e051536f1b4f3f1ef619ade6524f7f1e0322
   branch: develop
   specs:
     hqmf2js (0.1.0)
@@ -34,21 +34,21 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/patientapi.git
-  revision: 35be7e6b2b9dc3ce4ff957221bf542e7178edc9b
+  revision: 0921d68dc960d8f4548f60b0b7bb7c5e340c6664
   branch: develop
   specs:
     hquery-patient-api (0.1.0)
 
 GIT
   remote: https://github.com/pophealth/test-patient-generator.git
-  revision: 74407397544fadb9800b9e230489673b2472315a
+  revision: 31ab781b83a894ae92bae6afcba367e917ccfcd9
   branch: develop
   specs:
     test-patient-generator (0.1.0)
 
 GIT
   remote: https://github.com/projectcypress/health-data-standards.git
-  revision: ee6e34d3787f8b7138a83008a65bcbe4a1a1d874
+  revision: 402c932d301df2dd870e39bba65d2e85c76b0ff3
   branch: develop
   specs:
     health-data-standards (2.1.0)
@@ -102,7 +102,7 @@ GEM
     coffee-script (2.2.0)
       coffee-script-source
       execjs
-    coffee-script-source (1.3.3)
+    coffee-script-source (1.4.0)
     configatron (2.9.1)
       yamler (>= 0.1.0)
     cover_me (1.2.0)
