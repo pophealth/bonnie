@@ -2,7 +2,7 @@ require File.expand_path('../../../config/environment',  __FILE__)
 
 namespace :concepts do
   desc "Load all of the concepts."
-  task :load_all, [:username, :delete_existing] do |t, args|
+  task :load, [:username, :delete_existing] do |t, args|
     raise "The username to load the measures for must be specified" unless args.username
     
     user = User.by_username args.username
