@@ -1,7 +1,7 @@
 module MeasuresHelper
 
   def include_js_libs(libs)
-    library_functions = Measures::Exporter.library_functions
+    library_functions = Measures::Calculator.library_functions
     js = ""
     libs.each do |function|
       js << "#{function}_js = function () { #{library_functions[function]} }\n"
@@ -15,7 +15,7 @@ module MeasuresHelper
 
     population = population.to_i
     measure = Measure.find(id)
-    measure_js = Measures::Exporter.execution_logic(measure, population)
+    measure_js = Measures::Calculator.execution_logic(measure, population, true)
 
     patient_json = Record.find(patient_ids).to_json
 

@@ -25,7 +25,7 @@ class MeasuresController < ApplicationController
 
   def show_nqf
     @measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
-    @contents = File.read(File.expand_path(File.join(".", "db", "measures", "html", "#{@measure.id}.html")))
+    @contents = File.read(File.expand_path(File.join(".", "db", "measures", "html", "#{@measure.hqmf_id}.html")))
     add_breadcrumb @measure["measure_id"], "/measures/" + @measure["measure_id"]
     add_breadcrumb 'NQF Definition', ''
   end
@@ -192,14 +192,15 @@ class MeasuresController < ApplicationController
 
     respond_to do |wants|
       wants.html do
-        @js = Measures::Exporter.execution_logic(@measure, @population)
+        @js = Measures::Exporter.execution_logic(@measure, @population, true)
       end
       wants.js do
-        @measure_js = Measures::Exporter.execution_logic(@measure, @population)
+        @measure_js = Measures::Exporter.execution_logic(@measure, @population, true)
         render :content_type => "application/javascript"
       end
     end
   end
+  
   def debug_libraries
     respond_to do |wants|
       wants.js do
@@ -208,7 +209,6 @@ class MeasuresController < ApplicationController
       end
     end
   end
-
 
   def test
     @population = params[:population] || 0
@@ -472,7 +472,9 @@ class MeasuresController < ApplicationController
       MONGO_DB['patient_cache'].find({'value.measure_id' => m['hqmf_id']}).remove_all
       (m['populations'].length > 1 ? ('a'..'zz').to_a.first(m['populations'].length) : [nil]).each{|sub_id|
         p 'Calculating measure ' + m.measure_id + (sub_id || '') + " (#{m['hqmf_id']})"
-        qr = QME::QualityReport.new(m['hqmf_id'], sub_id, {'effective_date' => (params['effective_date'] || Measure::DEFAULT_EFFECTIVE_DATE).to_i }.merge(params['providers'] ? {'filters' => {'providers' => params['providers']}} : {}))
+        oid_dictionary = HQMF2JS::Generator::CodesToJson.hash_to_js(Measures::Exporter.measure_codes(m))
+        options = {'effective_date' => (params['effective_date'] || Measure::DEFAULT_EFFECTIVE_DATE).to_i, 'oid_dictionary' => oid_dictionary }
+        qr = QME::QualityReport.new(m['hqmf_id'], sub_id, options)
         qr.calculate(false) unless qr.calculated?
       }
     }

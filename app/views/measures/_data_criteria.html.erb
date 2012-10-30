@@ -38,7 +38,15 @@
     <% criteria_by_category[category].each do |criteria| %>
     <div class="paramItem">
       <div class="paramText">
-        <label draggable="true" data-criteria-id="<%= criteria['criteria_id'] %>"><%= criteria['title'] %><%= ": #{criteria['status']}" if !criteria['status'].blank? %></label>
+	      <%
+	        sub_category = ''
+	        if !criteria['status'].blank?
+		        sub_category = criteria['status']
+		      else
+		        sub_category = criteria['definition'].titleize
+			    end
+	      %>
+        <label draggable="true" data-criteria-id="<%= criteria['criteria_id'] %>"><%= criteria['title'] %><%= ": #{sub_category}" %></label>
       </div>
     </div>
     <% end %>
