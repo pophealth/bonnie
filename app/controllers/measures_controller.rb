@@ -148,20 +148,6 @@ class MeasuresController < ApplicationController
     send_file file.path, :type => 'application/zip', :disposition => 'attachment', :filename => "bundle-#{version}.zip"
   end
 
-  def generate_patients
-    measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
-    measure.records.destroy_all
-
-    begin
-      generator = HQMF::Generator.new(measure.as_hqmf_model, measure.value_sets)
-      measure.records = generator.generate_patients
-      measure.save
-    rescue
-    end
-
-    redirect_to :test_measure
-  end
-
   def download_patients
     measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
     

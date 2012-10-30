@@ -7,7 +7,7 @@ require './lib/measures/exporter'
 namespace :measures do
   desc 'Load a directory of measures and value sets into the DB'
   task :load, [:measures_dir, :username, :delete_existing] do |t, args|
-    raise "The path the the measure definitions must be specified" unless args.measures_dir
+    raise "The path to the measure definitions must be specified" unless args.measures_dir
     raise "The username to load the measures for must be specified" unless args.username
 
     user = User.by_username args.username
