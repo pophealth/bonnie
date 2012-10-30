@@ -41,14 +41,14 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/test-patient-generator.git
-  revision: 74407397544fadb9800b9e230489673b2472315a
+  revision: 31ab781b83a894ae92bae6afcba367e917ccfcd9
   branch: develop
   specs:
     test-patient-generator (0.1.0)
 
 GIT
   remote: https://github.com/projectcypress/health-data-standards.git
-  revision: ee6e34d3787f8b7138a83008a65bcbe4a1a1d874
+  revision: 402c932d301df2dd870e39bba65d2e85c76b0ff3
   branch: develop
   specs:
     health-data-standards (2.1.0)
