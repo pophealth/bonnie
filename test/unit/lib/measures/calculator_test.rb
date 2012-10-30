@@ -23,12 +23,12 @@ class CalculatorTest < ActiveSupport::TestCase
     assert_equal MONGO_DB["system.js"].find({}).count(), Measures::Calculator.library_functions.size
 
     patient_result = MONGO_DB["patient_cache"].find({}).first["value"]
-    assert_equal patient_result["population"], true
-    assert_equal patient_result["denominator"], false
-    assert_equal patient_result["numerator"], false
-    assert_equal patient_result["denexcep"], false
-    assert_equal patient_result["exclusions"], false
-    assert_equal patient_result["antinumerator"], false
+    assert_equal patient_result["population"], 1
+    assert_equal patient_result["denominator"], 0
+    assert_equal patient_result["numerator"], 0
+    assert_equal patient_result["denexcep"], 0
+    assert_equal patient_result["exclusions"], 0
+    assert_equal patient_result["antinumerator"], 0
   end
 
   test "library functions" do
@@ -59,7 +59,7 @@ class CalculatorTest < ActiveSupport::TestCase
 
   test "measure codes" do
     measure_codes = Measures::Calculator.measure_codes(@measure)
-    
+
     measure_codes.length.must_equal 26
     expected = ["2.16.840.1.113883.3.464.0001.231","2.16.840.1.113883.3.464.0001.250","2.16.840.1.113883.3.464.0001.369","2.16.840.1.113883.3.464.0001.373","2.16.840.1.113883.3.464.0001.157","2.16.840.1.113883.3.464.0001.172","2.16.840.1.113883.3.560.100.4","2.16.840.1.113883.3.464.0001.45",
      "2.16.840.1.113883.3.464.0001.48","2.16.840.1.113883.3.464.0001.50","2.16.840.1.113883.3.464.0001.246","2.16.840.1.113883.3.464.0001.247","2.16.840.1.113883.3.464.0001.249","2.16.840.1.113883.3.464.0001.251","2.16.840.1.113883.3.464.0001.252","2.16.840.1.113883.3.464.0001.302",

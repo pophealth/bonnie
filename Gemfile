@@ -10,7 +10,7 @@ gem 'health-data-standards', :git => 'https://github.com/projectcypress/health-d
 #gem 'health-data-standards', :path => '../health-data-standards'
 gem 'test-patient-generator', :git => 'https://github.com/pophealth/test-patient-generator.git', :branch => 'develop'
 #gem 'test-patient-generator', :path => '../test-patient-generator'
-gem 'quality-measure-engine', :git => 'http://github.com/pophealth/quality-measure-engine.git', :branch => 'develop'
+gem 'quality-measure-engine', :git => 'http://github.com/pophealth/quality-measure-engine.git', :branch => 'qme2.0'
 #gem 'quality-measure-engine', :path => '../quality-measure-engine'
 
 gem 'rails', '3.2.2'
@@ -23,7 +23,7 @@ gem 'cancan'
 gem 'factory_girl'
 gem 'text'
 
-gem "mongoid", '3.0.6'
+gem "mongoid", '~> 3.0.9'
 
 gem 'simple_form'
 gem 'coderay'   # for javascript syntax highlighting
