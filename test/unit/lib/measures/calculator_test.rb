@@ -15,20 +15,21 @@ class CalculatorTest < ActiveSupport::TestCase
     @measure.records << @patient
   end
 
-  # test "test calculate" do
-  #   affected_collections = ["bundles", "draft_measures", "measures", "patient_cache", "query_cache", "system.js"]
-  #   affected_collections.each do |collection|
-  #     2.times {MONGO_DB[collection].insert({id: "123"})}
-  #     assert_equal MONGO_DB[collection].find({}).count(), 2
-  #   end
+  test "test calculate" do
+    Measures::Calculator.calculate
 
-  #   Measures::Exporter.prepare_export
+    affected_collections = ["bundles", "draft_measures", "measures", "patient_cache", "query_cache"]
+    affected_collections.each {|collection| assert_equal MONGO_DB[collection].find({}).count(), 1}
+    assert_equal MONGO_DB["system.js"].find({}).count(), Measures::Calculator.library_functions.size
 
-  #   affected_collections.delete("system.js")
-  #   assert_equal MONGO_DB["system.js"].find({}).count(), library
-
-  #   affected_collections.each {|collection| assert_equal MONGO_DB[collection].find({}).count(), 1}
-  # end
+    patient_result = MONGO_DB["patient_cache"].find({}).first["value"]
+    assert_equal patient_result["population"], true
+    assert_equal patient_result["denominator"], false
+    assert_equal patient_result["numerator"], false
+    assert_equal patient_result["denexcep"], false
+    assert_equal patient_result["exclusions"], false
+    assert_equal patient_result["antinumerator"], false
+  end
 
   test "library functions" do
     library_functions = Measures::Calculator.library_functions
