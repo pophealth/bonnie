@@ -5,7 +5,7 @@ module Measures
       measure = Measure.new
       measure.user = user
 
-      value_sets = nil
+      value_set_models = nil
       # Value sets
       if value_set_path
         value_set_parser = HQMF::ValueSet::Parser.new()
@@ -18,23 +18,20 @@ module Measures
             value_set['code_sets'].compact!
           end
           set = ValueSet.new(value_set)
-          set.measure = measure
           value_set_models << set
-          set.save! if persist
         end
-        measure.value_sets = value_set_models unless persist
       end
 
       # Parsed HQMF
       if hqmf_path
-        codes_by_oid = HQMF2JS::Generator::CodesToJson.from_value_sets(measure.value_sets) if (value_sets)
+        codes_by_oid = HQMF2JS::Generator::CodesToJson.from_value_sets(value_set_models) if (value_set_models.present?)
 
         hqmf_contents = Nokogiri::XML(File.new hqmf_path).to_s
         hqmf = HQMF::Parser.parse(hqmf_contents, HQMF::Parser::HQMF_VERSION_1, codes_by_oid)
         # go into and out of json to make sure that we've converted all the symbols to strings, this will happen going to mongo anyway if persisted
         json = JSON.parse(hqmf.to_json.to_json, max_nesting: 250)
 
-        measure["id"] = json["hqmf_id"]
+        measure.id = json["hqmf_id"]
         measure.measure_id = json["id"]
         measure.hqmf_id = json["hqmf_id"]
         measure.hqmf_set_id = json["hqmf_set_id"]
@@ -43,6 +40,11 @@ module Measures
         measure.description = json["description"]
         measure.measure_attributes = json["attributes"]
         measure.populations = json['populations']
+
+        value_set_models.each do |vsm|
+          vsm.measure = measure
+          vsm.save!
+        end
 
         metadata = APP_CONFIG["measures"][measure.hqmf_id]
         if metadata

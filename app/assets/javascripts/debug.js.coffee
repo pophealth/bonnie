@@ -101,26 +101,26 @@ populate_test_table = () ->
 
       # TODO: this is not DRY
       # colorize and checkmark table cells based on results
-      if e.population == true
-        population_total += 1
+      if e.population
+        population_total += 1  
         cell = $(row).children(":nth-child(2)")
         cell.css('background-color', '#EEE')      #light gray
         cell.html('&#x2713;')
 
-      if e.denominator == true
-        denominator_total += 1
+      if e.denominator
+        denominator_total += 1  
         cell = $(row).children(":nth-child(3)")
         cell.css('background-color', '#99CCFF')   #light blue
         cell.html('&#x2713;')
 
-      if e.numerator == true
-        numerator_total += 1
+      if e.numerator
+        numerator_total += 1  
         cell = $(row).children(":nth-child(4)")
         cell.css('background-color', '#CCFFCC')   #light green
         cell.html('&#x2713;')
 
-      if e.exclusions == true
-        exclusions_total += 1
+      if e.exclusions
+        exclusions_total += 1  
         cell = $(row).children(":nth-child(5)")
         cell.css('background-color', '#FFCC99')   #light orange
         cell.html('&#x2713;')
