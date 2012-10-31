@@ -6,9 +6,15 @@ class MeasuresControllerTest < ActionController::TestCase
     dump_database
 
     @user = FactoryGirl.create(:user)
-    @measure = FactoryGirl.create(:measure)
+
+    hqmf_file = "test/fixtures/measure-defs/0002/0002.xml"
+    value_set_file = "test/fixtures/measure-defs/0002/0002.xls"
+    Measures::Loader.load(hqmf_file, value_set_file, @user)
+    @measure = Measure.where(hqmf_id: "8A4D92B2-3946-CDAE-0139-77F580AE6690").first
     @measure.user = @user
-    @measure.save
+
+    @patient = FactoryGirl.create(:record)
+    @measure.records << @patient
 
     sign_in @user
   end
@@ -20,11 +26,9 @@ class MeasuresControllerTest < ActionController::TestCase
     assert_response :success
     assert_equal returned_measures.size, 1
     assert_equal @measure, returned_measures.first
-
   end
 
   test "measure index multiple measures" do
-
     @measure2 = FactoryGirl.create(:measure)
     @measure2.user = @user
     @measure2.save
@@ -40,6 +44,11 @@ class MeasuresControllerTest < ActionController::TestCase
 
     assert_response :success
     assert_equal shown_measure, @measure
+  end
+
+  test "show nqf" do
+    get :show_nqf, id: @measure.id
+    assert_not_nil assigns[:contents]
   end
 
   test "publish measure" do
@@ -111,12 +120,32 @@ class MeasuresControllerTest < ActionController::TestCase
     assert_equal Measure.all.size, 0
   end
 
-  test "definition returns stage one JSON" do
+  test "definition" do
+    get :definition, :format => :json, id: @measure.id
+    definition = JSON.parse(response.body)
 
+    expected_definition = ["exclusions", "numerator", "denominator", "population"]
+    expected_definition.each {|population| assert_not_nil definition[population]}
+  end
+
+  test "population_criteria_definition" do
+    get :population_criteria_definition, :format => :json, id: @measure.id, key: "NUMER"
+    definition = JSON.parse(response.body)
+
+    assert_not_nil definition["items"]
+  end
+
+  test "export" do
+    get :export, id: @measure.id
+    assert response.header["Content-Disposition"].include? "bundle"
+  end
+
+  test "export all" do
+    get :export_all
+    assert response.header["Content-Disposition"].include? "bundle"
   end
 
   test "upsert data criteria" do
-
     temporal_references = [
       {'type' => 'during', 'reference' => 'measurePeriod'},
       {'type' => 'SBS', 'reference' => 'criteria_a'}
@@ -196,6 +225,5 @@ class MeasuresControllerTest < ActionController::TestCase
     data_criteria.each {|k,v|
       assert_equal m.data_criteria['id'][k], v
     }
-
   end
 end

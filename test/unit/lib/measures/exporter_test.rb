@@ -14,18 +14,13 @@ class ExporterTest < ActiveSupport::TestCase
     @patient = FactoryGirl.create(:record)
     @measure.records << @patient
   end
-  
-  test "test exporting measures" do
+
+  test "export bundle" do
     file = Tempfile.new(['bundle', '.zip'])
     measures = [@measure]
 
-    Record.where(type: "qrda").size.must_equal 0
-    Measures::Exporter.prepare_export(measures) 
-    
-    qrda_patient = Record.where(type: "qrda").first
-    assert_not_nil qrda_patient
-    qrda_name = TPG::Exporter.patient_filename(qrda_patient)
-    
+    Measures::Calculator.calculate(measures)
+        
     entries = []
     bundle = Measures::Exporter.export_bundle(measures, false)
     Zip::ZipFile.open(bundle.path) do |zip|
@@ -35,21 +30,20 @@ class ExporterTest < ActiveSupport::TestCase
       end
     end
 
+    patient_name = "#{@patient.first}_#{@patient.last}"
     expected = ["library_functions/map_reduce_utils.js",
       "library_functions/underscore_min.js",
       "library_functions/hqmf_utils.js",
-      "bundle.json",
+      "./bundle.json",
       "measures/ep/0002.json",
-      "patients/ep/c32/First2_Last2.xml",
-      "patients/ep/ccda/First2_Last2.xml",
-      "patients/ep/ccr/First2_Last2.xml",
-      "patients/ep/json/First2_Last2.json",
-      "patients/ep/html/First2_Last2.html",
-      "patients/qrda/c32/#{qrda_name}.xml",
-      "patients/qrda/ccda/#{qrda_name}.xml",
-      "patients/qrda/ccr/#{qrda_name}.xml",
-      "patients/qrda/json/#{qrda_name}.json",
-      "patients/qrda/html/#{qrda_name}.html",
+      "sources/ep/0002/0002.html",
+      "sources/ep/0002/hqmf1.xml",
+      "sources/ep/0002/hqmf2.xml",
+      "patients/ep/c32/#{patient_name}.xml",
+      "patients/ep/ccda/#{patient_name}.xml",
+      "patients/ep/ccr/#{patient_name}.xml",
+      "patients/ep/json/#{patient_name}.json",
+      "patients/ep/html/#{patient_name}.html",
       "results/by_patient.json",
       "results/by_measure.json"]
     
@@ -58,60 +52,112 @@ class ExporterTest < ActiveSupport::TestCase
     expected.each {|entry| assert entries.include? entry}
   end
 
-  test "test library functions" do
-    library_functions = Measures::Exporter.library_functions
-    
-    refute_nil library_functions["map_reduce_utils"]
-    refute_nil library_functions["underscore_min"]
-    refute_nil library_functions["hqmf_utils"]
-    
-    assert library_functions["map_reduce_utils"].length > 0
-    assert library_functions["underscore_min"].length > 0
-    assert library_functions["hqmf_utils"].length > 0
-  end
-
-  test "test measure json" do
-    measure_json = Measures::Exporter.measure_json(@measure.measure_id)
-    expected_keys = [:id,:nqf_id,:hqmf_id,:hqmf_set_id,:hqmf_version_number,:endorser,:name,:description,:type,:category,:steward,:population,:denominator,:numerator,:exclusions,:map_fn,:measure,:population_ids,:oids,:value_sets,:data_criteria]
-    required_keys = [:id,:name,:description,:category,:population,:denominator,:numerator,:map_fn,:measure]
-    
-    expected_keys.each {|key| assert measure_json.keys.include? key}
-    measure_json.keys.size.must_equal expected_keys.size
-    required_keys.each {|key| refute_nil measure_json[key]}
-    
-    measure_json[:measure].size.must_equal 5
-    measure_json[:nqf_id].must_equal "0002"
-    measure_json[:hqmf_id].must_equal '8A4D92B2-3946-CDAE-0139-77F580AE6690'
-    measure_json[:id].must_equal '8A4D92B2-3946-CDAE-0139-77F580AE6690'
-  end
-  
-  test "test bundle json" do
-    library_functions = Measures::Exporter.library_functions.keys
+  test "bundle json" do
+    library_functions = Measures::Calculator.library_functions.keys
     patient_ids = ["123", "456", "789"]
     measure_ids = ["0001a", "0001b", "0002"]
-    
-    bundle_json = Measures::Exporter.bundle_json(patient_ids, measure_ids, library_functions)
 
-    bundle_json[:title].must_equal APP_CONFIG["measures"]["title"]
-    bundle_json[:version].must_equal APP_CONFIG["measures"]["version"]
-    bundle_json[:license].must_equal APP_CONFIG["measures"]["license"]
-    bundle_json[:extensions].must_equal library_functions
-    bundle_json[:measures].must_equal measure_ids
-    bundle_json[:patients].must_equal patient_ids
+    bundle_json = Measures::Exporter.bundle_json(patient_ids, measure_ids, library_functions)
+    bundle_json = JSON.parse(bundle_json.values.first)
+
+    bundle_json["title"].must_equal APP_CONFIG["measures"]["title"]
+    bundle_json["version"].must_equal APP_CONFIG["measures"]["version"]
+    bundle_json["license"].must_equal APP_CONFIG["measures"]["license"]
+    bundle_json["extensions"].must_equal library_functions
+    bundle_json["measures"].must_equal measure_ids
+    bundle_json["patients"].must_equal patient_ids
   end
 
-  test "test measure codes" do
-    measure_codes = Measures::Exporter.measure_codes(@measure)
-    
-    measure_codes.length.must_equal 26
-    expected = ["2.16.840.1.113883.3.464.0001.231","2.16.840.1.113883.3.464.0001.250","2.16.840.1.113883.3.464.0001.369","2.16.840.1.113883.3.464.0001.373","2.16.840.1.113883.3.464.0001.157","2.16.840.1.113883.3.464.0001.172","2.16.840.1.113883.3.560.100.4","2.16.840.1.113883.3.464.0001.45",
-     "2.16.840.1.113883.3.464.0001.48","2.16.840.1.113883.3.464.0001.50","2.16.840.1.113883.3.464.0001.246","2.16.840.1.113883.3.464.0001.247","2.16.840.1.113883.3.464.0001.249","2.16.840.1.113883.3.464.0001.251","2.16.840.1.113883.3.464.0001.252","2.16.840.1.113883.3.464.0001.302",
-     "2.16.840.1.113883.3.464.0001.308","2.16.840.1.113883.3.464.0001.341","2.16.840.1.113883.3.464.0001.368","2.16.840.1.113883.3.464.0001.371","2.16.840.1.113883.3.464.0001.385","2.16.840.1.113883.3.464.0001.406","2.16.840.1.113883.3.464.0001.372",
-     "2.16.840.1.113883.3.464.0001.397","2.16.840.1.113883.3.464.0001.408","2.16.840.1.113883.3.464.0001.409"]
-    measure_codes.keys.sort.must_equal expected.sort
-    measure_codes["2.16.840.1.113883.3.464.0001.250"].keys.must_equal ["CPT", "LOINC", "SNOMED-CT"]
-    measure_codes["2.16.840.1.113883.3.464.0001.250"]["CPT"].length.must_equal 8
-    measure_codes["2.16.840.1.113883.3.464.0001.250"]["LOINC"].length.must_equal 11
-    measure_codes["2.16.840.1.113883.3.464.0001.250"]["SNOMED-CT"].length.must_equal 5
+  test "bundle library functions" do
+    functions = {"fun1" => "function() {return 1;}",
+      "fun2" => "function() {return 2;}",
+      "fun3" => "function() {return 3;}"
+    }
+    bundled_functions = Measures::Exporter.bundle_library_functions(functions)
+
+    assert_equal functions.size, bundled_functions.size
+    assert_equal bundled_functions["fun1.js"], functions["fun1"]
+    assert_equal bundled_functions["fun2.js"], functions["fun2"]
+    assert_equal bundled_functions["fun3.js"], functions["fun3"]
+  end
+
+  test "bundle measure" do
+    Measures::Calculator.calculate
+    measure = MONGO_DB["measures"].find({}).first
+    bundled_measure = Measures::Exporter.bundle_measure(measure)
+
+    assert_equal bundled_measure.size, 1
+    assert_equal bundled_measure.keys.first, "0002.json"
+  end
+
+  test "bundle sources" do
+    source_dir = File.join("test", "fixtures", "export", "measure-sources")
+    bundled_sources = Measures::Exporter.bundle_sources(@measure, source_dir)
+
+    assert_equal bundled_sources.size, 3
+
+    source_dir = File.join(source_dir, @measure.hqmf_id)
+    assert_not_nil bundled_sources[File.join("0002", "#{@measure.measure_id}.html")]
+    assert_not_nil bundled_sources[File.join("0002", "hqmf1.xml")]
+    assert_not_nil bundled_sources[File.join("0002", "hqmf2.xml")]
+  end
+
+  test "bundle results" do
+    Measures::Calculator.calculate
+    bundled_results = Measures::Exporter.bundle_results([@measure])
+
+    assert_equal bundled_results.size, 2
+
+    expected_by_patient = ["population", "denominator", "numerator", "denexcep", "exclusions", "antinumerator", "patient_id", "medical_record_id", "first", "last", "gender", "birthdate", "test_id", "provider_performances", "race", "ethnicity", "languages", "logger", "measure_id", "nqf_id", "effective_date"]
+    by_patient = JSON.parse(bundled_results["by_patient.json"]).first["value"]
+    assert_equal by_patient.keys.size, expected_by_patient.size
+    expected_by_patient.each {|field| assert by_patient.include? field}
+
+    expected_by_measure = ["measure_id", "sub_id", "nqf_id", "population_ids", "effective_date", "test_id", "filters", "population", "denominator", "numerator", "antinumerator", "exclusions", "denexcep", "considered", "execution_time"]
+    by_measure = JSON.parse(bundled_results["by_measure.json"]).first
+    assert_equal by_measure.keys.size, expected_by_measure.size
+    expected_by_measure.each {|field| assert by_measure.include? field}
+  end
+
+  test "bundle patient" do
+    patient_name = "#{@patient.first}_#{@patient.last}"
+    expected_formats = [
+      "c32/#{patient_name}.xml",
+      "ccda/#{patient_name}.xml",
+      "ccr/#{patient_name}.xml",
+      "json/#{patient_name}.json",
+      "html/#{patient_name}.html"]
+
+    bundled_patient = Measures::Exporter.bundle_patient(@patient)
+
+    assert_equal bundled_patient.size, 5
+    expected_formats.each {|format| assert bundled_patient.include? format}
+  end
+
+  test "zip content" do
+    content = {
+      "blop" => {"blop.js" => "alert('this is a great library')"},
+      "bleep" => {"bleep.json" => "a : b", "bleep2.json" => "c : d"},
+      "bloop" => {"bloop.xml" => "<ha>ha</ha>"}
+    }
+    expected_file_names = ["blop/blop.js", "bleep/bleep.json", "bleep/bleep2.json", "bloop/bloop.xml"]
+    expected_file_content = ["alert('this is a great library')", "a : b", "c : d", "<ha>ha</ha>"]
+    bundle = Measures::Exporter.zip_content(content)
+
+    file_names = []
+    file_content = []
+    Zip::ZipFile.open(bundle.path) do |zip|
+      zip.entries.each do |entry|
+        file_names << entry.name
+        file_content << zip.read(entry.name)
+        assert entry.size > 0
+      end
+    end
+
+    file_names.size.must_equal expected_file_names.size
+    file_content.size.must_equal expected_file_content.size
+
+    file_names.each {|file_name| assert expected_file_names.include? file_name}
+    file_content.each {|file_content| assert expected_file_content.include? file_content}
   end
 end

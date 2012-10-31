@@ -19,7 +19,7 @@ measures: &measures
     type: ep
     category: Immunization
     episode_of_care: false
-  "8A4D92B2-356D-A09E-0135-C4EE09A5153E":
+  "8A4D92B2-3A00-2A25-013A-407C78A12C20":
     nqf_id: "0403"
     type: ep
     category: HIV
@@ -44,7 +44,7 @@ measures: &measures
     type: ep
     category: Back Pain
     episode_of_care: false
-  "8A4D92B2-3887-5DF3-0138-D87BC9E063D2":
+  "8A4D92B2-3A00-2A25-013A-4B4A282E7048":
     nqf_id: "0419"
     type: ep
     category: Documentation
@@ -59,7 +59,7 @@ measures: &measures
     type: ep
     category: Asthma
     episode_of_care: false
-  "8A4D92B2-39CA-AF4B-0139-DC04769463EC":
+  "8A4D92B2-3A58-B777-013A-652851981835":
     nqf_id: "0110"
     type: ep
     category: Depression
@@ -84,7 +84,7 @@ measures: &measures
     type: ep
     category: Tobacco
     episode_of_care: false
-  "8A4D92B2-3A00-2A25-013A-0887F3F411E6":
+  "8A4D92B2-3A00-2A25-013A-4B927224747D":
     nqf_id: "0421"
     type: ep
     category: Weight
@@ -279,7 +279,7 @@ measures: &measures
     type: ep
     category: Depression
     episode_of_care: true
-  "8A4D92B2-3A00-2A25-013A-2D5D450A6367":
+  "8A4D92B2-3A00-2A25-013A-40E66CE1333F":
     nqf_id: "0418"
     type: ep
     category: Depression

@@ -25,7 +25,7 @@ class MeasuresController < ApplicationController
 
   def show_nqf
     @measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
-    @contents = File.read(File.expand_path(File.join(".", "db", "measures", "html", "#{@measure.id}.html")))
+    @contents = File.read(File.expand_path(File.join(".", "db", "measures", "html", "#{@measure.hqmf_id}.html")))
     add_breadcrumb @measure["measure_id"], "/measures/" + @measure["measure_id"]
     add_breadcrumb 'NQF Definition', ''
   end
@@ -146,20 +146,6 @@ class MeasuresController < ApplicationController
     file = Measures::Exporter.export_bundle(measures, true)
     version = APP_CONFIG["measures"]["version"]
     send_file file.path, :type => 'application/zip', :disposition => 'attachment', :filename => "bundle-#{version}.zip"
-  end
-
-  def generate_patients
-    measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
-    measure.records.destroy_all
-
-    begin
-      generator = HQMF::Generator.new(measure.as_hqmf_model, measure.value_sets)
-      measure.records = generator.generate_patients
-      measure.save
-    rescue
-    end
-
-    redirect_to :test_measure
   end
 
   def download_patients
