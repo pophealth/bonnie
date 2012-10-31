@@ -23,7 +23,7 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/hqmf2js.git
-  revision: 6b54e051536f1b4f3f1ef619ade6524f7f1e0322
+  revision: a8e764bd722a479e7ac52a1fa900d206f65b7cfc
   branch: develop
   specs:
     hqmf2js (0.1.0)
@@ -269,7 +269,7 @@ GEM
       polyglot (>= 0.3.1)
     turn (0.9.6)
       ansi
-    tzinfo (0.3.33)
+    tzinfo (0.3.34)
     uglifier (1.3.0)
       execjs (>= 0.3.0)
       multi_json (~> 1.0, >= 1.0.2)
