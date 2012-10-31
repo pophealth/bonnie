@@ -88,7 +88,7 @@ module Measures
       
       referenced_data_criteria = measure.as_hqmf_model.referenced_data_criteria
       json[:data_criteria] = referenced_data_criteria.map{|data_criteria| data_criteria.to_json}
-      json[:oids] = measure.value_sets.map{|value_set| value_set.oid}
+      json[:oids] = measure.value_sets.map{|value_set| value_set.oid}.uniq
       
       population_ids = {}
       HQMF::PopulationCriteria::ALL_POPULATION_CODES.each do |type|
