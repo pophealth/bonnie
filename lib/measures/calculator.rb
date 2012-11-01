@@ -27,7 +27,7 @@ module Measures
           measure_id = MONGO_DB["measures"].find({id: measure_json[:id]}).first
           MONGO_DB["bundles"].find({}).update({"$push" => {"measures" => measure_id}})
           
-          effective_date = HQMF::Value.new("TS", nil, measure.measure_period["high"]["value"], true, false, false).to_time_object.to_i
+          effective_date = Measure::DEFAULT_EFFECTIVE_DATE
           oid_dictionary = HQMF2JS::Generator::CodesToJson.hash_to_js(Measures::Calculator.measure_codes(measure))
           report = QME::QualityReport.new(measure_json[:id], measure_json[:sub_id], {'effective_date' => effective_date, 'oid_dictionary' => oid_dictionary})
           report.calculate(false) unless report.calculated?

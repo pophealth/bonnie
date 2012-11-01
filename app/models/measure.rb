@@ -1,7 +1,7 @@
 class Measure
   include Mongoid::Document
 
-  DEFAULT_EFFECTIVE_DATE = Time.new(2011,1,1).to_i
+  DEFAULT_EFFECTIVE_DATE = Time.gm(2011,1,1).to_i
   TYPES = ["ep", "eh"]
 
   store_in collection: 'draft_measures'
