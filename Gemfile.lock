@@ -1,4 +1,15 @@
 GIT
+  remote: http://github.com/pophealth/quality-measure-engine.git
+  revision: 9b8b8c78b118295b38f39c8f55d0360cd95a2271
+  branch: develop
+  specs:
+    quality-measure-engine (2.0.0)
+      delayed_job_mongoid (~> 2.0.0)
+      mongoid (~> 3.0.9)
+      moped (~> 1.2.7)
+      rubyzip (~> 0.9.9)
+
+GIT
   remote: https://github.com/pophealth/hqmf-parser.git
   revision: 77de0f8dea7aa3aa6fa500f2aee0c8701177cecc
   branch: develop
@@ -181,11 +192,6 @@ GEM
     pry-rescue (0.12)
       interception (>= 0.3)
       pry
-    quality-measure-engine (2.0.0)
-      delayed_job_mongoid (~> 2.0.0)
-      mongoid (~> 3.0.9)
-      moped (~> 1.2.7)
-      rubyzip (~> 0.9.9)
     rack (1.4.1)
     rack-cache (1.2)
       rack (>= 0.4)
@@ -292,7 +298,7 @@ DEPENDENCIES
   pry
   pry-nav
   pry-rescue
-  quality-measure-engine (= 2.0.0)
+  quality-measure-engine!
   rails (= 3.2.2)
   sass-rails (~> 3.2.3)
   simple_form
