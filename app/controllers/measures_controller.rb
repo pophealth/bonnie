@@ -5,6 +5,8 @@ class MeasuresController < ApplicationController
   before_filter :validate_authorization!
   
   JAN_ONE_THREE_THOUSAND=32503698000000
+  RACE_NAME_MAP={'1002-5' => 'American Indian or Alaska Native','2028-9' => 'Asian','2054-5' => 'Black or African American','2076-8' => 'Native Hawaiian or Other Pacific Islander','2106-3' => 'White','2131-1' => 'Other'}
+  ETHNICITY_NAME_MAP={'2186-5'=>'Not Hispanic or Latino', '2135-2'=>'Hispanic Or Latino'}
 
   add_breadcrumb 'measures', "/measures"
 
@@ -385,26 +387,27 @@ class MeasuresController < ApplicationController
         }
       }.map(&:to_a).flatten
     ]
+    
+    
 
     ['first', 'last', 'gender', 'expired', 'birthdate', 'description', 'description_category'].each {|param| patient[param] = params[param]}
-    patient['ethnicity'] = {'code' => params['ethnicity'], 'codeSystem' => 'CDC Race'}
-    patient['race'] = {'code' => params['race'], 'codeSystem' => 'CDC Race'}
+    patient['ethnicity'] = {'code' => params['ethnicity'], 'name'=>ETHNICITY_NAME_MAP[params['ethnicity']], 'codeSystem' => 'CDC Race'}
+    patient['race'] = {'code' => params['race'], 'name'=>RACE_NAME_MAP[params['race']], 'codeSystem' => 'CDC Race'}
 
-# Commented out for now since adding an insurance provider breaks the HTML exporter
-#     insurance_types = {
-#       'MA' => 'Medicare',
-#       'MC' => 'Medicaid',
-#       'OT' => 'Other'
-#     }
-#     insurance_provider = InsuranceProvider.new
-#     insurance_provider.type = params['payer']
-#     insurance_provider.member_id = '1234567890'
-#     insurance_provider.name = insurance_types[params['payer']]
-#     insurance_provider.financial_responsibility_type = {'code' => 'SELF', 'codeSystem' => 'HL7 Relationship Code'}
-#     insurance_provider.start_time = Time.new(2008,1,1).to_i
-#     insurance_provider.payer = Organization.new
-#     insurance_provider.payer.name = insurance_provider.name
-#     patient.insurance_providers = [insurance_provider]
+    insurance_types = {
+      'MA' => 'Medicare',
+      'MC' => 'Medicaid',
+      'OT' => 'Other'
+    }
+    insurance_provider = InsuranceProvider.new
+    insurance_provider.type = params['payer']
+    insurance_provider.member_id = '1234567890'
+    insurance_provider.name = insurance_types[params['payer']]
+    insurance_provider.financial_responsibility_type = {'code' => 'SELF', 'codeSystem' => 'HL7 Relationship Code'}
+    insurance_provider.start_time = Time.new(2008,1,1).to_i
+    insurance_provider.payer = Organization.new
+    insurance_provider.payer.name = insurance_provider.name
+    patient.insurance_providers = [insurance_provider]
 
     patient['source_data_criteria'] = JSON.parse(params['data_criteria'])
     patient['measure_period_start'] = params['measure_period_start'].to_i
