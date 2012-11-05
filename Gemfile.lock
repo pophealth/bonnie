@@ -11,10 +11,10 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/hqmf-parser.git
-  revision: 77de0f8dea7aa3aa6fa500f2aee0c8701177cecc
+  revision: a137dfa7ae643ba05d5d982af7b46070929b637c
   branch: develop
   specs:
-    hqmf-parser (0.0.1)
+    hqmf-parser (1.0.2)
       google-spreadsheet-ruby (= 0.1.8)
       roo (= 1.10.1)
       rubyzip
@@ -40,7 +40,7 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/test-patient-generator.git
-  revision: 31ab781b83a894ae92bae6afcba367e917ccfcd9
+  revision: 279adde8cac8a0578504d13af2ea53f36e8aec30
   branch: develop
   specs:
     test-patient-generator (0.1.0)

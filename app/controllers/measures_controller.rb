@@ -420,7 +420,7 @@ class MeasuresController < ApplicationController
       end if v['value']
       v['field_values'].each do |key, value|
         data_criteria.field_values ||= {}
-        data_criteria.field_values[key] = HQMF::Coded.new('CD', nil, nil, value['code_list_id'])
+        data_criteria.field_values[key] = HQMF::DataCriteria.convert_value(value)
       end if v['field_values']
       if v['negation'] == 'true'
         data_criteria.negation = true
