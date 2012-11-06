@@ -221,6 +221,7 @@ class MeasuresController < ApplicationController
       # now full of ["4fa98074431a5fb25f000132"]
       @patients_posted = @patients_posted.collect {|p| p.keys}.flatten
     end
+    
     add_breadcrumb @measure['measure_id'], '/measures/' + @measure['measure_id']
     add_breadcrumb 'Test', '/measures/' + @measure['measure_id'] + '/test'
   end

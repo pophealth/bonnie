@@ -137,12 +137,41 @@ class MeasuresControllerTest < ActionController::TestCase
 
   test "export" do
     get :export, id: @measure.id
+
+    assert_response :success
     assert response.header["Content-Disposition"].include? "bundle"
   end
 
   test "export all" do
     get :export_all
+
+    assert_response :success
     assert response.header["Content-Disposition"].include? "bundle"
+  end
+
+  test "download patients" do
+    get :download_patients, id: @measure.id, download: {format: 'c32'}
+    assert_response :success
+    assert response.header["Content-Disposition"].include? "patients"
+
+    get :download_patients, id: @measure.id, download: {format: 'c32'}, measure_patients: true
+    assert_response :success
+    assert response.header["Content-Disposition"].include? "patients"
+  end
+
+  test "debug" do
+    
+  end
+
+  test "debug libraries" do
+    get :debug_libraries, format: 'js'
+
+    assert_response :success
+    assert assigns["libraries"].size > 0
+  end
+
+  test "test" do
+
   end
 
   test "upsert data criteria" do
