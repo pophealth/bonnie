@@ -22,7 +22,7 @@ module Measures
       content[library_path] = bundle_library_functions(Measures::Calculator.library_functions)
       
       # TODO should be contextual to measures
-      Measures::Calculator.calculate if calculate
+      Measures::Calculator.calculate(!calculate)
       Measure::TYPES.each do |type|
         measure_path = File.join(measures_path, type)
         content[measure_path] = {}

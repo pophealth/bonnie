@@ -44,7 +44,7 @@ module Measures
         value_set_models.each do |vsm|
           vsm.measure = measure
           vsm.save!
-        end
+        end if value_set_models
 
         metadata = APP_CONFIG["measures"][measure.hqmf_id]
         if metadata
@@ -68,13 +68,17 @@ module Measures
       end
 
       # Save original files
-      html_out_path = File.join(".", "db", "measures", "html")
-      FileUtils.mkdir_p html_out_path
-      FileUtils.cp(html_path, File.join(html_out_path,"#{measure.hqmf_id}.html")) if html_path
+      if (html_path)
+        html_out_path = File.join(".", "db", "measures", "html")
+        FileUtils.mkdir_p html_out_path
+        FileUtils.cp(html_path, File.join(html_out_path,"#{measure.hqmf_id}.html"))
+      end
       
-      value_set_out_path = File.join(".", "db", "measures", "value_sets")
-      FileUtils.mkdir_p value_set_out_path
-      FileUtils.cp(value_set_path, File.join(value_set_out_path,"#{measure.hqmf_id}.xls"))
+      if (value_set_path)
+        value_set_out_path = File.join(".", "db", "measures", "value_sets")
+        FileUtils.mkdir_p value_set_out_path
+        FileUtils.cp(value_set_path, File.join(value_set_out_path,"#{measure.hqmf_id}.xls"))
+      end
       
       hqmf_out_path = File.join(".", "db", "measures", "hqmf")
       FileUtils.mkdir_p hqmf_out_path
