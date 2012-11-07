@@ -70,11 +70,8 @@ namespace :measures do
       puts "copied #{measure.measure_id} resources to #{measure_out_dir}"
       
     end
-
-    Measures::Calculator.refresh_js_libraries
   end
-
-
+  
   desc 'Drop all measure defintions from the DB'
   task :drop, [:username] do |t, args|
     measures = args.username ? User.by_username(args.username).measures : Measure.all
