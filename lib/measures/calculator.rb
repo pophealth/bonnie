@@ -3,7 +3,7 @@ module Measures
 	# Refresh all JS libraries, refresh the bundle/measures collections, and calculate measures results.
     #
     # @param [Array] measures All the measures that will be calculated. Defaults to all measures.
-    def self.calculate(measures = Measure.all)      
+    def self.calculate(only_initialize=false, measures = Measure.all)      
       refresh_js_libraries
       
       # QME requires that the bundle collection be populated.
@@ -30,7 +30,7 @@ module Measures
           effective_date = Measure::DEFAULT_EFFECTIVE_DATE
           oid_dictionary = HQMF2JS::Generator::CodesToJson.hash_to_js(Measures::Calculator.measure_codes(measure))
           report = QME::QualityReport.new(measure_json[:id], measure_json[:sub_id], {'effective_date' => effective_date, 'oid_dictionary' => oid_dictionary})
-          report.calculate(false) unless report.calculated?
+          report.calculate(false) unless report.calculated? || only_initialize
         end
       end
     end

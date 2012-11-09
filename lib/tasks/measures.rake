@@ -43,6 +43,35 @@ namespace :measures do
     Measures::Calculator.refresh_js_libraries
   end
 
+  desc 'Normalize measure files into a directory'
+  task :normalize, [:measures_dir] do |t, args|
+    raise "The path to the measure definitions must be specified" unless args.measures_dir
+
+    base_dir = File.join('.','tmp','measures','normalize')
+    FileUtils.mkdir_p base_dir
+
+    # Load each measure from the measures directory
+    Dir.foreach(args.measures_dir) do |entry|
+      next if entry.starts_with? '.'
+
+      measure_dir = File.join(args.measures_dir,entry)
+      hqmf_path = Dir.glob(File.join(measure_dir,'*.xml')).first
+      codes_path = Dir.glob(File.join(measure_dir,'*.xls')).first
+      html_path = Dir.glob(File.join(measure_dir,'*.html')).first
+      
+      measure = Measures::Loader.load(hqmf_path, nil, nil, nil, false, nil)
+      
+      measure_out_dir = File.join(base_dir,measure.measure_id)
+      FileUtils.mkdir_p measure_out_dir
+      FileUtils.cp(hqmf_path, File.join(measure_out_dir,"#{measure.measure_id}.xml"))
+      FileUtils.cp(codes_path, File.join(measure_out_dir,"#{measure.measure_id}.xls")) if codes_path
+      FileUtils.cp(html_path, File.join(measure_out_dir,"#{measure.measure_id}.html"))
+      
+      puts "copied #{measure.measure_id} resources to #{measure_out_dir}"
+      
+    end
+  end
+  
   desc 'Drop all measure defintions from the DB'
   task :drop, [:username] do |t, args|
     measures = args.username ? User.by_username(args.username).measures : Measure.all
@@ -51,11 +80,11 @@ namespace :measures do
   end
 
   desc 'Export definitions for all measures'
-  task :export, [:username, :delete_existing] do |t, args|
-    delete_existing = args.delete_existing != 'false'
+  task :export, [:username, :calculate] do |t, args|
+    calculate = args.calculate != 'false'
     measures = args.username ? User.by_username(args.username).measures.to_a : Measure.all.to_a
 
-    zip = Measures::Exporter.export_bundle(measures, delete_existing)
+    zip = Measures::Exporter.export_bundle(measures, calculate)
     version = APP_CONFIG["measures"]["version"]
     bundle_path = File.join(".", "tmp", "bundles")
     date_string = Time.now.strftime("%Y-%m-%d")
