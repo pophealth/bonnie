@@ -155,7 +155,7 @@ module Measures
         return executeIfAvailable(hqmfjs.#{HQMF::PopulationCriteria::DENEX}, patient_api);
       }
       var denexcep = function() {
-        return executeIfAvailable(hqmfjs.#{HQMF::PopulationCriteria::EXCEP}, patient_api);
+        return executeIfAvailable(hqmfjs.#{HQMF::PopulationCriteria::DENEXCEP}, patient_api);
       }
       
       var executeIfAvailable = function(optionalFunction, arg) {

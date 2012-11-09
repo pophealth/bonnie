@@ -273,7 +273,7 @@ class MeasuresController < ApplicationController
         HQMF::PopulationCriteria::DENOM => "denominator",
         HQMF::PopulationCriteria::NUMER => "numerator",
         HQMF::PopulationCriteria::DENEX => "exclusions",
-        HQMF::PopulationCriteria::EXCEP => "denexcep"
+        HQMF::PopulationCriteria::DENEXCEP => "denexcep"
       }[params['data']['type']] => @measure.population_criteria_json(@measure.population_criteria[params['data']['type']])},
       'data_criteria' => @measure.data_criteria
     }
