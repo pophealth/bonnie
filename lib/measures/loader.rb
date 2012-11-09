@@ -52,10 +52,19 @@ module Measures
           measure.type = metadata["type"]
           measure.category = metadata["category"]
           measure.episode_of_care = metadata["episode_of_care"]
+          if (measure.populations.count > 1)
+            sub_ids = ('a'..'az').to_a
+            measure.populations.each_with_index do |population, population_index|
+              sub_id = sub_ids[population_index]
+              population_title = metadata['subtitles'][sub_id] if metadata['subtitles']
+              measure.populations[population_index]['title'] = population_title if population_title
+            end
+          end
         else
           measure.type = "unknown"
           measure.category = "Miscellaneous"
           measure.episode_of_care = false
+          puts "WARNING: Could not find metadata for measure: #{measure.hqmf_id}"
         end
 
         #measure.endorser = params[:measure][:endorser]

@@ -87,7 +87,7 @@ class Measure
       population[HQMF::PopulationCriteria::DENOM] => "denominator",
       population[HQMF::PopulationCriteria::NUMER] => "numerator",
       population[HQMF::PopulationCriteria::DENEX] => "exclusions",
-      population[HQMF::PopulationCriteria::EXCEP] => "exceptions",
+      population[HQMF::PopulationCriteria::DENEXCEP] => "exceptions",
       population[HQMF::PopulationCriteria::MSRPOPL] => "measure population"
     }
     self.population_criteria.each do |key, criteria|

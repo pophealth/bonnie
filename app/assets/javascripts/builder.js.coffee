@@ -314,7 +314,7 @@ class @bonnie.Builder
         @_bindClickHandler("#exclusionMeasureItems")
       when @query.exceptions
         $("#exceptionMeasureItems").empty()
-        @saveTree(@query.exceptions.toJson(), 'EXCEP', 'Denominator Exceptions')
+        @saveTree(@query.exceptions.toJson(), 'DENEXCEP', 'Denominator Exceptions')
         @_bindClickHandler("#exceptionMeasureItems")
 
   saveTree: (query, key, title) ->

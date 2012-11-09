@@ -93,4 +93,45 @@ namespace :measures do
     FileUtils.mv(zip.path, File.join(bundle_path, "bundle-#{date_string}-#{version}.zip"))
     puts "Exported #{measures.size} measures to #{File.join(bundle_path, "bundle-#{date_string}-#{version}.zip")}"
   end
+  
+  desc 'Generate Results Spreadsheet template for static testing results'
+  task :generate_results_xls, [:type] do |t, args|
+    raise "Type must be specified" unless args.type
+    require 'rubyXL'
+    
+    type = args.type
+    
+    measures = []
+    MONGO_DB["measures"].find({type:type}).each do |measure|
+      measures << measure
+    end
+
+    measures.sort! {|left,right| "#{left['nqf_id']}#{left['sub_id']}" <=> "#{right['nqf_id']}#{right['sub_id']}"}
+    
+    workbook_template = RubyXL::Parser.parse(File.join('lib','templates','EH_results_matrix.xlsx'))
+    template = Marshal.dump(workbook_template.worksheets[0])
+    template_cv = Marshal.dump(workbook_template.worksheets[1])
+    
+    workbook_template.worksheets = []
+    measures.each do |measure|
+      worksheet = measure['population_ids'][HQMF::PopulationCriteria::MSRPOPL].nil? ? Marshal.load(template) : Marshal.load(template_cv)
+      worksheet.sheet_name = "#{measure['nqf_id']}#{measure['sub_id']}"
+      worksheet.add_cell(1,8,measure['name'])
+      worksheet.add_cell(2,8,"#{measure['nqf_id']}#{measure['sub_id']}")
+      worksheet.add_cell(3,8,measure['subtitle'])
+      row = 4
+      
+      (HQMF::PopulationCriteria::ALL_POPULATION_CODES + ['stratification']).each_with_index do |key, index|
+        worksheet.add_cell(row+index,7,key)
+        worksheet[row+index][7].change_font_bold(true)
+        worksheet.add_cell(row+index,8,measure['population_ids'][key])
+      end
+      workbook_template.worksheets << worksheet
+    end
+    
+    result_file = File.join('tmp','results_matrix',"results_matrix_#{type}.xlsx")
+    workbook_template.write(result_file)
+    puts "Wrote result matrix for #{type} to #{result_file}"
+  end
+  
 end
