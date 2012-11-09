@@ -325,14 +325,12 @@ measures: &measures
     category: Core Pediatric
     episode_of_care: false
     
-
-
-  "8A4D92B2-39CA-AF4B-0139-E44759E27DF3":
+  "8A4D92B2-3A00-2A25-013A-295ED21C463C":
     nqf_id: "0716"
     type: eh
     category: Miscellaneous
     episode_of_care: true
-  "8A4D92B2-39CA-AF4B-0139-E493E6C6040E":
+  "8A4D92B2-3A00-2A25-013A-4640D11650CB":
     nqf_id: "0372"
     type: eh
     category: Miscellaneous
@@ -377,6 +375,12 @@ measures: &measures
     type: eh
     category: Miscellaneous
     episode_of_care: true
+    subtitles:
+      a: "Unstratified"
+      b: "RS1: With ED Encounter"
+      c: "RS2: With Mental Disorders"
+      d: "RS3: With Acute care hospital transfer"
+      e: "RS4: Without Mental Disorders and Acute care hospital transfer"
   "8A4D92B2-3887-5DF3-0139-01965ECF65BE":
     nqf_id: "0469"
     type: eh
@@ -397,26 +401,48 @@ measures: &measures
     type: eh
     category: Miscellaneous
     episode_of_care: true
+    subtitles:
+      a: "Unstratified"
+      b: "RS1: ED and inpatient"
+      c: "RS2: ED and inpatient w/out psych"
+      d: "RS3: ED and inpatient w/ psych"
   "8A4D92B2-3887-5DF3-0139-0C4E41594C98":
     nqf_id: "0495"
     type: eh
     category: Miscellaneous
     episode_of_care: true
+    subtitles:
+      a: "Unstratified"
+      b: "RS1: ED and inpatient"
+      c: "RS2: ED and inpatient w/out psych"
+      d: "RS3: ED and inpatient w/ psych"
   "8A4D92B2-3887-5DF3-0139-12364AE9126F":
     nqf_id: "1354"
     type: eh
     category: Miscellaneous
     episode_of_care: true
-  "8A4D92B2-3887-5DF3-0139-093E817E209E":
+  "8A4D92B2-3A58-B777-013A-716DFC096EE3":
     nqf_id: "0147"
     type: eh
     category: Miscellaneous
     episode_of_care: true
+    subtitles:
+      a: "ICU patients"
+      b: "non-ICU patients"
   "8A4D92B2-39CA-AF4B-0139-DFAAFFD96EFE":
     nqf_id: "0527"
     type: eh
     category: Miscellaneous
     episode_of_care: true
+    subtitles:
+      a: "CABG procedures"
+      b: "Other cardiac surgery"
+      c: "Hip arthroplasty"
+      d: "Knee arthroplasty"
+      e: "Colon surgery"
+      f: "Abdominal hysterectomy"
+      g: "Vaginal hysterectomy"
+      h: "Vascular surgery"
   "8A4D92B2-3887-5DF3-0139-0C49FB8C4757":
     nqf_id: "0438"
     type: eh
@@ -432,12 +458,12 @@ measures: &measures
     type: eh
     category: Miscellaneous
     episode_of_care: true
-  "8A4D92B2-373F-82E2-0137-760C4D846851":
+  "8A4D92B2-3A00-2A25-013A-0DD50CE621D8":
     nqf_id: "0440"
     type: eh
     category: Miscellaneous
     episode_of_care: true
-  "8A4D92B2-39CA-AF4B-0139-E3CF14847AF7":
+  "8A4D92B2-3A58-B777-013A-670AB6932A3B":
     nqf_id: "0453"
     type: eh
     category: Miscellaneous
@@ -472,7 +498,15 @@ measures: &measures
     type: eh
     category: Miscellaneous
     episode_of_care: true
-    
+    subtitles:
+      a: "CABG procedures"
+      b: "Other cardiac surgery"
+      c: "Hip arthroplasty"
+      d: "Knee arthroplasty"
+      e: "Colon surgery"
+      f: "Abdominal hysterectomy"
+      g: "Vaginal hysterectomy"
+      h: "Vascular surgery"
     
   "8A4D92B2-3A00-2A25-013A-2D26C69D5CA4":
     nqf_id: "BPScreen"
