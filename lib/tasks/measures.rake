@@ -94,24 +94,12 @@ namespace :measures do
     puts "Exported #{measures.size} measures to #{File.join(bundle_path, "bundle-#{date_string}-#{version}.zip")}"
   end
   
-  desc 'Generate Results Spreadsheet'
+  desc 'Generate Results Spreadsheet template for static testing results'
   task :generate_results_xls, [:type] do |t, args|
     raise "Type must be specified" unless args.type
-    
-    type = args.type
-    
     require 'rubyXL'
     
-    # require 'ostruct'
-    # 
-    # class RenderingContext < OpenStruct
-    #   def my_binding
-    #     binding
-    #   end
-    # end
-    
-    # 
-    # erb = File.read(File.join('lib','templates','results_matrix.xml.erb'))
+    type = args.type
     
     measures = []
     MONGO_DB["measures"].find({type:type}).each do |measure|
@@ -141,17 +129,7 @@ namespace :measures do
       workbook_template.worksheets << worksheet
     end
     
-    
-    
-    # locals ||= {measures: measures}
-    # rendering_context = RenderingContext.new(locals)
-    # eruby = Erubis::EscapedEruby.new(erb)
-    # result = eruby.result(rendering_context.my_binding)
-    # 
-    # FileUtils.mkdir_p(File.join('tmp','results_matrix'))
     result_file = File.join('tmp','results_matrix',"results_matrix_#{type}.xlsx")
-    # File.open(result_file, 'w') {|f| f.write(result) }
-    
     workbook_template.write(result_file)
     puts "Wrote result matrix for #{type} to #{result_file}"
   end
