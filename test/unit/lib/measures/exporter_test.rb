@@ -22,7 +22,7 @@ class ExporterTest < ActiveSupport::TestCase
     Measures::Calculator.calculate(false,measures)
         
     entries = []
-    bundle = Measures::Exporter.export_bundle(measures, false)
+    bundle = Measures::Exporter.export_bundle(measures, nil, false)
     Zip::ZipFile.open(bundle.path) do |zip|
       zip.entries.each do |entry|
         entries << entry.name
