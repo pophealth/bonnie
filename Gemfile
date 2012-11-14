@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 gem 'hqmf-parser', :git => 'https://github.com/pophealth/hqmf-parser.git', :branch => 'develop'
 #gem 'hqmf-parser', path: '../hqmf-parser'
-gem 'hqmf2js', :git => 'https://github.com/pophealth/hqmf2js.git', :branch => 'develop'
+gem 'hqmf2js', :git => 'https://github.com/eedrummer/hqmf2js.git', :branch => 'develop'
 #gem 'hqmf2js', path: '../hqmf2js'
 gem 'hquery-patient-api', :git => 'https://github.com/pophealth/patientapi.git', :branch => 'develop'
 #gem 'hquery-patient-api', :path => '../patientapi'
@@ -23,6 +23,7 @@ gem 'foreman'
 gem 'cancan'
 gem 'factory_girl'
 gem 'text'
+gem 'rubyXL'
 
 gem "mongoid", '~> 3.0.9'
 

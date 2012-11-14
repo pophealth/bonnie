@@ -1,6 +1,6 @@
 GIT
   remote: http://github.com/pophealth/quality-measure-engine.git
-  revision: 9325287ebc05a29713ec696090508f614bc034ee
+  revision: 90439a74b9e27b20026c974e196ddf6d63b5633a
   branch: develop
   specs:
     quality-measure-engine (2.1.0)
@@ -10,6 +10,17 @@ GIT
       nokogiri (~> 1.5.5)
       rubyXL (~> 1.2.10)
       rubyzip (~> 0.9.9)
+
+GIT
+  remote: https://github.com/eedrummer/hqmf2js.git
+  revision: c6b31093e8192668adf8754b94be6ba2defe8484
+  branch: develop
+  specs:
+    hqmf2js (1.1.0)
+      coffee-script (~> 2.2.0)
+      nokogiri (~> 1.5.2)
+      sprockets (~> 2.1.2)
+      tilt (~> 1.3.3)
 
 GIT
   remote: https://github.com/pophealth/hqmf-parser.git
@@ -23,17 +34,6 @@ GIT
       spreadsheet (= 0.6.8)
 
 GIT
-  remote: https://github.com/pophealth/hqmf2js.git
-  revision: fecacb57a2826f7f2e86a01c476702a7ddc25416
-  branch: develop
-  specs:
-    hqmf2js (0.1.0)
-      coffee-script (~> 2.2.0)
-      nokogiri (~> 1.5.2)
-      sprockets (~> 2.1.2)
-      tilt (~> 1.3.3)
-
-GIT
   remote: https://github.com/pophealth/patientapi.git
   revision: 0921d68dc960d8f4548f60b0b7bb7c5e340c6664
   branch: develop
@@ -42,7 +42,7 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/test-patient-generator.git
-  revision: 279adde8cac8a0578504d13af2ea53f36e8aec30
+  revision: d7409d6538f9b5afb6ce4460a4dafbd6a66fdef7
   branch: develop
   specs:
     test-patient-generator (0.1.0)
@@ -110,7 +110,7 @@ GEM
     cover_me (1.2.0)
       configatron
       hashie
-    delayed_job (3.0.3)
+    delayed_job (3.0.4)
       activesupport (~> 3.0)
     delayed_job_mongoid (2.0.0)
       delayed_job (~> 3.0)
@@ -159,13 +159,13 @@ GEM
       treetop (~> 1.4.8)
     method_source (0.8.1)
     mime-types (1.19)
-    minitest (4.1.0)
-    mongoid (3.0.11)
+    minitest (4.2.0)
+    mongoid (3.0.13)
       activemodel (~> 3.1)
       moped (~> 1.1)
       origin (~> 1.0)
       tzinfo (~> 0.3.22)
-    moped (1.2.8)
+    moped (1.2.9)
     multi_json (1.3.7)
     multipart-post (1.1.5)
     nokogiri (1.5.5)
@@ -191,7 +191,7 @@ GEM
       spoon (~> 0.0)
     pry-nav (0.2.2)
       pry (~> 0.9.10)
-    pry-rescue (0.12)
+    pry-rescue (0.13)
       interception (>= 0.3)
       pry
     rack (1.4.1)
@@ -216,10 +216,10 @@ GEM
       rake (>= 0.8.7)
       rdoc (~> 3.4)
       thor (~> 0.14.6)
-    rake (0.9.2.2)
+    rake (10.0.0)
     rdoc (3.12)
       json (~> 1.4)
-    ref (1.0.0)
+    ref (1.0.2)
     rest-client (1.6.7)
       mime-types (>= 1.16)
     roo (1.10.1)
@@ -232,7 +232,7 @@ GEM
     ruby-ole (1.2.11.5)
     rubyXL (1.2.10)
     rubyzip (0.9.9)
-    sass (3.2.1)
+    sass (3.2.3)
     sass-rails (3.2.5)
       railties (~> 3.2.0)
       sass (>= 3.1.10)
@@ -303,6 +303,7 @@ DEPENDENCIES
   pry-rescue
   quality-measure-engine!
   rails (= 3.2.2)
+  rubyXL
   sass-rails (~> 3.2.3)
   simple_form
   spork
