@@ -43,6 +43,35 @@ namespace :measures do
     Measures::Calculator.refresh_js_libraries
   end
 
+  desc 'Normalize measure files into a directory'
+  task :normalize, [:measures_dir] do |t, args|
+    raise "The path to the measure definitions must be specified" unless args.measures_dir
+
+    base_dir = File.join('.','tmp','measures','normalize')
+    FileUtils.mkdir_p base_dir
+
+    # Load each measure from the measures directory
+    Dir.foreach(args.measures_dir) do |entry|
+      next if entry.starts_with? '.'
+
+      measure_dir = File.join(args.measures_dir,entry)
+      hqmf_path = Dir.glob(File.join(measure_dir,'*.xml')).first
+      codes_path = Dir.glob(File.join(measure_dir,'*.xls')).first
+      html_path = Dir.glob(File.join(measure_dir,'*.html')).first
+      
+      measure = Measures::Loader.load(hqmf_path, nil, nil, nil, false, nil)
+      
+      measure_out_dir = File.join(base_dir,measure.measure_id)
+      FileUtils.mkdir_p measure_out_dir
+      FileUtils.cp(hqmf_path, File.join(measure_out_dir,"#{measure.measure_id}.xml"))
+      FileUtils.cp(codes_path, File.join(measure_out_dir,"#{measure.measure_id}.xls")) if codes_path
+      FileUtils.cp(html_path, File.join(measure_out_dir,"#{measure.measure_id}.html"))
+      
+      puts "copied #{measure.measure_id} resources to #{measure_out_dir}"
+      
+    end
+  end
+  
   desc 'Drop all measure defintions from the DB'
   task :drop, [:username] do |t, args|
     measures = args.username ? User.by_username(args.username).measures : Measure.all
@@ -51,11 +80,12 @@ namespace :measures do
   end
 
   desc 'Export definitions for all measures'
-  task :export, [:username, :delete_existing] do |t, args|
-    delete_existing = args.delete_existing != 'false'
+  task :export, [:username, :static_results_path, :calculate] do |t, args|
+    calculate = args.calculate != 'false'
     measures = args.username ? User.by_username(args.username).measures.to_a : Measure.all.to_a
+    static_results_path = args.static_results_path
 
-    zip = Measures::Exporter.export_bundle(measures, delete_existing)
+    zip = Measures::Exporter.export_bundle(measures, static_results_path, calculate)
     version = APP_CONFIG["measures"]["version"]
     bundle_path = File.join(".", "tmp", "bundles")
     date_string = Time.now.strftime("%Y-%m-%d")
@@ -64,4 +94,45 @@ namespace :measures do
     FileUtils.mv(zip.path, File.join(bundle_path, "bundle-#{date_string}-#{version}.zip"))
     puts "Exported #{measures.size} measures to #{File.join(bundle_path, "bundle-#{date_string}-#{version}.zip")}"
   end
+  
+  desc 'Generate Results Spreadsheet template for static testing results'
+  task :generate_results_xls, [:type] do |t, args|
+    raise "Type must be specified" unless args.type
+    require 'rubyXL'
+    
+    type = args.type
+    
+    measures = []
+    MONGO_DB["measures"].find({type:type}).each do |measure|
+      measures << measure
+    end
+
+    measures.sort! {|left,right| "#{left['nqf_id']}#{left['sub_id']}" <=> "#{right['nqf_id']}#{right['sub_id']}"}
+    
+    workbook_template = RubyXL::Parser.parse(File.join('lib','templates','EH_results_matrix.xlsx'))
+    template = Marshal.dump(workbook_template.worksheets[0])
+    template_cv = Marshal.dump(workbook_template.worksheets[1])
+    
+    workbook_template.worksheets = []
+    measures.each do |measure|
+      worksheet = measure['population_ids'][HQMF::PopulationCriteria::MSRPOPL].nil? ? Marshal.load(template) : Marshal.load(template_cv)
+      worksheet.sheet_name = "#{measure['nqf_id']}#{measure['sub_id']}"
+      worksheet.add_cell(1,8,measure['name'])
+      worksheet.add_cell(2,8,"#{measure['nqf_id']}#{measure['sub_id']}")
+      worksheet.add_cell(3,8,measure['subtitle'])
+      row = 4
+      
+      (HQMF::PopulationCriteria::ALL_POPULATION_CODES + ['stratification']).each_with_index do |key, index|
+        worksheet.add_cell(row+index,7,key)
+        worksheet[row+index][7].change_font_bold(true)
+        worksheet.add_cell(row+index,8,measure['population_ids'][key])
+      end
+      workbook_template.worksheets << worksheet
+    end
+    
+    result_file = File.join('tmp','results_matrix',"results_matrix_#{type}.xlsx")
+    workbook_template.write(result_file)
+    puts "Wrote result matrix for #{type} to #{result_file}"
+  end
+  
 end

@@ -14,6 +14,7 @@ class queryStructure.Query
       'numerator'   : @numerator.toJson()
       'exclusions'  : @exclusions.toJson()
       'exceptions'  : @exceptions.toJson()
+      'measure population'  : @msrpopl.toJson()
     }
   
   rebuildFromJson: (json) ->
@@ -22,6 +23,7 @@ class queryStructure.Query
     @numerator =   if json['numerator']   then @buildFromJson(null, json['numerator'])   else new queryStructure.AND(null)
     @exclusions =  if json['exclusions']  then @buildFromJson(null, json['exclusions'])  else new queryStructure.AND(null)
     @exceptions =  if json['exceptions']  then @buildFromJson(null, json['exceptions'])  else new queryStructure.AND(null)
+    @msrpopl =  if json['measure population']  then @buildFromJson(null, json['measure population'])  else new queryStructure.AND(null)
 
   buildFromJson: (parent, element) ->
     if @getElementType(element) == 'rule'

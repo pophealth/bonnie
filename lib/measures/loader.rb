@@ -44,7 +44,7 @@ module Measures
         value_set_models.each do |vsm|
           vsm.measure = measure
           vsm.save!
-        end
+        end if value_set_models
 
         metadata = APP_CONFIG["measures"][measure.hqmf_id]
         if metadata
@@ -52,10 +52,19 @@ module Measures
           measure.type = metadata["type"]
           measure.category = metadata["category"]
           measure.episode_of_care = metadata["episode_of_care"]
+          if (measure.populations.count > 1)
+            sub_ids = ('a'..'az').to_a
+            measure.populations.each_with_index do |population, population_index|
+              sub_id = sub_ids[population_index]
+              population_title = metadata['subtitles'][sub_id] if metadata['subtitles']
+              measure.populations[population_index]['title'] = population_title if population_title
+            end
+          end
         else
           measure.type = "unknown"
           measure.category = "Miscellaneous"
           measure.episode_of_care = false
+          puts "WARNING: Could not find metadata for measure: #{measure.hqmf_id}"
         end
 
         #measure.endorser = params[:measure][:endorser]
@@ -68,13 +77,17 @@ module Measures
       end
 
       # Save original files
-      html_out_path = File.join(".", "db", "measures", "html")
-      FileUtils.mkdir_p html_out_path
-      FileUtils.cp(html_path, File.join(html_out_path,"#{measure.hqmf_id}.html")) if html_path
+      if (html_path)
+        html_out_path = File.join(".", "db", "measures", "html")
+        FileUtils.mkdir_p html_out_path
+        FileUtils.cp(html_path, File.join(html_out_path,"#{measure.hqmf_id}.html"))
+      end
       
-      value_set_out_path = File.join(".", "db", "measures", "value_sets")
-      FileUtils.mkdir_p value_set_out_path
-      FileUtils.cp(value_set_path, File.join(value_set_out_path,"#{measure.hqmf_id}.xls"))
+      if (value_set_path)
+        value_set_out_path = File.join(".", "db", "measures", "value_sets")
+        FileUtils.mkdir_p value_set_out_path
+        FileUtils.cp(value_set_path, File.join(value_set_out_path,"#{measure.hqmf_id}.xls"))
+      end
       
       hqmf_out_path = File.join(".", "db", "measures", "hqmf")
       FileUtils.mkdir_p hqmf_out_path

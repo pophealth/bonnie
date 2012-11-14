@@ -18,4 +18,14 @@ namespace :value_sets do
       white_list.save!
     end
   end
+  
+  desc "Download the set of valuesets required by the installed measures"
+  task :cache, [:username, :password, :clear] => :setup do |t,args|
+
+    if args[:clear] == 'true'
+      ValueSet.all.delete()
+    end
+
+  end
+  
 end

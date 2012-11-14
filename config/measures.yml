@@ -12,12 +12,12 @@ measures: &measures
   "8A4D92B2-3946-CDAE-0139-77E3E23961AB":
     nqf_id: "0089"
     type: ep
-    category: Diabetic Retinopathy
+    category: Diabetes
     episode_of_care: false
   "8A4D92B2-3946-CDAE-0139-78797547731A":
     nqf_id: "0041"
     type: ep
-    category: Immunization
+    category: General Practice Pediatric
     episode_of_care: false
   "8A4D92B2-3A00-2A25-013A-407C78A12C20":
     nqf_id: "0403"
@@ -27,42 +27,42 @@ measures: &measures
   "8A4D92B2-356D-A09E-0135-C4D3D6191416":
     nqf_id: HypertensionImprovement
     type: ep
-    category: Hypertension
+    category: General Practice Adult
     episode_of_care: false
   "8A4D92B2-3946-CDAE-0139-7944ACB700BD":
     nqf_id: "0004"
     type: ep
-    category: Alcohol and Drug
+    category: Behavioral Health Adult
     episode_of_care: false
   "8A4D92B2-397A-48D2-0139-C63D3E41543C":
     nqf_id: "0075"
     type: ep
-    category: IVD
+    category: Heart
     episode_of_care: false
   "8A4D92B2-39CA-AF4B-0139-D49A6C2A1DD7":
     nqf_id: "0052"
     type: ep
-    category: Back Pain
+    category: Core Adult
     episode_of_care: false
   "8A4D92B2-3A00-2A25-013A-4B4A282E7048":
     nqf_id: "0419"
     type: ep
-    category: Documentation
+    category: Core Adult
     episode_of_care: true
   "8A4D92B2-3927-D7AE-0139-366C49F93102":
     nqf_id: "1401"
     type: ep
-    category: Depression
+    category: Behavioral Health Adult
     episode_of_care: false
   "8A4D92B2-397A-48D2-0139-C648B33D5582":
     nqf_id: "0036"
     type: ep
-    category: Asthma
+    category: General Practice Pediatric
     episode_of_care: false
   "8A4D92B2-3A58-B777-013A-652851981835":
     nqf_id: "0110"
     type: ep
-    category: Depression
+    category: Behavioral Health Adult
     episode_of_care: false
   "8A4D92B2-397A-48D2-0139-B0A6A11F2DA5":
     nqf_id: "0387"
@@ -72,7 +72,7 @@ measures: &measures
   "8A4D92B2-3946-CDAE-0139-77EE2510640E":
     nqf_id: "0384"
     type: ep
-    category: Oncology
+    category: Cancer
     episode_of_care: true
   "8A4D92B2-397A-48D2-0139-B0A4BCA22CF1":
     nqf_id: "0389"
@@ -82,77 +82,77 @@ measures: &measures
   "8A4D92B2-3946-CDAE-0139-77DE6F785ED7":
     nqf_id: "0028"
     type: ep
-    category: Tobacco
+    category: Core Adult
     episode_of_care: false
   "8A4D92B2-3A00-2A25-013A-4B927224747D":
     nqf_id: "0421"
     type: ep
-    category: Weight
+    category: Core Adult
     episode_of_care: false
   "8A4D92B2-3A00-2A25-013A-23015AD43373":
     nqf_id: ADE_TTR
     type: ep
-    category: ADE
+    category: Heart
     episode_of_care: false
   "8A4D92B2-397A-48D2-0139-9BB3331F4C02":
     nqf_id: "0108"
     type: ep
-    category: ADHD
+    category: Core Pediatric
     episode_of_care: false
   "8A4D92B2-39CA-AF4B-0139-CAF11E27054E":
     nqf_id: "0105"
     type: ep
-    category: Depression
+    category: Behavioral Health Adult
     episode_of_care: false
   "8A4D92B2-3946-CDAE-0139-78E0235B7B8B":
     nqf_id: "0070"
     type: ep
-    category: CAD
+    category: Heart
     episode_of_care: false
   "8A4D9281-34CE-2FC0-0134-D301135603E1":
     nqf_id: BPScreening
     type: ep
-    category: Hypertension
+    category: General Practice Adult
     episode_of_care: true
   "8A4D92B2-397A-48D2-0139-B0CADCB63221":
     nqf_id: "0031"
     type: ep
-    category: Cancer
+    category: General Practice Adult
     episode_of_care: false
   "8A4D92B2-373F-82E2-0137-BE8BF22D0256":
     nqf_id: "1365"
     type: ep
-    category: Depression
+    category: Behavioral Health Pediatric
     episode_of_care: true
   "8A4D92B2-3946-CDAE-0139-79591505044D":
     nqf_id: "0565"
     type: ep
-    category: Cataracts
+    category: Eye
     episode_of_care: false
   "8A4D92B2-3946-CDAE-0139-795264D90290":
     nqf_id: "0564"
     type: ep
-    category: Cataracts
+    category: Eye
     episode_of_care: false
   "8A4D92B2-397A-48D2-0139-B0CBA8DB32C3":
     nqf_id: "0032"
     type: ep
-    category: Cancer
+    category: General Practice Adult
     episode_of_care: false
   "8A4D92B2-39CA-AF4B-0139-CAE9ED8A01BD":
     nqf_id: "0038"
     type: ep
-    category: Immunization
+    category: Core Pediatric
     episode_of_care: false
   "8A4D92B2-370B-19FA-0137-282DDBCF35DC":
     nqf_id: ChildDentalDecay
     type: ep
-    category: Dentistry
+    category: Dental
     episode_of_care: false
   "8A4D92B2-397A-48D2-0139-B0CC617E335D":
     nqf_id: "0033"
     type: ep
-    category: Women
+    category: Core Pediatric
     episode_of_care: false
   "8A4D92B2-3A00-2A25-013A-2D278E9A5DE4":
     nqf_id: CholesterolScreeningTest
@@ -162,37 +162,37 @@ measures: &measures
   "8A4D92B2-3A00-2A25-013A-316901EC6CED":
     nqf_id: CholesterolScreeningRisk
     type: ep
-    category: Cholesterol
+    category: General Practice Adult
     episode_of_care: false
   "8A4D92B2-356D-A09E-0135-C5FFA8972292":
     nqf_id: ClosingReferralLoop
     type: ep
-    category: Referral
+    category: General Practice General
     episode_of_care: false
   "8A4D92B2-35FB-4AA7-0136-403AD4504573":
     nqf_id: "0034"
     type: ep
-    category: Cancer
+    category: General Practice Adult
     episode_of_care: false
   "8A4D92B2-3946-CDAE-0139-77EF07B664E1":
     nqf_id: DementiaCognitive
     type: ep
-    category: Dementia
+    category: Behavioral Health General
     episode_of_care: false
   "8A4D92B2-397A-48D2-0139-A27B83221F9A":
     nqf_id: "0712"
     type: ep
-    category: Depression
+    category: Behavioral Health Adult
     episode_of_care: false
   "8A4D92B2-397A-48D2-0139-B0DC53B034A7":
     nqf_id: "0710"
     type: ep
-    category: Depression
+    category: Behavioral Health Adult
     episode_of_care: false
   "8A4D92B2-39CA-AF4B-0139-D472724E0C46":
     nqf_id: "0055"
     type: ep
-    category: Diabetes
+    category: Eye
     episode_of_care: false
   "8A4D92B2-397A-48D2-0139-7CCB48F6025D":
     nqf_id: "0056"
@@ -202,17 +202,17 @@ measures: &measures
   "8A4D92B2-397A-48D2-0139-9CD4937E6C86":
     nqf_id: "0059"
     type: ep
-    category: HemA1C
+    category: Diabetes
     episode_of_care: false
   "8A4D92B2-3946-CDAE-0139-7941863D7FFD":
     nqf_id: "0064"
     type: ep
-    category: LDL
+    category: Diabetes
     episode_of_care: false
   "8A4D92B2-3946-CDAE-0139-77E3674A60FC":
     nqf_id: "0088"
     type: ep
-    category: Diabetic Retinopathy
+    category: Diabetes
     episode_of_care: false
   "8A4D92B2-397A-48D2-0139-7E243C8B15B6":
     nqf_id: "0062"
@@ -222,47 +222,47 @@ measures: &measures
   "8A4D92B2-3946-CDAE-0139-5A8AF3E97BDB":
     nqf_id: "0101"
     type: ep
-    category: Falls
+    category: General Practice Adult
     episode_of_care: false
   "8A4D92B2-356D-A09E-0135-C5EE417421A0":
     nqf_id: FSACHF
     type: ep
-    category: Heart Failure
+    category: Heart
     episode_of_care: false
   "8A4D92B2-356D-A09E-0135-9B065EFA5D47":
     nqf_id: FSAKnee
     type: ep
-    category: Knee Replacement
+    category: Orthopedics
     episode_of_care: false
   "8A4D92B2-356D-A09E-0135-AF80862E655B":
     nqf_id: FSAHip
     type: ep
-    category: Hip Replacement
+    category: Orthopedics
     episode_of_care: false
   "8A4D92B2-397A-48D2-0139-C61D57895039":
     nqf_id: "0060"
     type: ep
-    category: HemA1C
+    category: Diabetes
     episode_of_care: false
   "8A4D92B2-3946-CDAE-0139-78E4E5077D41":
     nqf_id: "0081"
     type: ep
-    category: HF
+    category: Heart
     episode_of_care: false
   "8A4D92B2-3676-1350-0136-9768076550F0":
     nqf_id: "0083"
     type: ep
-    category: HF
+    category: Heart
     episode_of_care: false
   "8A4D92B2-397A-48D2-0139-C6208B875109":
     nqf_id: "0018"
     type: ep
-    category: Blood Pressure
+    category: Core Adult
     episode_of_care: false
   "8A4D92B2-3946-CDAE-0139-77E59FA3632E":
     nqf_id: "0022"
     type: ep
-    category: Elderly
+    category: Core Adult
     episode_of_care: false
   "8A4D92B2-39CA-AF4B-0139-FEDEEAA44F14":
     nqf_id: "0405"
@@ -272,42 +272,42 @@ measures: &measures
   "8A4D92B2-397A-48D2-0139-C626C0935307":
     nqf_id: "0068"
     type: ep
-    category: IVD
+    category: Heart
     episode_of_care: false
   "8A4D92B2-397A-48D2-0139-A1E9806F0EF4":
     nqf_id: "0104"
     type: ep
-    category: Depression
+    category: Behavioral Health Adult
     episode_of_care: true
   "8A4D92B2-3A00-2A25-013A-40E66CE1333F":
     nqf_id: "0418"
     type: ep
-    category: Depression
+    category: HIV
     episode_of_care: false
   "8A4D92B2-3946-CDAE-0139-77F580AE6690":
     nqf_id: "0002"
     type: ep
-    category: Misc
+    category: Core Pediatric
     episode_of_care: false
   "8A4D92B2-35FB-4AA7-0136-5A26000D30BD":
     nqf_id: "0043"
     type: ep
-    category: Immunization
+    category: General Practice Adult
     episode_of_care: false
   "8A4D92B2-35FB-4AA7-0136-5A7418FF37E8":
     nqf_id: "0086"
     type: ep
-    category: Glaucoma
+    category: Eye
     episode_of_care: false
   "8A4D92B2-35FB-4AA7-0136-1CB01C4D758C":
     nqf_id: "0608"
     type: ep
-    category: Women
+    category: Pregnancy
     episode_of_care: false
   "8A4D92B2-370B-19FA-0137-27737C4300FA":
     nqf_id: PrimaryCariesPrevention
     type: ep
-    category: Dentistry
+    category: Core Pediatric
     episode_of_care: false
   "8A4D92B2-370B-19FA-0137-2DD882061CB1":
     nqf_id: "0407"
@@ -317,22 +317,20 @@ measures: &measures
   "8A4D92B2-3946-CDAE-0139-77FE9FDC6853":
     nqf_id: "0069"
     type: ep
-    category: Misc
+    category: Core Pediatric
     episode_of_care: false
   "8A4D92B2-397A-48D2-0139-7CC6B5B8011E":
     nqf_id: "0024"
     type: ep
-    category: Weight
+    category: Core Pediatric
     episode_of_care: false
     
-
-
-  "8A4D92B2-39CA-AF4B-0139-E44759E27DF3":
+  "8A4D92B2-3A00-2A25-013A-295ED21C463C":
     nqf_id: "0716"
     type: eh
     category: Miscellaneous
     episode_of_care: true
-  "8A4D92B2-39CA-AF4B-0139-E493E6C6040E":
+  "8A4D92B2-3A00-2A25-013A-4640D11650CB":
     nqf_id: "0372"
     type: eh
     category: Miscellaneous
@@ -377,6 +375,12 @@ measures: &measures
     type: eh
     category: Miscellaneous
     episode_of_care: true
+    subtitles:
+      a: "Unstratified"
+      b: "RS1: With ED Encounter"
+      c: "RS2: With Mental Disorders"
+      d: "RS3: With Acute care hospital transfer"
+      e: "RS4: Without Mental Disorders and Acute care hospital transfer"
   "8A4D92B2-3887-5DF3-0139-01965ECF65BE":
     nqf_id: "0469"
     type: eh
@@ -397,26 +401,48 @@ measures: &measures
     type: eh
     category: Miscellaneous
     episode_of_care: true
+    subtitles:
+      a: "Unstratified"
+      b: "RS1: ED and inpatient"
+      c: "RS2: ED and inpatient w/out psych"
+      d: "RS3: ED and inpatient w/ psych"
   "8A4D92B2-3887-5DF3-0139-0C4E41594C98":
     nqf_id: "0495"
     type: eh
     category: Miscellaneous
     episode_of_care: true
+    subtitles:
+      a: "Unstratified"
+      b: "RS1: ED and inpatient"
+      c: "RS2: ED and inpatient w/out psych"
+      d: "RS3: ED and inpatient w/ psych"
   "8A4D92B2-3887-5DF3-0139-12364AE9126F":
     nqf_id: "1354"
     type: eh
     category: Miscellaneous
     episode_of_care: true
-  "8A4D92B2-3887-5DF3-0139-093E817E209E":
+  "8A4D92B2-3A58-B777-013A-716DFC096EE3":
     nqf_id: "0147"
     type: eh
     category: Miscellaneous
     episode_of_care: true
+    subtitles:
+      a: "ICU patients"
+      b: "non-ICU patients"
   "8A4D92B2-39CA-AF4B-0139-DFAAFFD96EFE":
     nqf_id: "0527"
     type: eh
     category: Miscellaneous
     episode_of_care: true
+    subtitles:
+      a: "CABG procedures"
+      b: "Other cardiac surgery"
+      c: "Hip arthroplasty"
+      d: "Knee arthroplasty"
+      e: "Colon surgery"
+      f: "Abdominal hysterectomy"
+      g: "Vaginal hysterectomy"
+      h: "Vascular surgery"
   "8A4D92B2-3887-5DF3-0139-0C49FB8C4757":
     nqf_id: "0438"
     type: eh
@@ -432,12 +458,12 @@ measures: &measures
     type: eh
     category: Miscellaneous
     episode_of_care: true
-  "8A4D92B2-373F-82E2-0137-760C4D846851":
+  "8A4D92B2-3A00-2A25-013A-0DD50CE621D8":
     nqf_id: "0440"
     type: eh
     category: Miscellaneous
     episode_of_care: true
-  "8A4D92B2-39CA-AF4B-0139-E3CF14847AF7":
+  "8A4D92B2-3A58-B777-013A-670AB6932A3B":
     nqf_id: "0453"
     type: eh
     category: Miscellaneous
@@ -472,20 +498,28 @@ measures: &measures
     type: eh
     category: Miscellaneous
     episode_of_care: true
-    
+    subtitles:
+      a: "CABG procedures"
+      b: "Other cardiac surgery"
+      c: "Hip arthroplasty"
+      d: "Knee arthroplasty"
+      e: "Colon surgery"
+      f: "Abdominal hysterectomy"
+      g: "Vaginal hysterectomy"
+      h: "Vascular surgery"
     
   "8A4D92B2-3A00-2A25-013A-2D26C69D5CA4":
     nqf_id: "BPScreen"
     type: ep
-    category: Miscellaneous
+    category: General Practice Adult
     episode_of_care: false
   "8A4D92B2-3A00-2A25-013A-31687D1E6BA7":
     nqf_id: "FastingLDLTest"
     type: ep
-    category: Miscellaneous
+    category: General Practice Adult
     episode_of_care: false
   "8A4D92B2-3A00-2A25-013A-409617472E41":
     nqf_id: "HIVRNAControl"
     type: ep
-    category: Miscellaneous
+    category: HIV
     episode_of_care: false

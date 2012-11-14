@@ -859,6 +859,20 @@
             </div>
           </div>
           <div class="row">
+            <% insurance_types = @record.insurance_providers.try(:collect) {|provider| provider.type} || [] %>
+            <% insurance_type = insurance_types.length > 0 ? insurance_types[0] : 'OT' %>
+            <div class="span4">
+              Payer:
+            </div>
+            <div class="span4">
+              <select id="payer" name="payer">
+                <option value="MA"<%= 'selected="selected"' if insurance_type == 'MA' %>>Medicare</option>
+                <option value="MC"<%= 'selected="selected"' if insurance_type == 'MC' %>>Medicaid</option>
+                <option value="OT"<%= 'selected="selected"' if insurance_type == 'OT' %>>Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="row">
             <div class="span4">
               Expired:
             </div>
@@ -919,7 +933,7 @@
               <label style="display: inline; margin-right: 7px;"><input type="radio" name="description_category" value="NUMER"<%= ' checked="checked"' if @record['description_category'] == 'NUMER' %> style="display: inline;"> Numerator</label>
               <label style="display: inline; margin-right: 7px;"><input type="radio" name="description_category" value="DENOM"<%= ' checked="checked"' if @record['description_category'] == 'DENOM' %> style="display: inline;"> Denominator</label>
               <label style="display: inline; margin-right: 7px;"><input type="radio" name="description_category" value="EXCL"<%= ' checked="checked"' if @record['description_category'] == 'EXCL' %> style="display: inline;"> Exclusions</label>
-              <label style="display: inline; margin-right: 7px;"><input type="radio" name="description_category" value="EXCEP"<%= ' checked="checked"' if @record['description_category'] == 'EXCEP' %> style="display: inline;"> Exceptions</label>
+              <label style="display: inline; margin-right: 7px;"><input type="radio" name="description_category" value="DENEXCEP"<%= ' checked="checked"' if @record['description_category'] == 'DENEXCEP' %> style="display: inline;"> Exceptions</label>
             </div>
             <div class="span6" style="clear: left; margin: 5px 0 0 40px;"><textarea name="description" style="width: 100%; height: 100px;"><%= @record['description'] %></textarea></div>
           </div>

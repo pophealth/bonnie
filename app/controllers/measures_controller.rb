@@ -5,6 +5,8 @@ class MeasuresController < ApplicationController
   before_filter :validate_authorization!
   
   JAN_ONE_THREE_THOUSAND=32503698000000
+  RACE_NAME_MAP={'1002-5' => 'American Indian or Alaska Native','2028-9' => 'Asian','2054-5' => 'Black or African American','2076-8' => 'Native Hawaiian or Other Pacific Islander','2106-3' => 'White','2131-1' => 'Other'}
+  ETHNICITY_NAME_MAP={'2186-5'=>'Not Hispanic or Latino', '2135-2'=>'Hispanic Or Latino'}
 
   add_breadcrumb 'measures', "/measures"
 
@@ -136,14 +138,14 @@ class MeasuresController < ApplicationController
   def export
     measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
 
-    file = Measures::Exporter.export_bundle([measure], true)
+    file = Measures::Exporter.export_bundle([measure], nil, true)
     send_file file.path, :type => 'application/zip', :disposition => 'attachment', :filename => "bundle-#{measure.id}.zip"
   end
 
   def export_all
     measures = Measure.by_user(current_user).to_a
 
-    file = Measures::Exporter.export_bundle(measures, true)
+    file = Measures::Exporter.export_bundle(measures, nil, true)
     version = APP_CONFIG["measures"]["version"]
     send_file file.path, :type => 'application/zip', :disposition => 'attachment', :filename => "bundle-#{version}.zip"
   end
@@ -219,6 +221,7 @@ class MeasuresController < ApplicationController
       # now full of ["4fa98074431a5fb25f000132"]
       @patients_posted = @patients_posted.collect {|p| p.keys}.flatten
     end
+    
     add_breadcrumb @measure['measure_id'], '/measures/' + @measure['measure_id']
     add_breadcrumb 'Test', '/measures/' + @measure['measure_id'] + '/test'
   end
@@ -271,7 +274,7 @@ class MeasuresController < ApplicationController
         HQMF::PopulationCriteria::DENOM => "denominator",
         HQMF::PopulationCriteria::NUMER => "numerator",
         HQMF::PopulationCriteria::DENEX => "exclusions",
-        HQMF::PopulationCriteria::EXCEP => "denexcep"
+        HQMF::PopulationCriteria::DENEXCEP => "denexcep"
       }[params['data']['type']] => @measure.population_criteria_json(@measure.population_criteria[params['data']['type']])},
       'data_criteria' => @measure.data_criteria
     }
@@ -353,7 +356,7 @@ class MeasuresController < ApplicationController
       ['allergies', 'care_goals', 'conditions', 'encounters', 'immunizations', 'medical_equipment', 'medications', 'procedures', 'results', 'social_history', 'vital_signs'].each do |section|
         patient[section] = [] if patient[section]
       end
-      patient.medical_record_number = "#{patient.first} #{patient.last}".hash.abs
+      patient.medical_record_number = Digest::MD5.hexdigest("#{patient.first} #{patient.last}")
       patient.save!
     end
 
@@ -385,26 +388,27 @@ class MeasuresController < ApplicationController
         }
       }.map(&:to_a).flatten
     ]
+    
+    
 
     ['first', 'last', 'gender', 'expired', 'birthdate', 'description', 'description_category'].each {|param| patient[param] = params[param]}
-    patient['ethnicity'] = {'code' => params['ethnicity'], 'codeSystem' => 'CDC Race'}
-    patient['race'] = {'code' => params['race'], 'codeSystem' => 'CDC Race'}
+    patient['ethnicity'] = {'code' => params['ethnicity'], 'name'=>ETHNICITY_NAME_MAP[params['ethnicity']], 'codeSystem' => 'CDC Race'}
+    patient['race'] = {'code' => params['race'], 'name'=>RACE_NAME_MAP[params['race']], 'codeSystem' => 'CDC Race'}
 
-# Commented out for now since adding an insurance provider breaks the HTML exporter
-#     insurance_types = {
-#       'MA' => 'Medicare',
-#       'MC' => 'Medicaid',
-#       'OT' => 'Other'
-#     }
-#     insurance_provider = InsuranceProvider.new
-#     insurance_provider.type = params['payer']
-#     insurance_provider.member_id = '1234567890'
-#     insurance_provider.name = insurance_types[params['payer']]
-#     insurance_provider.financial_responsibility_type = {'code' => 'SELF', 'codeSystem' => 'HL7 Relationship Code'}
-#     insurance_provider.start_time = Time.new(2008,1,1).to_i
-#     insurance_provider.payer = Organization.new
-#     insurance_provider.payer.name = insurance_provider.name
-#     patient.insurance_providers = [insurance_provider]
+    insurance_types = {
+      'MA' => 'Medicare',
+      'MC' => 'Medicaid',
+      'OT' => 'Other'
+    }
+    insurance_provider = InsuranceProvider.new
+    insurance_provider.type = params['payer']
+    insurance_provider.member_id = '1234567890'
+    insurance_provider.name = insurance_types[params['payer']]
+    insurance_provider.financial_responsibility_type = {'code' => 'SELF', 'codeSystem' => 'HL7 Relationship Code'}
+    insurance_provider.start_time = Time.new(2008,1,1).to_i
+    insurance_provider.payer = Organization.new
+    insurance_provider.payer.name = insurance_provider.name
+    patient.insurance_providers = [insurance_provider]
 
     patient['source_data_criteria'] = JSON.parse(params['data_criteria'])
     patient['measure_period_start'] = params['measure_period_start'].to_i
@@ -420,7 +424,7 @@ class MeasuresController < ApplicationController
       end if v['value']
       v['field_values'].each do |key, value|
         data_criteria.field_values ||= {}
-        data_criteria.field_values[key] = HQMF::Coded.new('CD', nil, nil, value['code_list_id'])
+        data_criteria.field_values[key] = HQMF::DataCriteria.convert_value(value)
       end if v['field_values']
       if v['negation'] == 'true'
         data_criteria.negation = true

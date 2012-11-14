@@ -26,10 +26,18 @@ class @bonnie.Builder
     @query.rebuildFromJson(data)
 
     @addParamItems(@query.population.toJson(),$("#initialPopulationItems"))
-    @addParamItems((if data.denominator.items.length then @query.denominator.toJson() else 'DENOMINATOR_PLACEHOLDER'),$("#eligibilityMeasureItems"))
+    @addParamItems((if data.denominator? and data.denominator.items.length then @query.denominator.toJson() else 'DENOMINATOR_PLACEHOLDER'),$("#eligibilityMeasureItems"))
     @addParamItems(@query.numerator.toJson(),$("#outcomeMeasureItems"))
     @addParamItems(@query.exclusions.toJson(),$("#exclusionMeasureItems"))
     @addParamItems(@query.exceptions.toJson(),$("#exceptionMeasureItems"))
+    @addParamItems(@query.msrpopl.toJson(),$("#msrpoplMeasureItems"))
+
+    $('li.initial-population').remove() unless data['population']
+    $('li.numerator').remove() unless data['numerator']
+    $('li.exclusions').remove() unless data['exclusions']
+    $('li.exceptions').remove() unless data['exceptions']
+    $('li.msrpopl').remove() unless data['measure population']
+    
     @._bindClickHandler()
     
   _bindClickHandler: (selector) ->
@@ -306,7 +314,7 @@ class @bonnie.Builder
         @_bindClickHandler("#exclusionMeasureItems")
       when @query.exceptions
         $("#exceptionMeasureItems").empty()
-        @saveTree(@query.exceptions.toJson(), 'EXCEP', 'Denominator Exceptions')
+        @saveTree(@query.exceptions.toJson(), 'DENEXCEP', 'Denominator Exceptions')
         @_bindClickHandler("#exceptionMeasureItems")
 
   saveTree: (query, key, title) ->
