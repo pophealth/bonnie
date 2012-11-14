@@ -1,11 +1,11 @@
 source 'https://rubygems.org'
 
-gem 'hqmf-parser', '~> 1.0.3'
-gem 'hqmf2js', '~> 1.0.0'
+gem 'hqmf-parser', '~> 1.0.4'
+gem 'hqmf2js', '~> 1.0.1'
 gem 'hquery-patient-api', '~> 0.3.0'
-gem 'health-data-standards', '~> 2.1.2'
-gem 'test-patient-generator', '~> 1.0.0'
-gem 'quality-measure-engine', '~> 2.0.0'
+gem 'health-data-standards', '~> 2.1.3'
+gem 'test-patient-generator', '~> 1.0.1'
+gem 'quality-measure-engine', '~> 2.1.0'
 
 gem 'rails', '3.2.2'
 gem 'jquery-rails'
