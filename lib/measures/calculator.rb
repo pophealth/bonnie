@@ -27,6 +27,8 @@ module Measures
           measure_id = MONGO_DB["measures"].find({id: measure_json[:id]}).first
           MONGO_DB["bundles"].find({}).update({"$push" => {"measures" => measure_id}})
           
+          #binding.pry
+
           effective_date = Measure::DEFAULT_EFFECTIVE_DATE
           oid_dictionary = HQMF2JS::Generator::CodesToJson.hash_to_js(Measures::Calculator.measure_codes(measure))
           report = QME::QualityReport.new(measure_json[:id], measure_json[:sub_id], {'effective_date' => effective_date, 'oid_dictionary' => oid_dictionary})
@@ -38,7 +40,6 @@ module Measures
     def self.library_functions
       library_functions = {}
       library_functions['map_reduce_utils'] = File.read(File.join('.','lib','assets','javascripts','libraries','map_reduce_utils.js'))
-      library_functions['underscore_min'] = File.read(File.join('.','app','assets','javascripts','_underscore-min.js'))
       library_functions['hqmf_utils'] = HQMF2JS::Generator::JS.library_functions
       library_functions
     end    
