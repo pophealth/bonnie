@@ -7,7 +7,7 @@ module Measures
     # @param [Boolean] preparation_needed Whether or not we need to prepare the export first. Defaults to true.
     # @param [Boolean] verbose Give verbose feedback while exporting. Defaults to true.
     # @return A bundle containing all measures, matching test patients, and some additional goodies.
-    def self.export_bundle(measures = Measure.all.to_a, calculate = true)
+    def self.export_bundle(measures = Measure.all.to_a, static_results_path=nil, calculate = true)
       content = {}
       patient_ids = []
       measure_ids = []
@@ -23,6 +23,13 @@ module Measures
       
       # TODO should be contextual to measures
       Measures::Calculator.calculate(!calculate)
+      
+      # generate static results for export
+      if (static_results_path)
+        worksheet = RubyXL::Parser.parse(static_results_path)
+        QME::Bundle::EHPatientImporter.load(Mongoid.default_session,worksheet,Measure::DEFAULT_EFFECTIVE_DATE)
+      end
+      
       Measure::TYPES.each do |type|
         measure_path = File.join(measures_path, type)
         content[measure_path] = {}

@@ -1,6 +1,6 @@
 GIT
   remote: http://github.com/pophealth/quality-measure-engine.git
-  revision: 9325287ebc05a29713ec696090508f614bc034ee
+  revision: 90439a74b9e27b20026c974e196ddf6d63b5633a
   branch: develop
   specs:
     quality-measure-engine (2.1.0)
@@ -42,7 +42,7 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/test-patient-generator.git
-  revision: 279adde8cac8a0578504d13af2ea53f36e8aec30
+  revision: d7409d6538f9b5afb6ce4460a4dafbd6a66fdef7
   branch: develop
   specs:
     test-patient-generator (0.1.0)
@@ -110,7 +110,7 @@ GEM
     cover_me (1.2.0)
       configatron
       hashie
-    delayed_job (3.0.3)
+    delayed_job (3.0.4)
       activesupport (~> 3.0)
     delayed_job_mongoid (2.0.0)
       delayed_job (~> 3.0)
@@ -160,12 +160,12 @@ GEM
     method_source (0.8.1)
     mime-types (1.19)
     minitest (4.1.0)
-    mongoid (3.0.11)
+    mongoid (3.0.13)
       activemodel (~> 3.1)
       moped (~> 1.1)
       origin (~> 1.0)
       tzinfo (~> 0.3.22)
-    moped (1.2.8)
+    moped (1.2.9)
     multi_json (1.3.7)
     multipart-post (1.1.5)
     nokogiri (1.5.5)

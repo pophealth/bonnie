@@ -138,14 +138,14 @@ class MeasuresController < ApplicationController
   def export
     measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
 
-    file = Measures::Exporter.export_bundle([measure], true)
+    file = Measures::Exporter.export_bundle([measure], nil, true)
     send_file file.path, :type => 'application/zip', :disposition => 'attachment', :filename => "bundle-#{measure.id}.zip"
   end
 
   def export_all
     measures = Measure.by_user(current_user).to_a
 
-    file = Measures::Exporter.export_bundle(measures, true)
+    file = Measures::Exporter.export_bundle(measures, nil, true)
     version = APP_CONFIG["measures"]["version"]
     send_file file.path, :type => 'application/zip', :disposition => 'attachment', :filename => "bundle-#{version}.zip"
   end
@@ -356,7 +356,7 @@ class MeasuresController < ApplicationController
       ['allergies', 'care_goals', 'conditions', 'encounters', 'immunizations', 'medical_equipment', 'medications', 'procedures', 'results', 'social_history', 'vital_signs'].each do |section|
         patient[section] = [] if patient[section]
       end
-      patient.medical_record_number = "#{patient.first} #{patient.last}".hash.abs
+      patient.medical_record_number = Digest::MD5.hexdigest("#{patient.first} #{patient.last}")
       patient.save!
     end
 
