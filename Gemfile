@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'hqmf-parser', '~> 1.0.4'
+gem 'hqmf-parser', '~> 1.0.5'
 gem 'hqmf2js', '~> 1.0.1'
 gem 'hquery-patient-api', '~> 0.3.0'
 gem 'health-data-standards', '~> 2.1.3'

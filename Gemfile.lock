@@ -80,7 +80,7 @@ GEM
       rest-client (~> 1.6.7)
       uuid (~> 2.3.5)
     hike (1.2.1)
-    hqmf-parser (1.0.4)
+    hqmf-parser (1.0.5)
       google-spreadsheet-ruby (= 0.1.8)
       roo (= 1.10.1)
       rubyzip
@@ -254,7 +254,7 @@ DEPENDENCIES
   factory_girl
   foreman
   health-data-standards (~> 2.1.3)
-  hqmf-parser (~> 1.0.4)
+  hqmf-parser (~> 1.0.5)
   hqmf2js (~> 1.0.1)
   hquery-patient-api (~> 0.3.0)
   jquery-rails
