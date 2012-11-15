@@ -34,11 +34,21 @@ measures: &measures
     type: ep
     category: Behavioral Health Adult
     episode_of_care: false
+    subtitles:
+      a: "Treatment"
+      b: "Treatment w/ AOD"
+      c: "Treatment, RS1: 13-17"
+      d: "Treatment, RS2: >=18"
+      e: "Treatment w/ AOD, RS1: 13-17"
+      f: "Treatment w AOD, RS2: >=18"
   "8A4D92B2-397A-48D2-0139-C63D3E41543C":
     nqf_id: "0075"
     type: ep
     category: Heart
     episode_of_care: false
+    subtitles:
+      a: "Complete Lipid Profile"
+      b: "Most Recent LDL-C <100 mg/dL"
   "8A4D92B2-39CA-AF4B-0139-D49A6C2A1DD7":
     nqf_id: "0052"
     type: ep
@@ -59,6 +69,12 @@ measures: &measures
     type: ep
     category: General Practice Pediatric
     episode_of_care: false
+    subtitles:
+      a: "5-64"
+      b: "RS1: 5-11"
+      c: "RS2: 12-18"
+      d: "RS3: 19-50"
+      e: "RS4: 51-64"
   "8A4D92B2-3A58-B777-013A-652851981835":
     nqf_id: "0110"
     type: ep
@@ -89,6 +105,9 @@ measures: &measures
     type: ep
     category: Core Adult
     episode_of_care: false
+    subtitles:
+      a: "65+"
+      b: "18-64"
   "8A4D92B2-3A00-2A25-013A-23015AD43373":
     nqf_id: ADE_TTR
     type: ep
@@ -99,16 +118,25 @@ measures: &measures
     type: ep
     category: Core Pediatric
     episode_of_care: false
+    subtitles:
+      a: "Visit within 30 days"
+      b: "Visit with 2+ followups"
   "8A4D92B2-39CA-AF4B-0139-CAF11E27054E":
     nqf_id: "0105"
     type: ep
     category: Behavioral Health Adult
     episode_of_care: false
+    subtitles:
+      a: "84 days"
+      b: "180 days"
   "8A4D92B2-3946-CDAE-0139-78E0235B7B8B":
     nqf_id: "0070"
     type: ep
     category: Heart
     episode_of_care: false
+    subtitles:
+      a: "prior MI"
+      b: "LVSD"
   "8A4D9281-34CE-2FC0-0134-D301135603E1":
     nqf_id: BPScreening
     type: ep
@@ -154,6 +182,10 @@ measures: &measures
     type: ep
     category: Core Pediatric
     episode_of_care: false
+    subtitles:
+      a: "16-24"
+      b: "RS1: 16-20"
+      c: "RS2: 21-24"
   "8A4D92B2-3A00-2A25-013A-2D278E9A5DE4":
     nqf_id: CholesterolScreeningTest
     type: ep
@@ -164,6 +196,10 @@ measures: &measures
     type: ep
     category: General Practice Adult
     episode_of_care: false
+    subtitles:
+      a: "LDL-C <100 mg/dL"
+      b: "LDL-C <130 mg/dL"
+      c: "LDL-C <160 mg/dL"
   "8A4D92B2-356D-A09E-0135-C5FFA8972292":
     nqf_id: ClosingReferralLoop
     type: ep
@@ -184,6 +220,10 @@ measures: &measures
     type: ep
     category: Behavioral Health Adult
     episode_of_care: false
+    subtitles:
+      a: "Sep-Dec"
+      b: "May-Aug"
+      c: "Jan-Apr"
   "8A4D92B2-397A-48D2-0139-B0DC53B034A7":
     nqf_id: "0710"
     type: ep
@@ -264,11 +304,18 @@ measures: &measures
     type: ep
     category: Core Adult
     episode_of_care: false
+    subtitles:
+      a: "1+ High-Risk Medications"
+      b: "2+ High-Risk Medications"
   "8A4D92B2-39CA-AF4B-0139-FEDEEAA44F14":
     nqf_id: "0405"
     type: ep
     category: HIV
     episode_of_care: false
+    subtitles:
+      a: "<=3 Mon. of CD4 <200 cells/mm3"
+      b: "At Diagnosis of HIV"
+      c: "<=3 Mon. of CD4 <500 cells/mm3 or CD4 <15%"
   "8A4D92B2-397A-48D2-0139-C626C0935307":
     nqf_id: "0068"
     type: ep
@@ -324,56 +371,66 @@ measures: &measures
     type: ep
     category: Core Pediatric
     episode_of_care: false
+    subtitles:
+      a: "BMI Recorded"
+      b: "Nutrition Counseling"
+      c: "Physical Activity Counseling"
+      d: "BMI Recorded, RS1: 3-11"
+      e: "BMI Recorded, RS2: 12-17"
+      f: "Nutrition Counseling, RS1: 3-11"
+      g: "Nutrition Counseling, RS2: 12-17"
+      h: "Physical Activity Counseling, RS1: 3-11"
+      i: "Physical Activity Counseling, RS2: 12-17"
     
   "8A4D92B2-3A00-2A25-013A-295ED21C463C":
     nqf_id: "0716"
     type: eh
-    category: Miscellaneous
+    category: Newborn
     episode_of_care: true
   "8A4D92B2-3A00-2A25-013A-4640D11650CB":
     nqf_id: "0372"
     type: eh
-    category: Miscellaneous
+    category: Venous Thromboembolism
     episode_of_care: true
   "8A4D92B2-3887-5DF3-0139-0D071EE37793":
     nqf_id: "0639"
     type: eh
-    category: Miscellaneous
+    category: Acute Myocardial Infarction
     episode_of_care: true
   "8A4D92B2-3887-5DF3-0139-0D01C6626E46":
     nqf_id: "0142"
     type: eh
-    category: Miscellaneous
+    category: Acute Myocardial Infarction
     episode_of_care: true
   "8A4D92B2-3887-5DF3-0139-0D08A4BE7BE6":
     nqf_id: "0163"
     type: eh
-    category: Miscellaneous
+    category: Acute Myocardial Infarction
     episode_of_care: true
   "8A4D92B2-3887-5DF3-0139-01954AFC63B2":
     nqf_id: "0441"
     type: eh
-    category: Miscellaneous
+    category: Stroke
     episode_of_care: true
   "8A4D92B2-37BF-6F1B-0137-CCD612A40D0E":
     nqf_id: "0338"
     type: eh
-    category: Miscellaneous
+    category: Asthma
     episode_of_care: true
   "8A4D92B2-37BF-6F1B-0137-CDADBA302B85":
     nqf_id: "0435"
     type: eh
-    category: Miscellaneous
+    category: Stroke
     episode_of_care: true
   "8A4D92B2-37D1-F95B-0137-E776B0467BAF":
     nqf_id: "0439"
     type: eh
-    category: Miscellaneous
+    category: Stroke
     episode_of_care: true
   "8A4D92B2-37D1-F95B-0137-DD4B0EB62DE6":
     nqf_id: "0496"
     type: eh
-    category: Miscellaneous
+    category: Emergency Department
     episode_of_care: true
     subtitles:
       a: "Unstratified"
@@ -384,22 +441,22 @@ measures: &measures
   "8A4D92B2-3887-5DF3-0139-01965ECF65BE":
     nqf_id: "0469"
     type: eh
-    category: Miscellaneous
+    category: Pregnancy
     episode_of_care: true
   "8A4D92B2-37D1-F95B-0137-E726AD2F7415":
     nqf_id: "0480"
     type: eh
-    category: Miscellaneous
+    category: Newborn
     episode_of_care: true
   "8A4D92B2-3887-5DF3-0139-11B262260A92":
     nqf_id: "0164"
     type: eh
-    category: Miscellaneous
+    category: Acute Myocardial Infarction
     episode_of_care: true
   "8A4D92B2-3887-5DF3-0139-0C4E00454B35":
     nqf_id: "0497"
     type: eh
-    category: Miscellaneous
+    category: Emergency Department
     episode_of_care: true
     subtitles:
       a: "Unstratified"
@@ -409,7 +466,7 @@ measures: &measures
   "8A4D92B2-3887-5DF3-0139-0C4E41594C98":
     nqf_id: "0495"
     type: eh
-    category: Miscellaneous
+    category: Emergency Department
     episode_of_care: true
     subtitles:
       a: "Unstratified"
@@ -419,12 +476,12 @@ measures: &measures
   "8A4D92B2-3887-5DF3-0139-12364AE9126F":
     nqf_id: "1354"
     type: eh
-    category: Miscellaneous
+    category: Newborn
     episode_of_care: true
   "8A4D92B2-3A58-B777-013A-716DFC096EE3":
     nqf_id: "0147"
     type: eh
-    category: Miscellaneous
+    category: Community Acquired Pneumonia
     episode_of_care: true
     subtitles:
       a: "ICU patients"
@@ -432,7 +489,7 @@ measures: &measures
   "8A4D92B2-39CA-AF4B-0139-DFAAFFD96EFE":
     nqf_id: "0527"
     type: eh
-    category: Miscellaneous
+    category: Surgical Care Improvement Project
     episode_of_care: true
     subtitles:
       a: "CABG procedures"
@@ -446,57 +503,57 @@ measures: &measures
   "8A4D92B2-3887-5DF3-0139-0C49FB8C4757":
     nqf_id: "0438"
     type: eh
-    category: Miscellaneous
+    category: Stroke
     episode_of_care: true
   "8A4D92B2-3887-5DF3-0139-013B0C87524A":
     nqf_id: "0436"
     type: eh
-    category: Miscellaneous
+    category: Stroke
     episode_of_care: true
   "8A4D92B2-3887-5DF3-0139-0C0D3D783133":
     nqf_id: "0437"
     type: eh
-    category: Miscellaneous
+    category: Stroke
     episode_of_care: true
   "8A4D92B2-3A00-2A25-013A-0DD50CE621D8":
     nqf_id: "0440"
     type: eh
-    category: Miscellaneous
+    category: Stroke
     episode_of_care: true
   "8A4D92B2-3A58-B777-013A-670AB6932A3B":
     nqf_id: "0453"
     type: eh
-    category: Miscellaneous
+    category: Surgical Care Improvement Project
     episode_of_care: true
   "8A4D92B2-3887-5DF3-0138-9B2EABA7321D":
     nqf_id: "0375"
     type: eh
-    category: Miscellaneous
+    category: Venous Thromboembolism
     episode_of_care: true
   "8A4D92B2-3887-5DF3-0139-01959FB76498":
     nqf_id: "0374"
     type: eh
-    category: Miscellaneous
+    category: Venous Thromboembolism
     episode_of_care: true
   "8A4D92B2-3887-5DF3-0139-01A1D2C966BC":
     nqf_id: "0371"
     type: eh
-    category: Miscellaneous
+    category: Venous Thromboembolism
     episode_of_care: true
   "8A4D92B2-3887-5DF3-0139-0C4E6D2B4D6B":
     nqf_id: "0373"
     type: eh
-    category: Miscellaneous
+    category: Venous Thromboembolism
     episode_of_care: true
   "8A4D92B2-3887-5DF3-0139-018CE6F1622A":
     nqf_id: "0376"
     type: eh
-    category: Miscellaneous
+    category: Venous Thromboembolism
     episode_of_care: true
   "8A4D92B2-37D1-F95B-0137-E1E272994B3F":
     nqf_id: "0528"
     type: eh
-    category: Miscellaneous
+    category: Surgical Care Improvement Project
     episode_of_care: true
     subtitles:
       a: "CABG procedures"
@@ -518,6 +575,10 @@ measures: &measures
     type: ep
     category: General Practice Adult
     episode_of_care: false
+    subtitles:
+      a: "High Risk"
+      b: "Moderate Risk"
+      c: "Low Risk"
   "8A4D92B2-3A00-2A25-013A-409617472E41":
     nqf_id: "HIVRNAControl"
     type: ep
