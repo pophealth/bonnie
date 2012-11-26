@@ -88,7 +88,8 @@ class Measure
       population[HQMF::PopulationCriteria::NUMER] => "numerator",
       population[HQMF::PopulationCriteria::DENEX] => "exclusions",
       population[HQMF::PopulationCriteria::DENEXCEP] => "exceptions",
-      population[HQMF::PopulationCriteria::MSRPOPL] => "measure population"
+      population[HQMF::PopulationCriteria::MSRPOPL] => "measure population",
+      population[HQMF::PopulationCriteria::OBSERV] => "measure observation"
     }
     self.population_criteria.each do |key, criteria|
       parameter_json[title_mapping[key]] = population_criteria_json(criteria, inline) if title_mapping[key]

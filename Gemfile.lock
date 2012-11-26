@@ -1,6 +1,6 @@
 GIT
   remote: http://github.com/pophealth/quality-measure-engine.git
-  revision: 90439a74b9e27b20026c974e196ddf6d63b5633a
+  revision: 6c4b935063c89d8a31d1d9f12a0ed3b83cc0728d
   branch: develop
   specs:
     quality-measure-engine (2.1.0)
@@ -13,10 +13,10 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/hqmf-parser.git
-  revision: 84aa13e255bb54dd518c457d42660633bf42ade1
+  revision: d5bf4cf72af6eeddc5c2ccf5bda71d7a0abd46d4
   branch: develop
   specs:
-    hqmf-parser (1.0.2)
+    hqmf-parser (1.0.6)
       google-spreadsheet-ruby (= 0.1.8)
       roo (= 1.10.1)
       rubyzip
@@ -24,7 +24,7 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/hqmf2js.git
-  revision: fecacb57a2826f7f2e86a01c476702a7ddc25416
+  revision: 24bf6761ea9dc565324b58f4516c5e31d0c80e2a
   branch: develop
   specs:
     hqmf2js (0.1.0)
