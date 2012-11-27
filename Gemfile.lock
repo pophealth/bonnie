@@ -13,7 +13,7 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/hqmf-parser.git
-  revision: d5bf4cf72af6eeddc5c2ccf5bda71d7a0abd46d4
+  revision: f6268007af53ee52b845a8c718578a326aeb6012
   branch: develop
   specs:
     hqmf-parser (1.0.6)
@@ -24,7 +24,7 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/hqmf2js.git
-  revision: 24bf6761ea9dc565324b58f4516c5e31d0c80e2a
+  revision: 24a87e9bd22d348ee5c652038d8d375da5b4c5f4
   branch: develop
   specs:
     hqmf2js (0.1.0)
@@ -35,7 +35,7 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/patientapi.git
-  revision: 0921d68dc960d8f4548f60b0b7bb7c5e340c6664
+  revision: 63fbadcdf331865bd92b550ba492228c5a062e3e
   branch: develop
   specs:
     hquery-patient-api (0.1.0)
@@ -160,7 +160,7 @@ GEM
     method_source (0.8.1)
     mime-types (1.19)
     minitest (4.1.0)
-    mongoid (3.0.13)
+    mongoid (3.0.14)
       activemodel (~> 3.1)
       moped (~> 1.1)
       origin (~> 1.0)
@@ -177,7 +177,7 @@ GEM
       jwt (~> 0.1.4)
       multi_json (~> 1.0)
       rack (~> 1.2)
-    origin (1.0.10)
+    origin (1.0.11)
     orm_adapter (0.4.0)
     polyglot (0.3.3)
     pry (0.9.10)
