@@ -31,12 +31,14 @@ class @bonnie.Builder
     @addParamItems(@query.exclusions.toJson(),$("#exclusionMeasureItems"))
     @addParamItems(@query.exceptions.toJson(),$("#exceptionMeasureItems"))
     @addParamItems(@query.msrpopl.toJson(),$("#msrpoplMeasureItems"))
+    @addParamItems(@query.observ.toJson(),$("#observMeasureItems"))
 
     $('li.initial-population').remove() unless data['population']
     $('li.numerator').remove() unless data['numerator']
     $('li.exclusions').remove() unless data['exclusions']
     $('li.exceptions').remove() unless data['exceptions']
     $('li.msrpopl').remove() unless data['measure population']
+    $('li.observ').remove() unless data['measure observation']
     
     @._bindClickHandler()
     
