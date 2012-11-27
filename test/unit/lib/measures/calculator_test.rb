@@ -35,11 +35,9 @@ class CalculatorTest < ActiveSupport::TestCase
     library_functions = Measures::Calculator.library_functions
     
     refute_nil library_functions["map_reduce_utils"]
-    refute_nil library_functions["underscore_min"]
     refute_nil library_functions["hqmf_utils"]
     
     assert library_functions["map_reduce_utils"].length > 0
-    assert library_functions["underscore_min"].length > 0
     assert library_functions["hqmf_utils"].length > 0
   end
 
