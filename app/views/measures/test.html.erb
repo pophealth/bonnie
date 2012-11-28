@@ -60,7 +60,7 @@
 
     <div class="tab-pane active" id="patients">
 
-      <%= simple_form_for(:patients, :url => test_measure_path(@measure_patients ? {:measure_patients => 'measure_patients'} : nil), :method => :post, :html => { :class => 'form-horizontal', :id => 'measure_form'}) do |f| %>
+      <%= simple_form_for(:patients, :url => test_measure_path(@measure_patients ? {:measure_patients => 'measure_patients'} : @measure.id), :method => :post, :html => { :class => 'form-horizontal', :id => 'measure_form'}) do |f| %>
         <%= f.submit 'Test Measure', :id => 'test-submit-button', :class => 'btn-primary' %><br>
         <input type="hidden" id="population" name="population" value="<%=@population%>"/>
         <div class="row total">
