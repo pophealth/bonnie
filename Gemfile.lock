@@ -24,7 +24,7 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/hqmf2js.git
-  revision: f5a6963b2fb7fa0a8ef2a8766044238d1d1820c4
+  revision: 257e1afab6189614e3d7d7e5e6e6ffa0111ec06f
   branch: develop
   specs:
     hqmf2js (1.1.0)
@@ -49,7 +49,7 @@ GIT
 
 GIT
   remote: https://github.com/projectcypress/health-data-standards.git
-  revision: c3a340aeb7b10e5e3d973f50667ca55c827bf1a7
+  revision: 67f26fdd7ca48622bcbfefb3e446fd2bb680c99a
   branch: develop
   specs:
     health-data-standards (2.1.4)
@@ -304,7 +304,7 @@ DEPENDENCIES
   pry-nav
   pry-rescue
   quality-measure-engine!
-  rails
+  rails (= 3.2.9)
   rubyXL
   sass-rails (~> 3.2.3)
   simple_form

@@ -126,6 +126,14 @@ module Measures
       "
     end
     
+    def self.quoted_string_or_null(str)
+      if str
+        "\"#{str}\""
+      else
+        "null"
+      end
+    end
+    
     def self.execution_logic(measure, population_index=0, load_codes=false)
       gen = HQMF2JS::Generator::JS.new(measure.as_hqmf_model)
       codes = measure_codes(measure) if load_codes
@@ -140,6 +148,8 @@ module Measures
       if (Logger.enabled) enableLogging();
       
       #{gen.to_js(population_index, codes)}
+      
+      var occurrenceId = #{quoted_string_or_null(measure.episode_id)};
 
       hqmfjs.initializeSpecifics(patient_api, hqmfjs)
       
@@ -168,7 +178,7 @@ module Measures
 
       if (Logger.enabled) enableMeasureLogging(hqmfjs);
 
-      map(patient, population, denominator, numerator, exclusion, denexcep);
+      map(patient, population, denominator, numerator, exclusion, denexcep, occurrenceId);
       "
     end
 

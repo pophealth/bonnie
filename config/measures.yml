@@ -268,6 +268,7 @@ measures: &measures
     nqf_id: '0419'
     type: ep
     category: Core
+    episode_id: OccurrenceAMedicationsEncounterCodeSet1
     episode_of_care: true
   9A031BB8-3D9B-11E1-8634-00237D5BF174:
     nqf_id: '0421'

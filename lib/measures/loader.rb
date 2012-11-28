@@ -52,6 +52,7 @@ module Measures
           measure.type = metadata["type"]
           measure.category = metadata["category"]
           measure.episode_of_care = metadata["episode_of_care"]
+          measure.episode_id = metadata["episode_id"]
           if (measure.populations.count > 1)
             sub_ids = ('a'..'az').to_a
             measure.populations.each_with_index do |population, population_index|
