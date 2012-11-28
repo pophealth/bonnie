@@ -46,7 +46,7 @@ module Measures
           vsm.save!
         end if value_set_models
 
-        metadata = APP_CONFIG["measures"][measure.hqmf_id]
+        metadata = APP_CONFIG["measures"][measure.hqmf_set_id]
         if metadata
           measure.measure_id = metadata["nqf_id"]
           measure.type = metadata["type"]
@@ -64,7 +64,7 @@ module Measures
           measure.type = "unknown"
           measure.category = "Miscellaneous"
           measure.episode_of_care = false
-          puts "WARNING: Could not find metadata for measure: #{measure.hqmf_id}"
+          puts "\tWARNING: Could not find metadata for measure: #{measure.hqmf_set_id}"
         end
 
         #measure.endorser = params[:measure][:endorser]
