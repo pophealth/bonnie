@@ -59,6 +59,7 @@ measures: &measures
     type: ep
     category: Core Adult
     episode_of_care: true
+    episode_id: OccurrenceAMedicationsEncounterCodeSet1
   "8A4D92B2-3927-D7AE-0139-366C49F93102":
     nqf_id: "1401"
     type: ep

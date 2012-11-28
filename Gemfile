@@ -14,7 +14,7 @@ gem 'quality-measure-engine', :git => 'http://github.com/pophealth/quality-measu
 #gem 'quality-measure-engine', :path => '../quality-measure-engine'
 #gem 'quality-measure-engine', '2.0.0'
 
-gem 'rails', '3.2.2'
+gem 'rails', '3.2.9'
 gem 'jquery-rails'
 gem 'jquery-ui-rails'
 
