@@ -18,7 +18,7 @@ class Measure
   field :category, type: String
   field :steward, type: String    # organization who's writing the measure
   field :episode_of_care, type: Boolean
-  field :episode_id, type: String
+  field :episode_ids, type: Array # of String ids
 
   field :published, type: Boolean
   field :publish_date, type: Date
