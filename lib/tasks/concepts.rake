@@ -8,7 +8,7 @@ namespace :concepts do
     user = User.by_username args.username
     raise "The user #{args.username} could not be found." unless user
     
-    if args.delete_existing
+    if args.delete_existing != 'false'
       # Delete all of this user's value sets and concepts
       count = Concept.all.destroy_all # TODO make this actually delete by user
       puts "Deleted #{count} concepts assigned to #{user.username}'s measures"

@@ -4,7 +4,7 @@ namespace :value_sets do
     raise "You must specify a valid path to the white list file" unless args.file
     path = args.file
     
-    WhiteList.destroy_all if args.delete_existing
+    WhiteList.destroy_all if args.delete_existing != 'false'
     
     parser = HQMF::ValueSet::Parser.new()
     format ||= HQMF::ValueSet::Parser.get_format(path)

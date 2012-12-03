@@ -6,15 +6,19 @@ require './lib/measures/exporter'
 
 namespace :measures do
   desc 'Load a directory of measures and value sets into the DB'
-  task :load, [:measures_dir, :username, :delete_existing] do |t, args|
+  task :load, [:measures_dir, :username, :vs_username, :vs_password, :delete_existing, :clear_vs_cache] do |t, args|
     raise "The path to the measure definitions must be specified" unless args.measures_dir
     raise "The username to load the measures for must be specified" unless args.username
 
     user = User.by_username args.username
     raise "The user #{args.username} could not be found." unless user
-
+    
+    clear_vs_cache = args.clear_vs_cache=='true'
+    vs_username = args.vs_username
+    vs_password = args.vs_password
+    
     # Delete all of this user's measures out of the DB and remove any lingering files saved from the last load
-    if args.delete_existing
+    if args.delete_existing != 'false'
       user.measures.each {|measure| measure.value_sets.destroy_all}
       count = user.measures.destroy_all
       
@@ -25,6 +29,12 @@ namespace :measures do
       
       puts "Deleted #{count} measures assigned to #{user.username}"
     end
+    
+    # remove code_set cache dir
+    code_set_cache_dir = File.join('.','db','code_sets')
+    FileUtils.rm_r code_set_cache_dir if File.exists? code_set_cache_dir and args.clear_vs_cache == 'true'
+    FileUtils.mkdir_p code_set_cache_dir
+    
     
     oids_path = File.join(".","db","oids_by_measure.json")
     
@@ -45,7 +55,7 @@ namespace :measures do
       html_path = Dir.glob(File.join(measure_dir,'*.html')).first
       
       begin
-        measure = Measures::Loader.load(hqmf_path, user, html_path, true, value_set_oids, codes_path)
+        measure = Measures::Loader.load(hqmf_path, user, html_path, true, value_set_oids, vs_username, vs_password, codes_path, clear_vs_cache)
         
         puts "(#{index}/#{measure_count}): Measure #{measure.measure_id} (#{measure.title}) successfully loaded.\n"
       rescue Exception => e
@@ -86,38 +96,45 @@ namespace :measures do
   end
   
   desc 'Generate oids by measure'
-  task :generate_oids_by_measure, [:measures_dir] do |t, args|
+  task :generate_oids_by_measure, [:measures_dir, :clear_cache] do |t, args|
     raise "The path to the measure definitions must be specified" unless args.measures_dir
+    
+    clear_cache = args.clear_cache=='true'
 
     outfile = File.join(".","db","oids_by_measure.json")
-    File.delete(outfile) if File.exists? outfile
+    File.delete(outfile) if File.exists? outfile and clear_cache
+    
+    if File.exists? outfile
+      puts "Using cached measure oids at: #{outfile}"
+    else
+      oids_by_measure = {}
 
-    oids_by_measure = {}
+      # Load each measure from the measures directory
+      Dir.foreach(args.measures_dir) do |entry|
+        next if entry.starts_with? '.'
 
-    # Load each measure from the measures directory
-    Dir.foreach(args.measures_dir) do |entry|
-      next if entry.starts_with? '.'
+        measure_dir = File.join(args.measures_dir,entry)
+        hqmf_path = Dir.glob(File.join(measure_dir,'*.xml')).first
 
-      measure_dir = File.join(args.measures_dir,entry)
-      hqmf_path = Dir.glob(File.join(measure_dir,'*.xml')).first
+        measure = nil
+        original_stdout = $stdout
+        $stdout = StringIO.new
+        begin
+          measure = Measures::Loader.load(hqmf_path, nil, nil, false)
+        ensure
+          $stdout = original_stdout
+        end
 
-      measure = nil
-      original_stdout = $stdout
-      $stdout = StringIO.new
-      begin
-        measure = Measures::Loader.load(hqmf_path, nil, nil, false)
-      ensure
-        $stdout = original_stdout
+        oids_by_measure[measure.hqmf_id] = measure.as_hqmf_model.all_code_set_oids
+
+        puts "pulled #{oids_by_measure[measure.hqmf_id].count} oids from #{measure.measure_id}"
       end
-      
-      oids_by_measure[measure.hqmf_id] = measure.as_hqmf_model.all_code_set_oids
-      
-      puts "pulled #{oids_by_measure[measure.hqmf_id].count} oids from #{measure.measure_id}"
+
+      File.open(outfile, 'w') {|f| f.write(JSON.pretty_generate(oids_by_measure)) }
+
+      puts "Wrote oids by measure to: #{outfile}"
     end
-    
-    File.open(outfile, 'w') {|f| f.write(JSON.pretty_generate(oids_by_measure)) }
-    
-    puts "Wrote oids by measure to: #{outfile}"
+
   end
   
   

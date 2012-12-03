@@ -27,7 +27,7 @@ module Measures
         measure.type = metadata["type"]
         measure.category = metadata["category"]
         measure.episode_of_care = metadata["episode_of_care"]
-        measure.episode_id = metadata["episode_id"]
+        measure.episode_ids = metadata["episode_ids"]
         if (measure.populations.count > 1)
           sub_ids = ('a'..'az').to_a
           measure.populations.each_with_index do |population, population_index|
@@ -66,7 +66,7 @@ module Measures
       value_set_models
     end
     
-    def self.load_value_sets_from_service(value_set_oids, measure_id, username='rdingwell', password='TestTest1234')
+    def self.load_value_sets_from_service(value_set_oids, measure_id, username, password)
       
       value_set_models = []
       
@@ -86,11 +86,22 @@ module Measures
         set = existing_value_set_map[oid]
         
         if (set.nil?)
-          vs_data = api.get_valueset(oid) 
-          vs_data.force_encoding("utf-8") # there are some funky unicodes coming out of the vs response that are not in ASCII as the string reports to be
+          
+          vs_data = nil
+          
+          cached_service_result = File.join('.','db','code_sets',"#{oid}.xml")
+          if (File.exists? cached_service_result)
+            vs_data = File.read cached_service_result
+          else
+            vs_data = api.get_valueset(oid) 
+            vs_data.force_encoding("utf-8") # there are some funky unicodes coming out of the vs response that are not in ASCII as the string reports to be
+            File.open(cached_service_result, 'w') {|f| f.write(vs_data) }
+          end
+          
           doc = Nokogiri::XML(vs_data)
 
           doc.root.add_namespace_definition("vs","urn:ihe:iti:svs:2008")
+          
           vs_element = doc.at_xpath("/vs:RetrieveValueSetResponse/vs:ValueSet")
 
           if vs_element && vs_element["ID"] == oid
@@ -157,7 +168,8 @@ module Measures
       
     end
     
-    def self.load(hqmf_path, user, html_path=nil, persist = true, value_set_oids=nil, value_set_path=nil, value_set_format=nil)
+    def self.load(hqmf_path, user, html_path=nil, persist = true, value_set_oids=nil, username=nil, password=nil, value_set_path=nil, value_set_format=nil)
+      
       
       hqmf_contents = Nokogiri::XML(File.new hqmf_path).to_s
       measure_id = HQMF::Parser.parse_id(hqmf_contents, HQMF::Parser::HQMF_VERSION_1)
@@ -165,7 +177,7 @@ module Measures
       value_set_models = nil
       # Value sets
       if value_set_oids
-        value_set_models = Measures::Loader.load_value_sets_from_service(value_set_oids, measure_id)
+        value_set_models = Measures::Loader.load_value_sets_from_service(value_set_oids, measure_id, username, password)
       elsif value_set_path
         value_set_models = Measures::Loader.load_value_sets_from_xls(value_set_path, value_set_format)
       end

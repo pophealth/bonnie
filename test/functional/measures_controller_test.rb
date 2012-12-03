@@ -9,7 +9,7 @@ class MeasuresControllerTest < ActionController::TestCase
 
     hqmf_file = "test/fixtures/measure-defs/0002/0002.xml"
     value_set_file = "test/fixtures/measure-defs/0002/0002.xls"
-    Measures::Loader.load(hqmf_file, @user, nil, true, nil, value_set_file)
+    Measures::Loader.load(hqmf_file, @user, nil, true, nil, nil, nil, value_set_file)
     
     @measure = Measure.where(hqmf_id: "8A4D92B2-3946-CDAE-0139-77F580AE6690").first
     @measure.user = @user

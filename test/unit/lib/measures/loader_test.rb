@@ -12,7 +12,7 @@ class LoaderTest < ActiveSupport::TestCase
     value_set_file = "test/fixtures/measure-defs/0002/0002.xls"
     html_file = "test/fixtures/measure-defs/0002/0002.html"
 
-    Measures::Loader.load(hqmf_file, @user, html_file, true, nil, value_set_file)
+    Measures::Loader.load(hqmf_file, @user, html_file, true, nil, nil, nil, value_set_file)
     Measure.all.count.must_equal 1
 
     measure = Measure.all.first
