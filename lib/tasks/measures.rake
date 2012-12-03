@@ -36,7 +36,8 @@ namespace :measures do
     FileUtils.mkdir_p code_set_cache_dir
     
     
-    oids_path = File.join(".","db","oids_by_measure.json")
+    measures_dir_hash = Digest::MD5.hexdigest(args.measures_dir)
+    oids_path = File.join(".","db","#{measures_dir_hash}_oids_by_measure.json")
     
     value_set_oids = JSON.parse(File.read(oids_path)) if File.exists?(oids_path)
     
@@ -101,7 +102,8 @@ namespace :measures do
     
     clear_cache = args.clear_cache=='true'
 
-    outfile = File.join(".","db","oids_by_measure.json")
+    measures_dir_hash = Digest::MD5.hexdigest(args.measures_dir)
+    outfile = File.join(".","db","#{measures_dir_hash}_oids_by_measure.json")
     File.delete(outfile) if File.exists? outfile and clear_cache
     
     if File.exists? outfile

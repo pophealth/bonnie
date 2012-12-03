@@ -13,7 +13,7 @@
 # IMPORTANT - Houses measure source files on load that cannot be released to github. Be careful.
 /db/measures
 /db/bundles
-/db/oids_by_measure.json
+/db/*oids_by_measure.json
 /db/code_sets
 
 # Ignore all logfiles and tempfiles.
