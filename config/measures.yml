@@ -153,6 +153,7 @@ measures: &measures
     type: ep
     category: Core
     episode_of_care: false
+    episode_id: OccurrenceAUpperRespiratoryInfection1
   80744AE2-DE81-4B16-A71D-69522EB865C5:
     nqf_id: '0070'
     type: ep
@@ -268,8 +269,8 @@ measures: &measures
     nqf_id: '0419'
     type: ep
     category: Core
-    episode_id: OccurrenceAMedicationsEncounterCodeSet1
     episode_of_care: true
+    episode_ids: [OccurrenceAMedicationsEncounterCodeSet1]
   9A031BB8-3D9B-11E1-8634-00237D5BF174:
     nqf_id: '0421'
     type: ep
@@ -282,12 +283,14 @@ measures: &measures
     nqf_id: '0564'
     type: ep
     category: Eye
-    episode_of_care: false
+    episode_of_care: true
+    episode_ids: [OccurrenceACataractSurgery1]
   39E0424A-1727-4629-89E2-C46C2FBB3F5F:
     nqf_id: '0565'
     type: ep
     category: Eye
-    episode_of_care: false
+    episode_of_care: true
+    episode_id: [OccurrenceACataractSurgery1]
   3BBFC929-50C8-44B8-8D34-82BE75C08A70:
     nqf_id: '0608'
     type: ep

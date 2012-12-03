@@ -126,9 +126,10 @@ module Measures
       "
     end
     
-    def self.quoted_string_or_null(str)
-      if str
-        "\"#{str}\""
+    def self.quoted_string_array_or_null(arr)
+      if arr
+        quoted = arr.map {|e| "\"#{e}\""}
+        "[#{quoted.join(',')}]"
       else
         "null"
       end
@@ -149,7 +150,7 @@ module Measures
       
       #{gen.to_js(population_index, codes)}
       
-      var occurrenceId = #{quoted_string_or_null(measure.episode_id)};
+      var occurrenceId = #{quoted_string_array_or_null(measure.episode_ids)};
 
       hqmfjs.initializeSpecifics(patient_api, hqmfjs)
       
