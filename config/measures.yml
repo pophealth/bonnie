@@ -153,7 +153,7 @@ measures: &measures
     type: ep
     category: Core
     episode_of_care: false
-    episode_id: OccurrenceAUpperRespiratoryInfection1
+    episode_ids: [OccurrenceAUpperRespiratoryInfection1]
   80744AE2-DE81-4B16-A71D-69522EB865C5:
     nqf_id: '0070'
     type: ep
@@ -205,6 +205,7 @@ measures: &measures
     type: ep
     category: Behavioral Health Adult
     episode_of_care: true
+    episode_ids: [OccurrenceAPsychVisitDiagnosticOrEvaluativeInterview1, OccurrenceAPsychVisitIndividualOutpatientPsychotherapy2, OccurrenceAPsychVisitIndividualOutpatientInteractivePsychotherapy3, OccurrenceAPsychVisitMedicationManagement4, OccurrenceAOfficeVisit5,  OccurrenceAOutpatientConsultation6, OccurrenceAPsychoanalysis7, OccurrenceAFaceToFaceInteraction8]
   8924F2B3-EC06-4650-B634-D70A53DEE577:
     nqf_id: '0105'
     type: ep
@@ -231,6 +232,7 @@ measures: &measures
     type: ep
     category: Cancer
     episode_of_care: true
+    episode_ids: [OccurrenceARadiationTreatmentManagement1, OccurrenceAOfficeVisit2,  OccurrenceAFaceToFaceInteraction5]
   8479F6D6-4200-4FD0-9438-30048EBE3E29:
     nqf_id: '0385'
     type: ep
@@ -290,7 +292,7 @@ measures: &measures
     type: ep
     category: Eye
     episode_of_care: true
-    episode_id: [OccurrenceACataractSurgery1]
+    episode_ids: [OccurrenceACataractSurgery1]
   3BBFC929-50C8-44B8-8D34-82BE75C08A70:
     nqf_id: '0608'
     type: ep
@@ -315,6 +317,7 @@ measures: &measures
     type: ep
     category: Behavioral Health Pediatric
     episode_of_care: true
+    episode_ids:  [OccurrenceAFaceToFaceInteraction1, OccurrenceAOfficeVisit2, OccurrenceAOutpatientConsultation3, OccurrenceAPsychVisitDiagnosticOrEvaluativeInterview4, OccurrenceAPsychVisitIndividualOutpatientInteractivePsychotherapy5, OccurrenceAPsychVisitIndividualOutpatientPsychotherapy6, OccurrenceAPsychVisitFamilyPsychotherapy7, OccurrenceAPsychoanalysis8, OccurrenceAGroupPsychotherapy9, OccurrenceAPsychVisitMedicationManagement10]
   8E6C8479-99FD-4949-B0AD-24FA60FE4201:
     nqf_id: '1401'
     type: ep
