@@ -21,20 +21,33 @@ namespace :measures do
       source_dir = File.join(".", "db", "measures")
       FileUtils.rm_r Dir.glob(source_dir)
       
+      ValueSet.all.delete()
+      
       puts "Deleted #{count} measures assigned to #{user.username}"
     end
+    
+    oids_path = File.join(".","db","oids_by_measure.json")
+    
+    value_set_oids = JSON.parse(File.read(oids_path)) if File.exists?(oids_path)
+    
+    measure_count = Dir.glob(File.join(args.measures_dir,'**','*.xml')).count
+    index = 0
     
     # Load each measure from the measures directory
     Dir.foreach(args.measures_dir) do |entry|
       next if entry.starts_with? '.'
+      
+      index += 1
 
       measure_dir = File.join(args.measures_dir,entry)
       hqmf_path = Dir.glob(File.join(measure_dir,'*.xml')).first
       codes_path = Dir.glob(File.join(measure_dir,'*.xls')).first
       html_path = Dir.glob(File.join(measure_dir,'*.html')).first
+      
       begin
-        measure = Measures::Loader.load(hqmf_path, codes_path, user, nil, true, html_path)
-        puts "Measure #{measure.measure_id} (#{measure.title}) successfully loaded.\n"
+        measure = Measures::Loader.load(hqmf_path, user, html_path, true, value_set_oids, codes_path)
+        
+        puts "(#{index}/#{measure_count}): Measure #{measure.measure_id} (#{measure.title}) successfully loaded.\n"
       rescue Exception => e
         puts "Loading Measure #{entry} failed: #{e.message}: [#{hqmf_path},#{codes_path}] \n"
       end
@@ -59,7 +72,7 @@ namespace :measures do
       codes_path = Dir.glob(File.join(measure_dir,'*.xls')).first
       html_path = Dir.glob(File.join(measure_dir,'*.html')).first
       
-      measure = Measures::Loader.load(hqmf_path, nil, nil, nil, false, nil)
+      measure = Measures::Loader.load(hqmf_path, nil, nil, false)
       
       measure_out_dir = File.join(base_dir,measure.measure_id)
       FileUtils.mkdir_p measure_out_dir
@@ -71,6 +84,42 @@ namespace :measures do
       
     end
   end
+  
+  desc 'Generate oids by measure'
+  task :generate_oids_by_measure, [:measures_dir] do |t, args|
+    raise "The path to the measure definitions must be specified" unless args.measures_dir
+
+    outfile = File.join(".","db","oids_by_measure.json")
+    File.delete(outfile) if File.exists? outfile
+
+    oids_by_measure = {}
+
+    # Load each measure from the measures directory
+    Dir.foreach(args.measures_dir) do |entry|
+      next if entry.starts_with? '.'
+
+      measure_dir = File.join(args.measures_dir,entry)
+      hqmf_path = Dir.glob(File.join(measure_dir,'*.xml')).first
+
+      measure = nil
+      original_stdout = $stdout
+      $stdout = StringIO.new
+      begin
+        measure = Measures::Loader.load(hqmf_path, nil, nil, false)
+      ensure
+        $stdout = original_stdout
+      end
+      
+      oids_by_measure[measure.hqmf_id] = measure.as_hqmf_model.all_code_set_oids
+      
+      puts "pulled #{oids_by_measure[measure.hqmf_id].count} oids from #{measure.measure_id}"
+    end
+    
+    File.open(outfile, 'w') {|f| f.write(JSON.pretty_generate(oids_by_measure)) }
+    
+    puts "Wrote oids by measure to: #{outfile}"
+  end
+  
   
   desc 'Drop all measure defintions from the DB'
   task :drop, [:username] do |t, args|

@@ -68,7 +68,7 @@ class MeasuresController < ApplicationController
     hqmf_path = params[:measure][:hqmf].tempfile.path
     html_path = params[:measure][:html].tempfile.path
 
-    measure = Measures::Loader.load(hqmf_path, value_set_path, current_user, value_set_format, html_path)
+    measure = Measures::Loader.load(hqmf_path, current_user, html_path, true, nil, value_set_path, value_set_format)
 
     redirect_to edit_measure_url(measure)
   end

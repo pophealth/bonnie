@@ -3,6 +3,9 @@ defaults: &defaults
   version: 0.0.1
   generate_denormalization: true
   disable_logging: false
+  nlm:
+    ticket_url: https://vsac.nlm.nih.gov/vsac/ws/Ticket
+    api_url: https://vsac.nlm.nih.gov/vsac/ws/RetrieveValueSet
 
 development:
   <<: *defaults
