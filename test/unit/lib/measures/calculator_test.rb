@@ -23,12 +23,12 @@ class CalculatorTest < ActiveSupport::TestCase
     assert_equal MONGO_DB["system.js"].find({}).count(), Measures::Calculator.library_functions.size
 
     patient_result = MONGO_DB["patient_cache"].find({}).first["value"]
-    assert_equal patient_result["population"], 1
-    assert_equal patient_result["denominator"], 0
-    assert_equal patient_result["numerator"], 0
-    assert_equal patient_result["denexcep"], 0
-    assert_equal patient_result["exclusions"], 0
-    assert_equal patient_result["antinumerator"], 0
+    assert_equal patient_result[QME::QualityReport::POPULATION], 1
+    assert_equal patient_result[QME::QualityReport::DENOMINATOR], 0
+    assert_equal patient_result[QME::QualityReport::NUMERATOR], 0
+    assert_equal patient_result[QME::QualityReport::EXCEPTIONS], 0
+    assert_equal patient_result[QME::QualityReport::EXCLUSIONS], 0
+    assert_equal patient_result[QME::QualityReport::ANTINUMERATOR], 0
   end
 
   test "library functions" do

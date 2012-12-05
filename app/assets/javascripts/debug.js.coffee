@@ -101,31 +101,31 @@ populate_test_table = () ->
 
       # TODO: this is not DRY
       # colorize and checkmark table cells based on results
-      if e.population
+      if e.IPP
         population_total += 1  
         cell = $(row).children(":nth-child(2)")
         cell.css('background-color', '#EEE')      #light gray
         cell.html('&#x2713;')
 
-      if e.denominator
+      if e.DENOM
         denominator_total += 1  
         cell = $(row).children(":nth-child(3)")
         cell.css('background-color', '#99CCFF')   #light blue
         cell.html('&#x2713;')
 
-      if e.numerator
+      if e.NUMER
         numerator_total += 1  
         cell = $(row).children(":nth-child(4)")
         cell.css('background-color', '#CCFFCC')   #light green
         cell.html('&#x2713;')
 
-      if e.exclusions
+      if e.DENEX
         exclusions_total += 1  
         cell = $(row).children(":nth-child(5)")
         cell.css('background-color', '#FFCC99')   #light orange
         cell.html('&#x2713;')
 
-      if e.denexcep == true
+      if e.DENEXCEP
         exceptions_total++
         cell = $(row).children(":nth-child(6)")
         cell.css('background-color', '#EEE')
