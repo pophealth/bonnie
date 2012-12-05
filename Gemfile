@@ -13,6 +13,7 @@ gem 'test-patient-generator', :git => 'https://github.com/pophealth/test-patient
 gem 'quality-measure-engine', :git => 'http://github.com/pophealth/quality-measure-engine.git', :branch => 'develop'
 #gem 'quality-measure-engine', :path => '../quality-measure-engine'
 #gem 'quality-measure-engine', '2.0.0'
+gem 'qrda_generator', :git => 'http://github.com/eedrummer/qrda_generator.git'
 
 gem 'rails', '3.2.9'
 gem 'jquery-rails'

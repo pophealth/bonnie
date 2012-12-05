@@ -1,4 +1,15 @@
 GIT
+  remote: http://github.com/eedrummer/qrda_generator.git
+  revision: dc672f4a9d151ccbdf778040ce48d55be62e6dc7
+  specs:
+    qrda_generator (0.1.0)
+      health-data-standards (~> 2.1.4)
+      hqmf-parser (~> 1.0.6)
+      mongoid (~> 3.0.6)
+      nokogiri (~> 1.5.5)
+      uuid (~> 2.3.5)
+
+GIT
   remote: http://github.com/pophealth/quality-measure-engine.git
   revision: 6c4b935063c89d8a31d1d9f12a0ed3b83cc0728d
   branch: develop
@@ -13,7 +24,7 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/hqmf-parser.git
-  revision: 0a24fc04eda0b75580c03e47d72ccd66ae416de8
+  revision: 3d5f66acc017e7b7c71e2ce30f705af464324fcd
   branch: develop
   specs:
     hqmf-parser (1.0.6)
@@ -24,7 +35,7 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/hqmf2js.git
-  revision: 0eae3d208998d8c36eb3f9f45a91f696550af639
+  revision: a0103c7cdbc329dffef07dd54c3b2a2cdd10ca06
   branch: develop
   specs:
     hqmf2js (1.1.0)
@@ -35,14 +46,14 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/patientapi.git
-  revision: 85a22582ece2a4e69fb2b7ecc019187fc4b06649
+  revision: bcead118143dba61624809e44ea9b219a299fb49
   branch: develop
   specs:
     hquery-patient-api (0.1.0)
 
 GIT
   remote: https://github.com/pophealth/test-patient-generator.git
-  revision: b78e50604deccd1c28591acf34cd0c23fe63c34c
+  revision: 6bea565ac7a555402db7ac11d4638e933ef8ee8c
   branch: develop
   specs:
     test-patient-generator (1.0.2)
@@ -303,6 +314,7 @@ DEPENDENCIES
   pry
   pry-nav
   pry-rescue
+  qrda_generator!
   quality-measure-engine!
   rails (= 3.2.9)
   rubyXL
