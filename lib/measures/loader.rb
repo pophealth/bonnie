@@ -113,7 +113,7 @@ module Measures
                key: vs.display_name.parameterize('_'),
                organization: nil,
                oid: oid,
-               concept: nil,
+               concept: vs.display_name,
                category: nil,
                version: vs.version,
                description: vs.display_name,
