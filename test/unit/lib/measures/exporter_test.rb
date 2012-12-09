@@ -112,7 +112,7 @@ class ExporterTest < ActiveSupport::TestCase
     assert_equal by_patient.keys.size, expected_by_patient.size
     expected_by_patient.each {|field| assert by_patient.include? field}
 
-    expected_by_measure = ["measure_id", "sub_id", "nqf_id", "population_ids", "effective_date", "test_id", "filters", "providers", "IPP", "DENOM", "NUMER", "antinumerator", "DENEX", "DENEXCEP", "considered", "execution_time"]
+    expected_by_measure = ["measure_id", "sub_id", "nqf_id", "population_ids", "effective_date", "test_id", "filters", "IPP", "DENOM", "NUMER", "antinumerator", "DENEX", "DENEXCEP", "considered", "execution_time"]
     by_measure = JSON.parse(bundled_results["by_measure.json"]).first
     assert_equal by_measure.keys.size, expected_by_measure.size
     expected_by_measure.each {|field| assert by_measure.include? field}

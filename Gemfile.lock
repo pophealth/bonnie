@@ -11,7 +11,7 @@ GIT
 
 GIT
   remote: http://github.com/pophealth/quality-measure-engine.git
-  revision: a1974aaa0c4cc527771aefb60a212815c0704000
+  revision: 4b6a3d39c17a1315974c7bd038956a854ca5d63a
   branch: population_match
   specs:
     quality-measure-engine (2.1.0)
@@ -24,7 +24,7 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/hqmf-parser.git
-  revision: 3d5f66acc017e7b7c71e2ce30f705af464324fcd
+  revision: 8220fb8f16003deb826b0e6ab4c9fe1b78833eef
   branch: develop
   specs:
     hqmf-parser (1.0.6)
@@ -35,7 +35,7 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/hqmf2js.git
-  revision: a0103c7cdbc329dffef07dd54c3b2a2cdd10ca06
+  revision: 150d3906d2aef978198315026c3f97b662587a08
   branch: develop
   specs:
     hqmf2js (1.1.0)
@@ -46,21 +46,21 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/patientapi.git
-  revision: bcead118143dba61624809e44ea9b219a299fb49
+  revision: 00285a26cde5dd549b247bc9e1897e0d85eb7ac2
   branch: develop
   specs:
     hquery-patient-api (0.1.0)
 
 GIT
   remote: https://github.com/pophealth/test-patient-generator.git
-  revision: 6bea565ac7a555402db7ac11d4638e933ef8ee8c
+  revision: 6734cc53c7fa95bf3b70bc053632e67d1e612bda
   branch: develop
   specs:
     test-patient-generator (1.0.2)
 
 GIT
   remote: https://github.com/projectcypress/health-data-standards.git
-  revision: ca37bd5fb0bbbed7b321dc05afcb577bf4de64b1
+  revision: dc988021156a99ccafc5b986cbac32802699d7b8
   branch: develop
   specs:
     health-data-standards (2.1.4)
