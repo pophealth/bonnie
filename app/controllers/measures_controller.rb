@@ -310,6 +310,7 @@ class MeasuresController < ApplicationController
     
     @dropped_data_criteria = []
     if (@record.respond_to? :source_data_criteria)
+      
       # check to see if there are any data criteria that we cannot find.  If there are, we want to remove them.
       dropped_source_criteria = @record.source_data_criteria.select {|e| @data_criteria[e['id']].nil? && e['id'] != 'MeasurePeriod' }
       dropped_source_criteria.each do |dc|
@@ -331,6 +332,32 @@ class MeasuresController < ApplicationController
       end
       
       @record.source_data_criteria.delete_if {|dc| dropped = dropped_ids.include? dc['id']; @dropped_data_criteria << dc if dropped; dropped}
+      
+      # change children into parents
+      parent_map = JSON.parse(File.read('./parent_oid_map.json')) if File.exists?('./parent_oid_map.json')
+      @record.source_data_criteria.each do |dc|
+        if dc['value']
+          dc['value'].each do |value|
+            if value['code_list_id'] and parent_map[value['code_list_id']]
+              value['code_list_id'] = parent_map[value['code_list_id']]
+            end
+          end
+          
+        end
+        if dc['negation_code_list_id'] && parent_map[dc['negation_code_list_id']]
+          dc['negation_code_list_id'] = parent_map[dc['negation_code_list_id']]
+        end
+        if dc['field_values']
+          dc['field_values'].each do |key, value|
+            if value['code_list_id'] and parent_map[value['code_list_id']]
+              value['code_list_id'] = parent_map[value['code_list_id']]
+            end
+          end
+          
+        end
+        
+      end if parent_map
+      
       
     end
     
@@ -356,7 +383,7 @@ class MeasuresController < ApplicationController
       ['allergies', 'care_goals', 'conditions', 'encounters', 'immunizations', 'medical_equipment', 'medications', 'procedures', 'results', 'social_history', 'vital_signs'].each do |section|
         patient[section] = [] if patient[section]
       end
-      patient.medical_record_number = Digest::MD5.hexdigest("#{patient.first} #{patient.last}")
+      patient.medical_record_number ||= Digest::MD5.hexdigest("#{patient.first} #{patient.last}")
       patient.save!
     end
 
@@ -413,7 +440,7 @@ class MeasuresController < ApplicationController
     patient['source_data_criteria'] = JSON.parse(params['data_criteria'])
     patient['measure_period_start'] = params['measure_period_start'].to_i
     patient['measure_period_end'] = params['measure_period_end'].to_i
-
+    
     JSON.parse(params['data_criteria']).each {|v|
       data_criteria = HQMF::DataCriteria.from_json(v['id'], @data_criteria[v['id']])
       data_criteria.values = []
