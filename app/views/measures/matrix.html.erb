@@ -109,7 +109,7 @@
 
           	var defs = svg.append('svg:defs');
 
-            _.each([[4,1],[5,1],[4,3],[4,2],[5,3],[5,2],[3,2]], function(item) {
+            _.each([[4,1],[5,1],[4,3],[4,2],[5,3],[5,2],[3,2],[3,1]], function(item) {
 	            available_gradients.push(item[0]+'_'+item[1])
 							defs.append('svg:linearGradient')
 									.attr('x1', "0%").attr('y1', "0%").attr('x2', "100%").attr('y2', "100%")
