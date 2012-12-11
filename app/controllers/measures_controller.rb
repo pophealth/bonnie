@@ -451,16 +451,17 @@ class MeasuresController < ApplicationController
       end if v['value']
       v['field_values'].each do |key, value|
         data_criteria.field_values ||= {}
-        value['value'] = Date.strptime(value['value'],"%m/%d/%Y %H:%M").to_time.strftime('%Y%m%d%H%M%S') if (value['type'] == 'TS') 
+        value['value'] = Time.strptime(value['value'],"%m/%d/%Y %H:%M").to_time.strftime('%Y%m%d%H%M%S') if (value['type'] == 'TS') 
         data_criteria.field_values[key] = HQMF::DataCriteria.convert_value(value)
       end if v['field_values']
       if v['negation'] == 'true'
         data_criteria.negation = true
         data_criteria.negation_code_list_id = v['negation_code_list_id']
       end
-      low = {'value' => Time.at(v['start_date'] / 1000).strftime('%Y%m%d%H%M%S') }
-      high = {'value' => Time.at(v['end_date'] / 1000).strftime('%Y%m%d%H%M%S') }
+      low = {'value' => Time.at(v['start_date'] / 1000).strftime('%Y%m%d%H%M%S'), 'type'=>'TS' }
+      high = {'value' => Time.at(v['end_date'] / 1000).strftime('%Y%m%d%H%M%S'), 'type'=>'TS' }
       high = nil if v['end_date'] == JAN_ONE_THREE_THOUSAND
+      
       data_criteria.modify_patient(patient, HQMF::Range.from_json({'low' => low,'high' => high}), values.values)
     }
 

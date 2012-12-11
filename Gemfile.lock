@@ -24,7 +24,7 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/hqmf-parser.git
-  revision: 8220fb8f16003deb826b0e6ab4c9fe1b78833eef
+  revision: 8cab42d5a7eeb5f1bc3d30ec39f4261956624e35
   branch: develop
   specs:
     hqmf-parser (1.0.6)
@@ -46,21 +46,21 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/patientapi.git
-  revision: 00285a26cde5dd549b247bc9e1897e0d85eb7ac2
+  revision: f6eb87d32655a1c7f614c7e5797805d844b3d219
   branch: develop
   specs:
     hquery-patient-api (0.1.0)
 
 GIT
   remote: https://github.com/pophealth/test-patient-generator.git
-  revision: 6734cc53c7fa95bf3b70bc053632e67d1e612bda
+  revision: 1c9b379713a68e4bb0dc3da5dbaa8d68a7007169
   branch: develop
   specs:
     test-patient-generator (1.0.2)
 
 GIT
   remote: https://github.com/projectcypress/health-data-standards.git
-  revision: dc988021156a99ccafc5b986cbac32802699d7b8
+  revision: 8da283b3522b6dc559b0168bf4b94948cd173487
   branch: develop
   specs:
     health-data-standards (2.1.4)
@@ -178,7 +178,7 @@ GEM
       origin (~> 1.0)
       tzinfo (~> 0.3.22)
     moped (1.2.9)
-    multi_json (1.4.0)
+    multi_json (1.5.0)
     multipart-post (1.1.5)
     nokogiri (1.5.5)
     nokogiri (1.5.5-java)
@@ -241,7 +241,7 @@ GEM
       rubyzip (>= 0.9.4)
       spreadsheet (> 0.6.4)
       todonotes (>= 0.1.0)
-    ruby-ole (1.2.11.5)
+    ruby-ole (1.2.11.6)
     rubyXL (1.2.10)
     rubyzip (0.9.9)
     sass (3.2.3)
