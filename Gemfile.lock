@@ -12,7 +12,7 @@ GIT
 GIT
   remote: http://github.com/pophealth/quality-measure-engine.git
   revision: 4b6a3d39c17a1315974c7bd038956a854ca5d63a
-  branch: population_match
+  branch: develop
   specs:
     quality-measure-engine (2.1.0)
       delayed_job_mongoid (~> 2.0.0)

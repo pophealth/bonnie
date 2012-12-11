@@ -10,7 +10,7 @@ gem 'health-data-standards', :git => 'https://github.com/projectcypress/health-d
 #gem 'health-data-standards', :path => '../health-data-standards'
 gem 'test-patient-generator', :git => 'https://github.com/pophealth/test-patient-generator.git', :branch => 'develop'
 #gem 'test-patient-generator', :path => '../test-patient-generator'
-gem 'quality-measure-engine', :git => 'http://github.com/pophealth/quality-measure-engine.git', :branch => 'population_match'
+gem 'quality-measure-engine', :git => 'http://github.com/pophealth/quality-measure-engine.git', :branch => 'develop'
 #gem 'quality-measure-engine', :path => '../quality-measure-engine'
 #gem 'quality-measure-engine', '2.0.0'
 gem 'qrda_generator', :git => 'http://github.com/eedrummer/qrda_generator.git'
