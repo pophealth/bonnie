@@ -27,7 +27,9 @@ module Measures
         measure.type = metadata["type"]
         measure.category = metadata["category"]
         measure.episode_of_care = metadata["episode_of_care"]
+        measure.continuous_variable = metadata["continuous_variable"]
         measure.episode_ids = metadata["episode_ids"]
+        puts "\tWARNING: Episode of care does not align with episode ids existance" if ((!measure.episode_ids.nil? && measure.episode_ids.length > 0) ^ measure.episode_of_care)
         if (measure.populations.count > 1)
           sub_ids = ('a'..'az').to_a
           measure.populations.each_with_index do |population, population_index|
@@ -40,12 +42,14 @@ module Measures
         measure.type = "unknown"
         measure.category = "Miscellaneous"
         measure.episode_of_care = false
+        measure.continuous_variable = false
         puts "\tWARNING: Could not find metadata for measure: #{measure.hqmf_set_id}"
       end
 
       measure.population_criteria = json["population_criteria"]
       measure.data_criteria = json["data_criteria"]
       measure.source_data_criteria = json["source_data_criteria"]
+      puts "\tCould not find episode ids #{measure.episode_ids} in measure #{measure.measure_id}" if (measure.episode_ids && measure.episode_of_care && (measure.episode_ids - measure.source_data_criteria.keys).length > 0)
       measure.measure_period = json["measure_period"]
       measure
     end

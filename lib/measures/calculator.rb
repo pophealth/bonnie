@@ -27,8 +27,6 @@ module Measures
           measure_id = MONGO_DB["measures"].find({id: measure_json[:id]}).first
           MONGO_DB["bundles"].find({}).update({"$push" => {"measures" => measure_id}})
           
-          #binding.pry
-
           effective_date = Measure::DEFAULT_EFFECTIVE_DATE
           oid_dictionary = HQMF2JS::Generator::CodesToJson.hash_to_js(Measures::Calculator.measure_codes(measure))
           report = QME::QualityReport.new(measure_json[:id], measure_json[:sub_id], {'effective_date' => effective_date, 'oid_dictionary' => oid_dictionary})
@@ -138,6 +136,7 @@ module Measures
     def self.execution_logic(measure, population_index=0, load_codes=false)
       gen = HQMF2JS::Generator::JS.new(measure.as_hqmf_model)
       codes = measure_codes(measure) if load_codes
+      
       "
       var patient_api = new hQuery.Patient(patient);
 
@@ -169,7 +168,13 @@ module Measures
       var denexcep = function() {
         return executeIfAvailable(hqmfjs.#{HQMF::PopulationCriteria::DENEXCEP}, patient_api);
       }
-      
+      var msrpopl = function() {
+        return executeIfAvailable(hqmfjs.#{HQMF::PopulationCriteria::MSRPOPL}, patient_api);
+      }
+      var observ = function() {
+        return [];
+      }
+            
       var executeIfAvailable = function(optionalFunction, arg) {
         if (typeof(optionalFunction)==='function')
           return optionalFunction(arg);
@@ -179,7 +184,7 @@ module Measures
 
       if (Logger.enabled) enableMeasureLogging(hqmfjs);
 
-      map(patient, population, denominator, numerator, exclusion, denexcep, occurrenceId);
+      map(patient, population, denominator, numerator, exclusion, denexcep, msrpopl, observ, occurrenceId,#{measure.continuous_variable});
       "
     end
 
