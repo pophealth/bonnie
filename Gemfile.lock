@@ -24,7 +24,7 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/hqmf-parser.git
-  revision: bac9aab9665f2f00bdcd2e066b1bbe3a80f88384
+  revision: 15dbc74a6782186b9ffe6062896d770700da9f00
   branch: develop
   specs:
     hqmf-parser (1.0.6)
@@ -35,7 +35,7 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/hqmf2js.git
-  revision: c247b6b57e044d6a19e10815cd3f1848955de9cc
+  revision: e395c15b4258d81139d9e0597f9ce27b6feba24e
   branch: develop
   specs:
     hqmf2js (1.1.0)
@@ -53,7 +53,7 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/test-patient-generator.git
-  revision: 1c9b379713a68e4bb0dc3da5dbaa8d68a7007169
+  revision: 71af8f8d62719e83d9ee3d17bcb6af9b43b54307
   branch: develop
   specs:
     test-patient-generator (1.0.2)
