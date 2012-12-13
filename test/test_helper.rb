@@ -33,6 +33,7 @@ class ActiveSupport::TestCase
     Mongoid.session(:default).collections.each do |collection|
       collection.drop unless collection.name.include?('system.')
     end
+    MONGO_DB.command(getLastError: 1)
   end
 
   def raw_post(action, body, parameters = nil, session = nil, flash = nil)
@@ -52,6 +53,7 @@ class ActiveSupport::TestCase
           MONGO_DB[collection].save(fixture_json)
       end
     end
+    MONGO_DB.command(getLastError: 1)
   end
   
   def hash_includes?(expected, actual)

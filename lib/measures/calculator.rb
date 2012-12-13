@@ -12,8 +12,8 @@ module Measures
       MONGO_DB["bundles"].insert(JSON.parse(bundle.values.first))
       
       # Delete all old results for these measures because they might be out of date.
-      MONGO_DB['query_cache'].find({}).remove_all
-      MONGO_DB['patient_cache'].find({}).remove_all
+      MONGO_DB['query_cache'].find({}).remove_all unless only_initialize
+      MONGO_DB['patient_cache'].find({}).remove_all unless only_initialize
       MONGO_DB['measures'].drop
       
       # Break apart each measure into its submeasures and store as JSON into the measures collection for QME

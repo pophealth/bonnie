@@ -123,7 +123,12 @@ module Measures
       c32 = HealthDataStandards::Export::C32.export(patient)
       ccda = HealthDataStandards::Export::CCDA.export(patient)
       ccr = HealthDataStandards::Export::CCR.export(patient)
-      json = JSON.pretty_generate(JSON.parse(patient.as_json(:except => [ '_id', 'measure_id' ]).to_json))
+      
+      patient_hash = patient.as_json(except: [ '_id', 'measure_id' ], methods: ['_type'])
+      remove_nils = Proc.new { |k, v| v.kind_of?(Hash) ? (v.delete_if(&remove_nils); nil) : v.nil? }; 
+      patient_hash.delete_if(&remove_nils)
+      json = JSON.pretty_generate(JSON.parse(patient_hash.to_json))
+      
       html = HealthDataStandards::Export::HTML.export(patient)
 
       {
