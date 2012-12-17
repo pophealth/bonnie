@@ -184,8 +184,8 @@ measures: &measures
     episode_of_care: false
     continuous_variable: false
     subtitles:
-      a: prior MI
-      b: LVSD
+      a: LVSD
+      b: prior MI
   500E4792-7F94-4E34-8546-EE71C56FE463:
     nqf_id: '0075'
     type: ep
