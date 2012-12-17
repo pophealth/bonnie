@@ -460,6 +460,11 @@ measures: &measures
     category: Dental
     episode_of_care: false
     continuous_variable: false
+    subtitles:
+      a: 0-20
+      b: 'RS1: <= 5'
+      c: 'RS2: 6-12'
+      d: 'RS3: 13-20'
 
 ################################################
 ################# EH Measures ##################
