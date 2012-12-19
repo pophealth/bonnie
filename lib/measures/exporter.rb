@@ -125,7 +125,7 @@ module Measures
       ccr = HealthDataStandards::Export::CCR.export(patient)
       
       patient_hash = patient.as_json(except: [ '_id', 'measure_id' ], methods: ['_type'])
-      patient_hash['measure_ids'] = []
+      patient_hash['measure_ids'] = patient_hash['measure_ids'].uniq.reject {|id| /.*-.*/.match(id).nil? } if patient_hash['measure_ids']
       remove_nils = Proc.new { |k, v| v.kind_of?(Hash) ? (v.delete_if(&remove_nils); nil) : v.nil? }; 
       patient_hash.delete_if(&remove_nils)
       json = JSON.pretty_generate(JSON.parse(patient_hash.to_json))
