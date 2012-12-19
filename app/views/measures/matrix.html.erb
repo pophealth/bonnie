@@ -42,7 +42,7 @@
       $('#loadingModal').modal({backdrop:'static',keyboard:false});
       $('#toggle_highlight').change(
         function(){
-          if($(this).prop('checked')) d3.selectAll('.column text').style('fill', function(){var c = $(this).data('counts'); return c[0] && c[3] && c[4] ? '' : 'red';})
+          if($(this).prop('checked')) d3.selectAll('.column text').style('fill', function(){var c = $(this).data('counts'); return c[2] && c[3] ? '' : 'red';})
           else d3.selectAll('.column text').style('fill', '');
         }
       );
@@ -69,19 +69,20 @@
               y = d3.scale.ordinal().rangeBands([0, height]),
               z = d3.scale.linear().domain([0, 4]).clamp(true),
               c = d3.scale.category10().domain(d3.range(10)),
-              colors = ['#eeeeee', '#cccccc', '#f06560', '#40b3bc', '#9cc45e', '#eda039'];
+              colors = ['#eeeeee', '#cccccc', '#40b3bc', '#9cc45e', '#eda039', '#f06560'];
+              available_gradients=[]
 
           d3.range(6).forEach(
             function(i){
               d3.select('#key').append('div')
                 .style('background', colors[i])
-                .text(['None','Population','Exceptions','Denominator','Numerator','Exclusions'][i])
+                .text(['None','Population','Denominator','Numerator','Exclusions','Exceptions'][i])
                 .on('click',
                   function(){
-                    var hl = $(this).parent().children().toArray().indexOf(this);
+                    var hl = $(this).parent().children().toArray().indexOf(this) - 1;
                     d3.selectAll('.cell').each(
                       function(i){
-                        $(this).css('opacity', !hl || i.category == hl ? 1 : .4);
+                        $(this).css('opacity', !hl || i.category == hl ? 1 : .15);
                       }
                     );
                   }
@@ -105,6 +106,33 @@
             )
           .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+          	var defs = svg.append('svg:defs');
+
+            _.each([[4,1],[5,1],[4,3],[4,2],[5,3],[5,2],[3,2],[3,1]], function(item) {
+	            available_gradients.push(item[0]+'_'+item[1])
+							defs.append('svg:linearGradient')
+									.attr('x1', "0%").attr('y1', "0%").attr('x2', "100%").attr('y2', "100%")
+									.attr('id', 'gradient_'+item[0]+'_'+item[1]).call(
+										function (gradient) {
+						      		gradient.append('svg:stop').attr('offset', '49%').attr('style', 'stop-color:'+colors[item[0]]+';stop-opacity:1');
+						      		gradient.append('svg:stop').attr('offset', '51%').attr('style', 'stop-color:'+colors[item[1]]+';stop-opacity:1');
+										});
+            });
+
+            _.each([[4,2,1],[5,2,1],[3,2,1],[5,4,3],[5,4,3]], function(item) {
+	            available_gradients.push(item[0]+'_'+item[1]+'_'+item[2])
+							defs.append('svg:linearGradient')
+									.attr('x1', "0%").attr('y1', "0%").attr('x2', "100%").attr('y2', "100%")
+									.attr('id', 'gradient_'+item[0]+'_'+item[1]+'_'+item[2]).call(
+										function (gradient) {
+						      		gradient.append('svg:stop').attr('offset', '38%').attr('style', 'stop-color:'+colors[item[0]]+';start-opacity:1;stop-opacity:1');
+						      		gradient.append('svg:stop').attr('offset', '38%').attr('style', 'stop-color:'+colors[item[1]]+';start-opacity:1;stop-opacity:1');
+						      		gradient.append('svg:stop').attr('offset', '62%').attr('style', 'stop-color:'+colors[item[1]]+';start-opacity:1;stop-opacity:1');
+						      		gradient.append('svg:stop').attr('offset', '62%').attr('style', 'stop-color:'+colors[item[2]]+';start-opacity:1;stop-opacity:1');
+										});
+            });
+
 
           $(document.createElement('div'))
             .addClass('crosshair_container')
@@ -173,20 +201,36 @@
 
           $('.column text').popover({
             content:function(){
-              return $(this).data('counts').map(function(e, i){return ['None','Population','Exceptions','Denominator','Numerator','Exclusions'][i] + ': ' + e;}).join('<br />');
+              return $(this).data('counts').map(function(e, i){return ['None','Population','Denominator','Numerator','Exclusions','Exceptions'][i] + ': ' + e;}).join('<br />');
             }
           });
 
           function row(row) {
             var cell = d3.select(this).selectAll(".cell")
                 .data(row.filter(function(d) { return d.z; }))
-              .enter().append("rect")
+                .enter().append("rect")
                 .attr("class", "cell")
                 .attr("x", function(d) { return x(d.x); })
                 .attr("width", x.rangeBand())
                 .attr("height", y.rangeBand())
                 .style("fill-opacity", function(d) { return z(d.z); })
-                .style("fill", function(d){return colors[d.category] })
+                .style("fill", function(d){
+	                
+
+	                if (d.categories.length > 1 ) {
+		                gradient_key = d.categories.join('_')
+		                if (available_gradients.indexOf(gradient_key) >= 0) {
+			                return "url(#gradient_"+gradient_key+")"
+		                } else {
+			                console.log(gradient_key);
+			                return '#000000' 
+		                }
+	                } else {
+		                return colors[d.category] 
+	                }
+	
+	
+	              }) 
                 .on("mouseover", mouseover)
                 .on("mouseout", mouseout)
                 .on('click',
@@ -216,13 +260,33 @@
                 };
 
                 matrix_column = (matrix[y] || matrix[matrix.push([]) - 1])
-                category = patient_cache_row.value.exclusions ? 5 : patient_cache_row.value.numerator ? 4 : patient_cache_row.value.denominator ? 3 : patient_cache_row.value.denexcep ? 2 : patient_cache_row.value.population ? 1 : 0
+
+                categories = []
+                if (patient_cache_row.value.DENEXCEP)  {
+	                categories.push(5)
+                }
+                if (patient_cache_row.value.DENEX) {
+	                categories.push(4)
+                }
+                if (patient_cache_row.value.NUMER || patient_cache_row.value.MSRPOPL)  {
+	                categories.push(3)
+                }
+                if (patient_cache_row.value.DENOM && patient_cache_row.value.DENOM > (patient_cache_row.value.NUMER || 0))  {
+	                categories.push(2)
+                }
+                if (patient_cache_row.value.IPP && (patient_cache_row.value.IPP > ((patient_cache_row.value.DENOM || 0) + (patient_cache_row.value.DENEX || 0) + (patient_cache_row.value.DENEXCEP || 0)+ (patient_cache_row.value.MSRPOPL || 0)))) {
+	                categories.push(1)
+                }
+                if (categories.length == 0) categories.push(0)
+
+                categories.sort().reverse()
 
                 matrix_column[x] = {
                   x: x,
                   y: y,
                   z: 4,
-                  category: category
+                  categories: categories,
+                  category: categories[0]
                 }
               }
             );

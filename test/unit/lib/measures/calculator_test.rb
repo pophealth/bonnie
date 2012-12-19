@@ -7,7 +7,7 @@ class CalculatorTest < ActiveSupport::TestCase
     hqmf_file = "test/fixtures/measure-defs/0002/0002.xml"
     value_set_file = "test/fixtures/measure-defs/0002/0002.xls"
     
-    Measures::Loader.load(hqmf_file, value_set_file, @user)
+    Measures::Loader.load(hqmf_file, @user, nil, true, nil, nil, nil, value_set_file)
     Measure.all.count.must_equal 1
     
     @measure = Measure.all.first
@@ -23,23 +23,21 @@ class CalculatorTest < ActiveSupport::TestCase
     assert_equal MONGO_DB["system.js"].find({}).count(), Measures::Calculator.library_functions.size
 
     patient_result = MONGO_DB["patient_cache"].find({}).first["value"]
-    assert_equal patient_result["population"], 1
-    assert_equal patient_result["denominator"], 0
-    assert_equal patient_result["numerator"], 0
-    assert_equal patient_result["denexcep"], 0
-    assert_equal patient_result["exclusions"], 0
-    assert_equal patient_result["antinumerator"], 0
+    assert_equal patient_result[QME::QualityReport::POPULATION], 1
+    assert_equal patient_result[QME::QualityReport::DENOMINATOR], 0
+    assert_equal patient_result[QME::QualityReport::NUMERATOR], 0
+    assert_equal patient_result[QME::QualityReport::EXCEPTIONS], 0
+    assert_equal patient_result[QME::QualityReport::EXCLUSIONS], 0
+    assert_equal patient_result[QME::QualityReport::ANTINUMERATOR], 0
   end
 
   test "library functions" do
     library_functions = Measures::Calculator.library_functions
     
     refute_nil library_functions["map_reduce_utils"]
-    refute_nil library_functions["underscore_min"]
     refute_nil library_functions["hqmf_utils"]
     
     assert library_functions["map_reduce_utils"].length > 0
-    assert library_functions["underscore_min"].length > 0
     assert library_functions["hqmf_utils"].length > 0
   end
 

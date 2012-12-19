@@ -19,7 +19,12 @@ class @bonnie.PatientBuilder
 
   orderedValueSets: =>
     _.values(@value_sets).sort((left, right) =>
-      left.concept > right.concept)
+      result = 0
+      l = left.concept.toLowerCase().trim()
+      r = right.concept.toLowerCase().trim()
+      result = -1 if ( l < r )
+      result = 1 if ( l > r )
+      result)
 
   nextDataCriteriaId: =>
     @data_criteria_counter+=1

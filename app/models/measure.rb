@@ -18,6 +18,8 @@ class Measure
   field :category, type: String
   field :steward, type: String    # organization who's writing the measure
   field :episode_of_care, type: Boolean
+  field :continuous_variable, type: Boolean
+  field :episode_ids, type: Array # of String ids
 
   field :published, type: Boolean
   field :publish_date, type: Date
@@ -88,7 +90,8 @@ class Measure
       population[HQMF::PopulationCriteria::NUMER] => "numerator",
       population[HQMF::PopulationCriteria::DENEX] => "exclusions",
       population[HQMF::PopulationCriteria::DENEXCEP] => "exceptions",
-      population[HQMF::PopulationCriteria::MSRPOPL] => "measure population"
+      population[HQMF::PopulationCriteria::MSRPOPL] => "measure population",
+      population[HQMF::PopulationCriteria::OBSERV] => "measure observation"
     }
     self.population_criteria.each do |key, criteria|
       parameter_json[title_mapping[key]] = population_criteria_json(criteria, inline) if title_mapping[key]

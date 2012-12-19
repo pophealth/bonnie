@@ -12,8 +12,8 @@ module Measures
       MONGO_DB["bundles"].insert(JSON.parse(bundle.values.first))
       
       # Delete all old results for these measures because they might be out of date.
-      MONGO_DB['query_cache'].find({}).remove_all
-      MONGO_DB['patient_cache'].find({}).remove_all
+      MONGO_DB['query_cache'].find({}).remove_all unless only_initialize
+      MONGO_DB['patient_cache'].find({}).remove_all unless only_initialize
       MONGO_DB['measures'].drop
       
       # Break apart each measure into its submeasures and store as JSON into the measures collection for QME
@@ -38,7 +38,6 @@ module Measures
     def self.library_functions
       library_functions = {}
       library_functions['map_reduce_utils'] = File.read(File.join('.','lib','assets','javascripts','libraries','map_reduce_utils.js'))
-      library_functions['underscore_min'] = File.read(File.join('.','app','assets','javascripts','_underscore-min.js'))
       library_functions['hqmf_utils'] = HQMF2JS::Generator::JS.library_functions
       library_functions
     end    
@@ -125,9 +124,19 @@ module Measures
       "
     end
     
+    def self.quoted_string_array_or_null(arr)
+      if arr
+        quoted = arr.map {|e| "\"#{e}\""}
+        "[#{quoted.join(',')}]"
+      else
+        "null"
+      end
+    end
+    
     def self.execution_logic(measure, population_index=0, load_codes=false)
       gen = HQMF2JS::Generator::JS.new(measure.as_hqmf_model)
       codes = measure_codes(measure) if load_codes
+      
       "
       var patient_api = new hQuery.Patient(patient);
 
@@ -139,6 +148,8 @@ module Measures
       if (Logger.enabled) enableLogging();
       
       #{gen.to_js(population_index, codes)}
+      
+      var occurrenceId = #{quoted_string_array_or_null(measure.episode_ids)};
 
       hqmfjs.initializeSpecifics(patient_api, hqmfjs)
       
@@ -157,7 +168,13 @@ module Measures
       var denexcep = function() {
         return executeIfAvailable(hqmfjs.#{HQMF::PopulationCriteria::DENEXCEP}, patient_api);
       }
-      
+      var msrpopl = function() {
+        return executeIfAvailable(hqmfjs.#{HQMF::PopulationCriteria::MSRPOPL}, patient_api);
+      }
+      var observ = function() {
+        return [];
+      }
+            
       var executeIfAvailable = function(optionalFunction, arg) {
         if (typeof(optionalFunction)==='function')
           return optionalFunction(arg);
@@ -167,7 +184,7 @@ module Measures
 
       if (Logger.enabled) enableMeasureLogging(hqmfjs);
 
-      map(patient, population, denominator, numerator, exclusion, denexcep);
+      map(patient, population, denominator, numerator, exclusion, denexcep, msrpopl, observ, occurrenceId,#{measure.continuous_variable});
       "
     end
 

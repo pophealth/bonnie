@@ -7,7 +7,7 @@ class ExporterTest < ActiveSupport::TestCase
     hqmf_file = "test/fixtures/measure-defs/0002/0002.xml"
     value_set_file = "test/fixtures/measure-defs/0002/0002.xls"
     
-    Measures::Loader.load(hqmf_file, value_set_file, @user)
+    Measures::Loader.load(hqmf_file, @user, nil, true, nil, nil, nil, value_set_file)
     Measure.all.count.must_equal 1
     
     @measure = Measure.all.first
@@ -32,7 +32,6 @@ class ExporterTest < ActiveSupport::TestCase
 
     patient_name = "#{@patient.first}_#{@patient.last}"
     expected = ["library_functions/map_reduce_utils.js",
-      "library_functions/underscore_min.js",
       "library_functions/hqmf_utils.js",
       "./bundle.json",
       "measures/ep/0002.json",
@@ -108,12 +107,12 @@ class ExporterTest < ActiveSupport::TestCase
 
     assert_equal bundled_results.size, 2
 
-    expected_by_patient = ["population", "denominator", "numerator", "denexcep", "exclusions", "antinumerator", "patient_id", "medical_record_id", "first", "last", "gender", "birthdate", "test_id", "provider_performances", "race", "ethnicity", "languages", "logger", "measure_id", "nqf_id", "effective_date"]
+    expected_by_patient = ["IPP", "DENOM", "NUMER", "DENEXCEP", "DENEX", "antinumerator", "patient_id", "medical_record_id", "first", "last", "gender", "birthdate", "test_id", "provider_performances", "race", "ethnicity", "languages", "logger", "measure_id", "nqf_id", "effective_date"]
     by_patient = JSON.parse(bundled_results["by_patient.json"]).first["value"]
     assert_equal by_patient.keys.size, expected_by_patient.size
     expected_by_patient.each {|field| assert by_patient.include? field}
 
-    expected_by_measure = ["measure_id", "sub_id", "nqf_id", "population_ids", "effective_date", "test_id", "filters", "population", "denominator", "numerator", "antinumerator", "exclusions", "denexcep", "considered", "execution_time"]
+    expected_by_measure = ["measure_id", "sub_id", "nqf_id", "population_ids", "effective_date", "test_id", "filters", "IPP", "DENOM", "NUMER", "antinumerator", "DENEX", "DENEXCEP", "considered", "execution_time"]
     by_measure = JSON.parse(bundled_results["by_measure.json"]).first
     assert_equal by_measure.keys.size, expected_by_measure.size
     expected_by_measure.each {|field| assert by_measure.include? field}

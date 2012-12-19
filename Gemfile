@@ -1,13 +1,14 @@
 source 'https://rubygems.org'
 
-gem 'hqmf-parser', '~> 1.0.5'
-gem 'hqmf2js', '~> 1.0.1'
-gem 'hquery-patient-api', '~> 0.3.0'
-gem 'health-data-standards', '~> 2.1.3'
-gem 'test-patient-generator', '~> 1.0.1'
-gem 'quality-measure-engine', '~> 2.1.0'
+gem 'hqmf-parser', '~> 1.1.0'
+gem 'hqmf2js', '~> 1.1.0'
+gem 'hquery-patient-api', '~> 1.0.0'
+gem 'health-data-standards', '~> 2.2.0'
+gem 'test-patient-generator', '~> 1.0.2'
+gem 'quality-measure-engine', '~> 2.2.0'
+gem 'qrda_generator', :git => 'http://github.com/projectcypress/qrda_generator.git'
 
-gem 'rails', '3.2.2'
+gem 'rails', '3.2.9'
 gem 'jquery-rails'
 gem 'jquery-ui-rails'
 
@@ -16,6 +17,7 @@ gem 'foreman'
 gem 'cancan'
 gem 'factory_girl'
 gem 'text'
+gem 'rubyXL'
 
 gem "mongoid", '~> 3.0.9'
 

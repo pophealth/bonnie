@@ -1,31 +1,106 @@
+GIT
+  remote: http://github.com/eedrummer/qrda_generator.git
+  revision: 1353c24b932c2e861d62c9cefc6b4e2e3b78aaed
+  specs:
+    qrda_generator (0.1.0)
+      health-data-standards (~> 2.1.4)
+      hqmf-parser (~> 1.0.6)
+      log4r (~> 1.1.10)
+      mongoid (~> 3.0.6)
+      nokogiri (~> 1.5.5)
+      uuid (~> 2.3.5)
+
+GIT
+  remote: http://github.com/pophealth/quality-measure-engine.git
+  revision: d128aca8db45c219e883fea33a3499af684940a6
+  branch: develop
+  specs:
+    quality-measure-engine (2.1.0)
+      delayed_job_mongoid (~> 2.0.0)
+      mongoid (~> 3.0.9)
+      moped (~> 1.2.7)
+      nokogiri (~> 1.5.5)
+      rubyXL (~> 1.2.10)
+      rubyzip (~> 0.9.9)
+
+GIT
+  remote: https://github.com/pophealth/hqmf-parser.git
+  revision: c227a74f1c107ed6cde7ba27a73b3d86ed331aef
+  branch: develop
+  specs:
+    hqmf-parser (1.0.6)
+      google-spreadsheet-ruby (= 0.1.8)
+      roo (= 1.10.1)
+      rubyzip
+      spreadsheet (= 0.6.8)
+
+GIT
+  remote: https://github.com/pophealth/hqmf2js.git
+  revision: 9bd01acd92a91ad8ccaad76fdbae7275ff8bbfb1
+  branch: develop
+  specs:
+    hqmf2js (1.1.0)
+      coffee-script (~> 2.2.0)
+      nokogiri (~> 1.5.5)
+      sprockets (~> 2.2.2)
+      tilt (~> 1.3.3)
+
+GIT
+  remote: https://github.com/pophealth/patientapi.git
+  revision: f6eb87d32655a1c7f614c7e5797805d844b3d219
+  branch: develop
+  specs:
+    hquery-patient-api (0.1.0)
+
+GIT
+  remote: https://github.com/pophealth/test-patient-generator.git
+  revision: 045070277366853a95bb57c4595b7cdfb8f7a577
+  branch: develop
+  specs:
+    test-patient-generator (1.0.2)
+
+GIT
+  remote: https://github.com/projectcypress/health-data-standards.git
+  revision: deb3d75641e27effda6a6f545499e95f386b247d
+  branch: develop
+  specs:
+    health-data-standards (2.1.4)
+      activesupport (~> 3.2.9)
+      builder (~> 3.0.0)
+      erubis (~> 2.7.0)
+      mongoid (~> 3.0.14)
+      nokogiri (~> 1.5.5)
+      rest-client (~> 1.6.7)
+      uuid (~> 2.3.5)
+
 GEM
   remote: https://rubygems.org/
   specs:
-    actionmailer (3.2.2)
-      actionpack (= 3.2.2)
-      mail (~> 2.4.0)
-    actionpack (3.2.2)
-      activemodel (= 3.2.2)
-      activesupport (= 3.2.2)
+    actionmailer (3.2.9)
+      actionpack (= 3.2.9)
+      mail (~> 2.4.4)
+    actionpack (3.2.9)
+      activemodel (= 3.2.9)
+      activesupport (= 3.2.9)
       builder (~> 3.0.0)
       erubis (~> 2.7.0)
-      journey (~> 1.0.1)
+      journey (~> 1.0.4)
       rack (~> 1.4.0)
-      rack-cache (~> 1.1)
+      rack-cache (~> 1.2)
       rack-test (~> 0.6.1)
-      sprockets (~> 2.1.2)
-    activemodel (3.2.2)
-      activesupport (= 3.2.2)
+      sprockets (~> 2.2.1)
+    activemodel (3.2.9)
+      activesupport (= 3.2.9)
       builder (~> 3.0.0)
-    activerecord (3.2.2)
-      activemodel (= 3.2.2)
-      activesupport (= 3.2.2)
+    activerecord (3.2.9)
+      activemodel (= 3.2.9)
+      activesupport (= 3.2.9)
       arel (~> 3.0.2)
       tzinfo (~> 0.3.29)
-    activeresource (3.2.2)
-      activemodel (= 3.2.2)
-      activesupport (= 3.2.2)
-    activesupport (3.2.2)
+    activeresource (3.2.9)
+      activemodel (= 3.2.9)
+      activesupport (= 3.2.9)
+    activesupport (3.2.9)
       i18n (~> 0.6)
       multi_json (~> 1.0)
     ansi (1.4.3)
@@ -72,32 +147,14 @@ GEM
       oauth (>= 0.3.6)
       oauth2 (>= 0.5.0)
     hashie (1.2.0)
-    health-data-standards (2.1.3)
-      builder (~> 3.0.0)
-      erubis (~> 2.7.0)
-      mongoid (~> 3.0.6)
-      nokogiri (~> 1.5.5)
-      rest-client (~> 1.6.7)
-      uuid (~> 2.3.5)
     hike (1.2.1)
-    hqmf-parser (1.0.5)
-      google-spreadsheet-ruby (= 0.1.8)
-      roo (= 1.10.1)
-      rubyzip
-      spreadsheet (= 0.6.8)
-    hqmf2js (1.0.1)
-      coffee-script (~> 2.2.0)
-      nokogiri (~> 1.5.2)
-      sprockets (~> 2.1.2)
-      tilt (~> 1.3.3)
-    hquery-patient-api (0.3.0)
     httpauth (0.2.0)
     i18n (0.6.1)
     interception (0.3)
     journey (1.0.4)
-    jquery-rails (2.1.3)
-      railties (>= 3.1.0, < 5.0)
-      thor (~> 0.14)
+    jquery-rails (2.1.4)
+      railties (>= 3.0, < 5.0)
+      thor (>= 0.14, < 2.0)
     jquery-ui-rails (2.0.2)
       jquery-rails
       railties (>= 3.1.0)
@@ -115,14 +172,14 @@ GEM
       treetop (~> 1.4.8)
     method_source (0.8.1)
     mime-types (1.19)
-    minitest (4.1.0)
-    mongoid (3.0.13)
+    minitest (4.3.2)
+    mongoid (3.0.15)
       activemodel (~> 3.1)
       moped (~> 1.1)
       origin (~> 1.0)
       tzinfo (~> 0.3.22)
     moped (1.2.9)
-    multi_json (1.3.7)
+    multi_json (1.5.0)
     multipart-post (1.1.5)
     nokogiri (1.5.5)
     nokogiri (1.5.5-java)
@@ -133,7 +190,7 @@ GEM
       jwt (~> 0.1.4)
       multi_json (~> 1.0)
       rack (~> 1.2)
-    origin (1.0.10)
+    origin (1.0.11)
     orm_adapter (0.4.0)
     polyglot (0.3.3)
     pry (0.9.10)
@@ -147,16 +204,9 @@ GEM
       spoon (~> 0.0)
     pry-nav (0.2.2)
       pry (~> 0.9.10)
-    pry-rescue (0.12)
+    pry-rescue (0.13)
       interception (>= 0.3)
       pry
-    quality-measure-engine (2.1.0)
-      delayed_job_mongoid (~> 2.0.0)
-      mongoid (~> 3.0.9)
-      moped (~> 1.2.7)
-      nokogiri (~> 1.5.5)
-      rubyXL (~> 1.2.10)
-      rubyzip (~> 0.9.9)
     rack (1.4.1)
     rack-cache (1.2)
       rack (>= 0.4)
@@ -164,25 +214,25 @@ GEM
       rack
     rack-test (0.6.2)
       rack (>= 1.0)
-    rails (3.2.2)
-      actionmailer (= 3.2.2)
-      actionpack (= 3.2.2)
-      activerecord (= 3.2.2)
-      activeresource (= 3.2.2)
-      activesupport (= 3.2.2)
+    rails (3.2.9)
+      actionmailer (= 3.2.9)
+      actionpack (= 3.2.9)
+      activerecord (= 3.2.9)
+      activeresource (= 3.2.9)
+      activesupport (= 3.2.9)
       bundler (~> 1.0)
-      railties (= 3.2.2)
-    railties (3.2.2)
-      actionpack (= 3.2.2)
-      activesupport (= 3.2.2)
+      railties (= 3.2.9)
+    railties (3.2.9)
+      actionpack (= 3.2.9)
+      activesupport (= 3.2.9)
       rack-ssl (~> 1.3.2)
       rake (>= 0.8.7)
       rdoc (~> 3.4)
-      thor (~> 0.14.6)
-    rake (0.9.2.2)
+      thor (>= 0.14.6, < 2.0)
+    rake (10.0.2)
     rdoc (3.12)
       json (~> 1.4)
-    ref (1.0.0)
+    ref (1.0.2)
     rest-client (1.6.7)
       mime-types (>= 1.16)
     roo (1.10.1)
@@ -192,10 +242,10 @@ GEM
       rubyzip (>= 0.9.4)
       spreadsheet (> 0.6.4)
       todonotes (>= 0.1.0)
-    ruby-ole (1.2.11.5)
+    ruby-ole (1.2.11.6)
     rubyXL (1.2.10)
     rubyzip (0.9.9)
-    sass (3.2.1)
+    sass (3.2.3)
     sass-rails (3.2.5)
       railties (~> 3.2.0)
       sass (>= 3.1.10)
@@ -210,21 +260,21 @@ GEM
       spork
     spreadsheet (0.6.8)
       ruby-ole (>= 1.0)
-    sprockets (2.1.3)
+    sprockets (2.2.2)
       hike (~> 1.2)
+      multi_json (~> 1.0)
       rack (~> 1.0)
       tilt (~> 1.1, != 1.3.0)
     systemu (2.5.2)
-    test-patient-generator (1.0.1)
     text (1.2.1)
     therubyracer (0.11.0beta8)
       ref
     therubyrhino (2.0.1)
       therubyrhino_jar (>= 1.7.3)
     therubyrhino_jar (1.7.4)
-    thor (0.14.6)
+    thor (0.16.0)
     tilt (1.3.3)
-    todonotes (0.1.0)
+    todonotes (0.1.1)
       log4r
     treetop (1.4.12)
       polyglot
@@ -235,7 +285,7 @@ GEM
     uglifier (1.3.0)
       execjs (>= 0.3.0)
       multi_json (~> 1.0, >= 1.0.2)
-    uuid (2.3.5)
+    uuid (2.3.6)
       macaddr (~> 1.0)
     warden (1.2.1)
       rack (>= 1.0)
@@ -253,10 +303,10 @@ DEPENDENCIES
   devise
   factory_girl
   foreman
-  health-data-standards (~> 2.1.3)
-  hqmf-parser (~> 1.0.5)
-  hqmf2js (~> 1.0.1)
-  hquery-patient-api (~> 0.3.0)
+  health-data-standards!
+  hqmf-parser!
+  hqmf2js!
+  hquery-patient-api!
   jquery-rails
   jquery-ui-rails
   libv8 (~> 3.11.8.3)
@@ -265,13 +315,15 @@ DEPENDENCIES
   pry
   pry-nav
   pry-rescue
-  quality-measure-engine (~> 2.1.0)
-  rails (= 3.2.2)
+  qrda_generator!
+  quality-measure-engine!
+  rails (= 3.2.9)
+  rubyXL
   sass-rails (~> 3.2.3)
   simple_form
   spork
   spork-minitest
-  test-patient-generator (~> 1.0.1)
+  test-patient-generator!
   text
   therubyracer (~> 0.11.0beta5)
   therubyrhino

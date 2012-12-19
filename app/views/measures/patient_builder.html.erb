@@ -859,7 +859,8 @@
             </div>
           </div>
           <div class="row">
-            <% insurance_types = @record.insurance_providers.try(:collect) {|provider| provider.type} || [] %>
+            <% insurance_types = @record.insurance_providers.try(:collect) {|provider| provider.type} if @record.respond_to? :insurance_providers %>
+            <% insurance_types ||= [] %>
             <% insurance_type = insurance_types.length > 0 ? insurance_types[0] : 'OT' %>
             <div class="span4">
               Payer:

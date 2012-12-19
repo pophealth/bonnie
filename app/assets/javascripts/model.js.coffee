@@ -19,7 +19,7 @@ class @bonnie.SubsetOperator
   constructor: (subset_operator) ->
     @range = new bonnie.Range(subset_operator.value) if subset_operator.value
     @type = subset_operator.type
-    @type_decoder = {'COUNT':'count', 'FIRST':'first', 'SECOND':'second', 'THIRD':'third', 'FOURTH':'fourth', 'FIFTH':'fifth', 'RECENT':'most recent', 'LAST':'last', 'MIN':'min', 'MAX':'max'}
+    @type_decoder = {'COUNT':'count', 'FIRST':'first', 'SECOND':'second', 'THIRD':'third', 'FOURTH':'fourth', 'FIFTH':'fifth', 'RECENT':'most recent', 'LAST':'last', 'MIN':'min', 'MAX':'max', 'MEAN':'mean', 'MEDIAN':'median', 'TIMEDIFF':'time difference'}
 
   title: =>
     range = " #{@range.text()}" if @range
