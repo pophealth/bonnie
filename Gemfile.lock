@@ -12,7 +12,7 @@ GIT
 
 GIT
   remote: http://github.com/pophealth/quality-measure-engine.git
-  revision: b7d75d0e75b30e00eebb3f875ad409ec1f1a32c8
+  revision: 3953abc0e6198486afddf7b1fc8a52f5867efee0
   branch: develop
   specs:
     quality-measure-engine (2.1.0)
@@ -36,7 +36,7 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/hqmf2js.git
-  revision: f55204c86373282ee6fda8c322c258ef14cc5cb7
+  revision: 9bd01acd92a91ad8ccaad76fdbae7275ff8bbfb1
   branch: develop
   specs:
     hqmf2js (1.1.0)
@@ -173,7 +173,7 @@ GEM
     method_source (0.8.1)
     mime-types (1.19)
     minitest (4.3.2)
-    mongoid (3.0.14)
+    mongoid (3.0.15)
       activemodel (~> 3.1)
       moped (~> 1.1)
       origin (~> 1.0)
