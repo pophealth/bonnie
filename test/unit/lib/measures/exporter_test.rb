@@ -38,6 +38,7 @@ class ExporterTest < ActiveSupport::TestCase
       "sources/ep/0002/0002.html",
       "sources/ep/0002/hqmf1.xml",
       "sources/ep/0002/hqmf2.xml",
+      "sources/ep/0002/hqmf_model.json",
       "patients/ep/c32/#{patient_name}.xml",
       "patients/ep/ccda/#{patient_name}.xml",
       "patients/ep/ccr/#{patient_name}.xml",
@@ -93,12 +94,13 @@ class ExporterTest < ActiveSupport::TestCase
     source_dir = File.join("test", "fixtures", "export", "measure-sources")
     bundled_sources = Measures::Exporter.bundle_sources(@measure, source_dir)
 
-    assert_equal bundled_sources.size, 3
+    assert_equal bundled_sources.size, 4
 
     source_dir = File.join(source_dir, @measure.hqmf_id)
     assert_not_nil bundled_sources[File.join("0002", "#{@measure.measure_id}.html")]
     assert_not_nil bundled_sources[File.join("0002", "hqmf1.xml")]
     assert_not_nil bundled_sources[File.join("0002", "hqmf2.xml")]
+    assert_not_nil bundled_sources[File.join("0002", "hqmf_model.json")]
   end
 
   test "bundle results" do

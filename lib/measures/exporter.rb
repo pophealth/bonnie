@@ -96,11 +96,13 @@ module Measures
       html = File.read(File.expand_path(File.join(source_path, "html", "#{measure.hqmf_id}.html")))
       hqmf1 = File.read(File.expand_path(File.join(source_path, "hqmf", "#{measure.hqmf_id}.xml")))
       hqmf2 = HQMF2::Generator::ModelProcessor.to_hqmf(measure.as_hqmf_model)
+      hqmf_model = JSON.pretty_generate(measure.as_hqmf_model.to_json)
 
       {
         File.join(measure.measure_id, "#{measure.measure_id}.html") => html,
         File.join(measure.measure_id, "hqmf1.xml") => hqmf1,
-        File.join(measure.measure_id, "hqmf2.xml") => hqmf2
+        File.join(measure.measure_id, "hqmf2.xml") => hqmf2,
+        File.join(measure.measure_id, "hqmf_model.json") => hqmf_model
       }
     end
       
