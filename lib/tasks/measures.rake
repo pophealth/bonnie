@@ -203,4 +203,56 @@ namespace :measures do
     puts "Wrote result matrix for #{type} to #{result_file}"
   end
   
+  desc 'Generate measure html'
+  task :measure_html, [] do |t, args|
+    
+    measures = Measure.all
+    
+    basedir = File.join('.', 'tmp','measures','rationale')
+    tmpdir = File.join(basedir,'tmp')
+    FileUtils.rm_r basedir if File.exists?(basedir)
+    FileUtils.mkdir_p tmpdir
+    
+    population_keys = ('a'..'zz').to_a
+    measures.each do |measure|
+      
+      measure.populations.each_with_index do |population,index|
+
+        sub_id = nil
+        sub_id = population_keys[index] if measure.populations.length > 1
+        
+        outdir = File.join(basedir,measure.measure_id)
+        FileUtils.mkdir_p outdir
+        
+        result = Measures::HTML::Writer.generate_nqf_template(measure, population)
+
+        outfile = File.join(tmpdir,"#{measure.measure_id}#{sub_id}.html.erb")
+        File.open(outfile, 'w') {|f| f.write(result) }
+
+        patient_caches = MONGO_DB['patient_cache'].where({'value.nqf_id'=>measure.measure_id, 'value.sub_id'=>sub_id})
+        patient_caches.each do |cache|
+          locals ||= {}
+          
+          result = Measures::HTML::Writer.finalize_template(measure.measure_id, sub_id, cache, tmpdir)
+          name = "#{cache['value']['last']}_#{cache['value']['first']}"
+        
+          if (sub_id)
+            subdir = File.join(outdir,sub_id)
+            FileUtils.mkdir_p subdir
+            outfile = File.join(subdir, "#{name}.html")
+          else
+            outfile = File.join(outdir, "#{name}.html")
+          end
+        
+          File.open(outfile, 'w') {|f| f.write(result) }
+        end
+
+        
+        puts "wrote measure #{measure.measure_id}#{sub_id} patients to: #{outdir}"
+      end
+      
+    end
+    
+  end
+  
 end

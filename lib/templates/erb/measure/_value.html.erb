@@ -1,0 +1,29 @@
+<% if value.is_a? HQMF::AnyValue %>
+<% elsif value.is_a? HQMF::Value %>
+<%if value.inclusive?%>=<%end%>
+<%= value.value %><%if value.unit%> <%=unit_text(value.unit, value.value.to_i > 1)%><%end%>
+<% elsif value.is_a? HQMF::Range %>
+  <% if (value.high && value.low)
+       if (value.high.value == value.low.value and value.high.inclusive and value.low.inclusive)
+        %>
+<%== render partial: 'value', locals: {value: value.low} %>
+        <%
+       else
+         %>
+&gt;<%== render partial: 'value', locals: {value: value.low} %> and &lt;<%== render partial: 'value', locals: {value: value.high} %>
+         <%
+       end 
+     elsif value.high
+       %>
+&lt;<%== render partial: 'value', locals: {value: value.high} %>
+       <%
+     elsif value.low
+       %>
+&gt;<%== render partial: 'value', locals: {value: value.low} %>
+       <%
+     end 
+  %>
+    
+<% elsif value.is_a? HQMF::Coded %>
+: <%= value.title %>
+<% end %>

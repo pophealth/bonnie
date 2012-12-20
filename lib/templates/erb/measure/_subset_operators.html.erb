@@ -1,0 +1,5 @@
+<% if subset_operators %>
+  <% subset_operators.each do |subset_operator| %>
+<%= subset_text(subset_operator.type) %><% if subset_operator.value %><%== render partial: 'value', locals: {value: subset_operator.value} %><% end %>:
+  <% end %>
+<% end %>

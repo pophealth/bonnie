@@ -1,0 +1,49 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:n1="urn:hl7-org:v3">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>
+      <%= measure.title %>
+    </title>
+    <%== render partial: 'css' %>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js" type="text/javascript"></script>
+	  <script type="text/javascript">
+      var true_color = '<%== true_color%>';
+      var false_color = '<%== false_color%>';
+      var rationale = <%== erb_strings[:rationale] %>;
+			$(document).ready(function() {
+	      $.each(rationale, function(key, value) { 
+		      color = false_color;
+				  if(value) color = true_color;
+			    $('.'+key).css('background', color);
+				});
+			});
+    </script>
+
+  </head>
+  <%== render partial: 'header', locals: {measure: measure, erb_strings: erb_strings} %>
+  <body>
+    
+    <h3>
+      Population criteria
+    </h3>
+    <div>
+      <ul>
+        <%  
+           HQMF::PopulationCriteria::ALL_POPULATION_CODES.each do |pop_code|
+             if (population[pop_code])
+        %>
+           
+               <%== render partial: 'population_criteria', locals: {measure: measure, population: population, pop_code: pop_code, pop_titles: pop_titles, oid_map: oid_map, patient_cache: patient_cache}%>
+    
+        <% 
+             end
+           end
+            
+        %>
+      </ul>
+    </div>
+    <br/><br/><br/><br/><br/><br/>
+  </body>
+</html>

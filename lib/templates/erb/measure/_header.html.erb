@@ -1,0 +1,43 @@
+<table class="header_table">
+  <tbody>
+    <tr>
+      <td width="20%" bgcolor="#656565" style="background-color:#656565">
+        <span class="td_label">eMeasure Title</span>
+      </td>
+      <td width="80%" colspan="3">
+        <%= measure.title %>
+      </td>
+    </tr>
+
+    <tr>
+      <td width="20%" bgcolor="#656565" style="background-color:#656565">
+        <span class="td_label">NQF Number</span>
+      </td>
+      <td width="30%">
+        <%= measure.id %>
+      </td>
+      <td width="20%" bgcolor="#656565" style="background-color:#656565">
+        <span class="td_label">GUID</span>
+      </td>
+      <td>
+        <%= measure.hqmf_id %>
+      </td>
+    </tr>
+
+    <tr>
+      <td width="20%" bgcolor="#656565" style="background-color:#656565">
+        <span class="td_label">Firstname</span>
+      </td>
+      <td width="30%">
+        <%== erb_strings[:firstname] %>
+      </td>
+      <td width="20%" bgcolor="#656565" style="background-color:#656565">
+        <span class="td_label">Lastname</span>
+      </td>
+      <td width="30%">
+        <%== erb_strings[:lastname] %>
+      </td>
+    </tr>
+
+  </tbody>
+</table>
