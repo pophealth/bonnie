@@ -25,7 +25,7 @@ module Measures
         
         locals ||= {}
 
-        locals[:rationale] = patient_cache['value']['debug_evaluations']
+        locals[:rationale] = patient_cache['value']['rationale']
         locals[:patient_cache] = patient_cache['value']
       
         rendering_context = RenderingContext.new(locals)

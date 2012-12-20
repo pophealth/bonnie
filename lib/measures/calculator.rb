@@ -143,7 +143,7 @@ module Measures
       #{Measures::Calculator.check_disable_logger}
 
       // clear out logger
-      if (typeof Logger != 'undefined') { Logger.logger = []; Logger.debugEvaluations={};}
+      if (typeof Logger != 'undefined') { Logger.logger = []; Logger.rationale={};}
       // turn on logging if it is enabled
       if (Logger.enabled) enableLogging();
       

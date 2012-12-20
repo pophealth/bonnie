@@ -36,7 +36,7 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/hqmf2js.git
-  revision: 4f4f8d9403f3aeb2512435c2fb46d63efc3e2f4a
+  revision: 9bf3444b5ad5e03f27f319cc6db93dd7491a3086
   branch: develop
   specs:
     hqmf2js (1.1.0)
