@@ -177,7 +177,26 @@
             var old_date = new Date(e.start_date);
             e.start_date = new Date(old_date.getFullYear() + offset[0], old_date.getMonth() + offset[1], old_date.getDate() + offset[2], old_date.getHours(), old_date.getMinutes(), old_date.getSeconds(), old_date.getMilliseconds()).getTime();
             old_date = new Date(e.end_date);
-            e.end_date = new Date(old_date.getFullYear() + offset[0], old_date.getMonth() + offset[1], old_date.getDate() + offset[2], old_date.getHours(), old_date.getMinutes(), old_date.getSeconds(), old_date.getMilliseconds()).getTime();
+            if (e.end_date != 32503698000000){
+              e.end_date = new Date(old_date.getFullYear() + offset[0], old_date.getMonth() + offset[1], old_date.getDate() + offset[2], old_date.getHours(), old_date.getMinutes(), old_date.getSeconds(), old_date.getMilliseconds()).getTime();
+            }
+            if (e.field_values) {
+              $.each(_.keys(e.field_values), 
+                function(index, val){ 
+                  if (e.field_values[val].type == "TS"){
+                    old_date = new Date(e.field_values[val].value);
+                    new_date = new Date(old_date.getFullYear() + offset[0], old_date.getMonth() + offset[1], old_date.getDate() + offset[2], old_date.getHours(), old_date.getMinutes(), old_date.getSeconds(), old_date.getMilliseconds());
+                    new_date_string = (new_date.getMonth()+1) + "/" 
+                                      + new_date.getDate() + "/" 
+                                      + new_date.getFullYear() + " " 
+                                      + new_date.getHours() + ":" 
+                                      + new_date.getMinutes() + ":"
+                                      + new_date.getSeconds();
+                    e.field_values[val].value = new_date_string; 
+                  } 
+                } 
+              );
+            }
             if (e.id == $('#element_id').val()){
               $('#element_start').datetimepicker('setDate', new Date(e.start_date));
               $('#element_end').datetimepicker('setDate', new Date(e.end_date));
@@ -188,6 +207,7 @@
         old_date = bonnie.timeline.getBand(0).getCenterVisibleDate();
         bonnie.timeline.getBand(0).setCenterVisibleDate(new Date(old_date.getFullYear() + offset[0], old_date.getMonth() + offset[1], old_date.getDate() + offset[2], old_date.getHours(), old_date.getMinutes(), old_date.getSeconds(), old_date.getMilliseconds()));
 
+        $('#workspace .close_edit').click();
         $(this).parent().parent().modal('hide');
       }
     );
