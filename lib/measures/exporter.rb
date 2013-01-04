@@ -122,9 +122,9 @@ module Measures
     def self.bundle_patient(patient)
       filename = TPG::Exporter.patient_filename(patient)
 
-      c32 = HealthDataStandards::Export::C32.export(patient)
-      ccda = HealthDataStandards::Export::CCDA.export(patient)
-      ccr = HealthDataStandards::Export::CCR.export(patient)
+      # c32 = HealthDataStandards::Export::C32.export(patient)
+      # ccda = HealthDataStandards::Export::CCDA.export(patient)
+      # ccr = HealthDataStandards::Export::CCR.export(patient)
       
       patient_hash = patient.as_json(except: [ '_id', 'measure_id' ], methods: ['_type'])
       patient_hash['measure_ids'] = patient_hash['measure_ids'].uniq.reject {|id| /.*-.*/.match(id).nil? } if patient_hash['measure_ids']
@@ -135,9 +135,6 @@ module Measures
       html = HealthDataStandards::Export::HTML.export(patient)
 
       {
-        File.join("c32", "#{filename}.xml") => c32,
-        File.join("ccda", "#{filename}.xml") => ccda,
-        File.join("ccr", "#{filename}.xml") => ccr,
         File.join("json", "#{filename}.json") => json,
         File.join("html", "#{filename}.html") => html
       }

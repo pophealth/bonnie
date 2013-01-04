@@ -39,9 +39,6 @@ class ExporterTest < ActiveSupport::TestCase
       "sources/ep/0002/hqmf1.xml",
       "sources/ep/0002/hqmf2.xml",
       "sources/ep/0002/hqmf_model.json",
-      "patients/ep/c32/#{patient_name}.xml",
-      "patients/ep/ccda/#{patient_name}.xml",
-      "patients/ep/ccr/#{patient_name}.xml",
       "patients/ep/json/#{patient_name}.json",
       "patients/ep/html/#{patient_name}.html",
       "results/by_patient.json",
@@ -123,15 +120,12 @@ class ExporterTest < ActiveSupport::TestCase
   test "bundle patient" do
     patient_name = "#{@patient.first}_#{@patient.last}"
     expected_formats = [
-      "c32/#{patient_name}.xml",
-      "ccda/#{patient_name}.xml",
-      "ccr/#{patient_name}.xml",
       "json/#{patient_name}.json",
       "html/#{patient_name}.html"]
 
     bundled_patient = Measures::Exporter.bundle_patient(@patient)
 
-    assert_equal bundled_patient.size, 5
+    assert_equal bundled_patient.size, expected_formats.size
     expected_formats.each {|format| assert bundled_patient.include? format}
   end
 

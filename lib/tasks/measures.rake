@@ -151,7 +151,7 @@ namespace :measures do
   task :export, [:username, :static_results_path, :calculate] do |t, args|
     calculate = args.calculate != 'false'
     measures = args.username ? User.by_username(args.username).measures.to_a : Measure.all.to_a
-    static_results_path = args.static_results_path
+    static_results_path = args.static_results_path unless args.static_results_path.nil? || args.static_results_path.empty?
 
     zip = Measures::Exporter.export_bundle(measures, static_results_path, calculate)
     version = APP_CONFIG["measures"]["version"]

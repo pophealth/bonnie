@@ -171,10 +171,14 @@ module Measures
       var msrpopl = function() {
         return executeIfAvailable(hqmfjs.#{HQMF::PopulationCriteria::MSRPOPL}, patient_api);
       }
-      var observ = function() {
-        return [];
+      var observ = function(specific_context) {
+        var observFunc = hqmfjs.#{HQMF::PopulationCriteria::OBSERV}
+        if (typeof(observFunc)==='function')
+          return observFunc(patient_api, specific_context);
+        else
+          return [];
       }
-            
+      
       var executeIfAvailable = function(optionalFunction, arg) {
         if (typeof(optionalFunction)==='function')
           return optionalFunction(arg);
