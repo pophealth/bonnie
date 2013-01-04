@@ -1,16 +1,4 @@
 GIT
-  remote: http://github.com/eedrummer/qrda_generator.git
-  revision: 1353c24b932c2e861d62c9cefc6b4e2e3b78aaed
-  specs:
-    qrda_generator (0.1.0)
-      health-data-standards (~> 2.1.4)
-      hqmf-parser (~> 1.0.6)
-      log4r (~> 1.1.10)
-      mongoid (~> 3.0.6)
-      nokogiri (~> 1.5.5)
-      uuid (~> 2.3.5)
-
-GIT
   remote: http://github.com/pophealth/quality-measure-engine.git
   revision: d128aca8db45c219e883fea33a3499af684940a6
   branch: develop
@@ -24,11 +12,23 @@ GIT
       rubyzip (~> 0.9.9)
 
 GIT
+  remote: http://github.com/projectcypress/qrda_generator.git
+  revision: 263edde01c5f5372e2ef80b8fec25a6fd76c5962
+  specs:
+    qrda_generator (1.0.1)
+      health-data-standards (~> 2.2.0)
+      hqmf-parser (~> 1.1.0)
+      log4r (~> 1.1.10)
+      mongoid (~> 3.0.6)
+      nokogiri (~> 1.5.5)
+      uuid (~> 2.3.5)
+
+GIT
   remote: https://github.com/pophealth/hqmf-parser.git
-  revision: c227a74f1c107ed6cde7ba27a73b3d86ed331aef
+  revision: ddce1348d76b3e0e17e2eef147bd5c4ac219236a
   branch: develop
   specs:
-    hqmf-parser (1.0.6)
+    hqmf-parser (1.1.0)
       google-spreadsheet-ruby (= 0.1.8)
       roo (= 1.10.1)
       rubyzip
@@ -47,24 +47,29 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/patientapi.git
-  revision: f6eb87d32655a1c7f614c7e5797805d844b3d219
+  revision: 10653162405f466adaeeb9874ca8a4666f8d4e1e
   branch: develop
   specs:
-    hquery-patient-api (0.1.0)
+    hquery-patient-api (1.0.0)
 
 GIT
   remote: https://github.com/pophealth/test-patient-generator.git
-  revision: 045070277366853a95bb57c4595b7cdfb8f7a577
+  revision: 71b221cc1500f757aecf6296de2c07e28301c53a
   branch: develop
   specs:
-    test-patient-generator (1.0.2)
+    test-patient-generator (1.1.1)
+      health-data-standards (~> 2.2.0)
+      hqmf-parser (~> 1.1.0)
+      hqmf2js (~> 1.1.0)
+      hquery-patient-api (~> 1.0.0)
+      qrda_generator (~> 1.0.1)
 
 GIT
   remote: https://github.com/projectcypress/health-data-standards.git
-  revision: deb3d75641e27effda6a6f545499e95f386b247d
+  revision: bc31c895e7f685176e3e0676b9eebb8a7ba56c1f
   branch: develop
   specs:
-    health-data-standards (2.1.4)
+    health-data-standards (2.2.1)
       activesupport (~> 3.2.9)
       builder (~> 3.0.0)
       erubis (~> 2.7.0)
@@ -173,7 +178,7 @@ GEM
     method_source (0.8.1)
     mime-types (1.19)
     minitest (4.3.2)
-    mongoid (3.0.15)
+    mongoid (3.0.16)
       activemodel (~> 3.1)
       moped (~> 1.1)
       origin (~> 1.0)
