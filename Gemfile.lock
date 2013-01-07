@@ -25,7 +25,7 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/hqmf-parser.git
-  revision: ddce1348d76b3e0e17e2eef147bd5c4ac219236a
+  revision: b94d0dfd38f94a7196895af538c602d26e349da4
   branch: develop
   specs:
     hqmf-parser (1.1.0)
@@ -36,7 +36,7 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/hqmf2js.git
-  revision: 9bf3444b5ad5e03f27f319cc6db93dd7491a3086
+  revision: 1e8061834c1e2458b28f623cb91ed8905bcdb08a
   branch: develop
   specs:
     hqmf2js (1.1.0)
@@ -212,7 +212,7 @@ GEM
     pry-rescue (0.13)
       interception (>= 0.3)
       pry
-    rack (1.4.1)
+    rack (1.4.2)
     rack-cache (1.2)
       rack (>= 0.4)
     rack-ssl (1.3.2)
