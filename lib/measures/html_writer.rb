@@ -10,7 +10,7 @@ module Measures
         locals[:population] = population
         locals[:oid_map] = oid_map
         locals[:pop_titles] = {'IPP'=>'Initial Patient Population', 'DENOM'=>'Denominator', 'NUMER'=>'Numerator', 'DENEXCEP'=>'Denominator Exceptions', 'DENEX'=>'Denominator Exclusions', 'MSRPOPL'=>'Measure Population', 'OBSERV'=>'Measure Observations'}
-        locals[:erb_strings] = {rationale: "<%== rationale.to_json %>", firstname: "<%== patient_cache['first'] %>", lastname: "<%== patient_cache['last'] %>"}
+        locals[:erb_strings] = {rationale: "<%== (rationale.is_a? Hash) ? rationale.to_json : rationale %>", firstname: "<%== patient_cache['first'] %>", lastname: "<%== patient_cache['last'] %>"}
 
         rendering_context = Measures::HTML::RenderingContext.new(locals)
         rendering_context.template_dir = File.join('lib','templates','erb','measure')
@@ -19,6 +19,21 @@ module Measures
         result = eruby.result(rendering_context.my_binding)
 
         result
+      end
+
+      def self.finalize_template_body(template_body, rationale, patient)
+        
+        locals ||= {}
+        
+        patient_cache = {'first'=>patient.first, 'last'=>patient.last}
+
+        locals[:rationale] = rationale
+        locals[:patient_cache] = patient_cache
+      
+        rendering_context = RenderingContext.new(locals)
+        eruby = Erubis::EscapedEruby.new(template_body)
+        eruby.result(rendering_context.my_binding)
+        
       end
       
       def self.finalize_template(measure_id, sub_id, patient_cache, template_dir)

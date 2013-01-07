@@ -99,8 +99,9 @@
           <div class="span2 num"> &nbsp;</div>
           <div class="span2 excl">&nbsp;</div>
           <div class="span2 excep">&nbsp;</div>
-          <div class="span4">
+          <div class="span5">
             <span class="span1 inspect"><%= link_to 'inspect', debug_measure_measure_path(:record_id => p[1], :population=>@population) %></span>
+            <span class="span1 rationale"><%= link_to 'rationale', debug_rationale_measure_path(:record_id => p[1], :population=>@population) %></span>
             <span class="span1 delete">
               <input type="hidden" name="victim" value="<%= p[1] %>" />
               <a href="javascript:void(0);" class="delete_patient">delete</a>

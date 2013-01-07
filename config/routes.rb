@@ -6,6 +6,7 @@ Bonnie::Application.routes.draw do
       get :import_resource
       post :publish
       get :show_nqf
+      get :debug_rationale
       match :upsert_criteria
       get :debug  # measure debug page
       match 'test(/:measure_patients)' => 'Measures#test', :as => :test

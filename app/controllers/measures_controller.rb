@@ -32,6 +32,7 @@ class MeasuresController < ApplicationController
     add_breadcrumb 'NQF Definition', ''
   end
 
+
   def publish
     @measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
     @measure.publish
@@ -224,6 +225,14 @@ class MeasuresController < ApplicationController
     
     add_breadcrumb @measure['measure_id'], '/measures/' + @measure['measure_id']
     add_breadcrumb 'Test', '/measures/' + @measure['measure_id'] + '/test'
+  end
+
+  def debug_rationale
+    @measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
+    @patient = Record.find(params[:record_id])
+    @population = (params[:population] || 0).to_i
+    template = Measures::HTML::Writer.generate_nqf_template(@measure, @measure.populations[@population])
+    @contents = Measures::HTML::Writer.finalize_template_body(template,"getRationale()",@patient)
   end
 
   ####
