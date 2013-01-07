@@ -118,7 +118,7 @@ populate_test_table = () ->
         cell = $(row).children(":nth-child(4)")
         cell.css('background-color', '#CCFFCC')   #light green
         values = ''
-        values = ' (' + e.values.join(',') + ')' if (e.values and e.values.length > 0)
+        values = ' [' + e.values.join(',') + ']' if (e.values and e.values.length > 0)
         cell.html('&#x2713;' + values)
 
       if e.DENEX
