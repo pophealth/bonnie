@@ -117,7 +117,9 @@ populate_test_table = () ->
         numerator_total += 1  
         cell = $(row).children(":nth-child(4)")
         cell.css('background-color', '#CCFFCC')   #light green
-        cell.html('&#x2713;')
+        values = ''
+        values = ' (' + e.values.join(',') + ')' if (e.values and e.values.length > 0)
+        cell.html('&#x2713;' + values)
 
       if e.DENEX
         exclusions_total += 1  

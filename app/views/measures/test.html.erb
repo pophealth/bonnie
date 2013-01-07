@@ -77,7 +77,7 @@
           <div class="span2 name"><b>Patient Name</b></div>
           <div class="span2 pop"><b>Population</b></div>
           <div class="span2 denom"><b>Denominator</b></div>
-          <div class="span2 num"><b>Numerator</b></div>
+          <div class="span2 num"><b><%= (@measure.continuous_variable) ? "Measure Popl" : "Numerator" %></b></div>
           <div class="span2 excl"><b>Exclusions</b></div>
           <div class="span2 excep"><b>Exceptions</b></div>
           <div class="span2 inspect">&nbsp;</div>
