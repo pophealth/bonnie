@@ -71,7 +71,9 @@ module Measures
         denominator: buckets["denominator"],
         numerator: buckets["numerator"],
         exclusions: buckets["exclusions"],
-        map_fn: measure_js(measure, population_index)
+        map_fn: measure_js(measure, population_index),
+        continuous_variable: measure.continuous_variable,
+        episode_of_care: measure.episode_of_care
       }
       
       if (measure.populations.count > 1)
@@ -84,6 +86,13 @@ module Measures
         json[:hqmf_set_id] = measure.hqmf_set_id
         json[:hqmf_version_number] = measure.hqmf_version_number
       end
+
+      if measure.continuous_variable
+        observation = measure.population_criteria[measure.populations[population_index][HQMF::PopulationCriteria::OBSERV]]
+        json[:aggregator] = observation['aggregator']
+      end
+
+
       
       referenced_data_criteria = measure.as_hqmf_model.referenced_data_criteria
       json[:data_criteria] = referenced_data_criteria.map{|data_criteria| data_criteria.to_json}
