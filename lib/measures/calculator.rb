@@ -181,11 +181,7 @@ module Measures
         return executeIfAvailable(hqmfjs.#{HQMF::PopulationCriteria::MSRPOPL}, patient_api);
       }
       var observ = function(specific_context) {
-        var observFunc = hqmfjs.#{HQMF::PopulationCriteria::OBSERV}
-        if (typeof(observFunc)==='function')
-          return observFunc(patient_api, specific_context);
-        else
-          return [];
+        #{Measures::Calculator.observation_function(measure, population_index)}
       }
       
       var executeIfAvailable = function(optionalFunction, arg) {
@@ -199,6 +195,23 @@ module Measures
 
       map(patient, population, denominator, numerator, exclusion, denexcep, msrpopl, observ, occurrenceId,#{measure.continuous_variable});
       "
+    end
+
+    def self.observation_function(measure, population_index)
+
+      result = "
+        var observFunc = hqmfjs.#{HQMF::PopulationCriteria::OBSERV}
+        if (typeof(observFunc)==='function')
+          return observFunc(patient_api, specific_context);
+        else
+          return [];"
+
+      if (measure.custom_functions && measure.custom_functions[HQMF::PopulationCriteria::OBSERV])
+        result = "return #{measure.custom_functions[HQMF::PopulationCriteria::OBSERV]}(patient_api)"
+      end
+
+      result
+
     end
 
     def self.check_disable_logger

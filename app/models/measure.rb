@@ -20,6 +20,7 @@ class Measure
   field :episode_of_care, type: Boolean
   field :continuous_variable, type: Boolean
   field :episode_ids, type: Array # of String ids
+  field :custom_functions, type: Hash # stores a custom function for a population criteria (used only in ADE_TTR for observation)
 
   field :published, type: Boolean
   field :publish_date, type: Date

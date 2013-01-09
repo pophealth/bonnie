@@ -38,6 +38,7 @@ module Measures
             measure.populations[population_index]['title'] = population_title if population_title
           end
         end
+        measure.custom_functions = metadata["custom_functions"]
       else
         measure.type = "unknown"
         measure.category = "Miscellaneous"
