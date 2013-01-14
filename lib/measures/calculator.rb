@@ -207,7 +207,7 @@ module Measures
           return [];"
 
       if (measure.custom_functions && measure.custom_functions[HQMF::PopulationCriteria::OBSERV])
-        result = "return #{measure.custom_functions[HQMF::PopulationCriteria::OBSERV]}(patient_api)"
+        result = "return #{measure.custom_functions[HQMF::PopulationCriteria::OBSERV]}(patient_api, hqmfjs)"
       end
 
       result
