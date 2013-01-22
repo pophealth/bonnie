@@ -19,13 +19,13 @@ namespace :measures do
     
     # Delete all of this user's measures out of the DB and remove any lingering files saved from the last load
     if args.delete_existing != 'false'
-      user.measures.each {|measure| measure.value_sets.destroy_all}
+      #user.measures.each {|measure| measure.value_sets.destroy_all}
       count = user.measures.destroy_all
       
       source_dir = File.join(".", "db", "measures")
       FileUtils.rm_r Dir.glob(source_dir)
       
-      ValueSet.all.delete()
+      HealthDataStandards::SVS::ValueSet.all.delete()
       
       puts "Deleted #{count} measures assigned to #{user.username}"
     end

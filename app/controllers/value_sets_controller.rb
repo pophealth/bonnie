@@ -5,11 +5,11 @@ class ValueSetsController < ApplicationController
   add_breadcrumb 'value_sets', ""
   
   def index
-    @value_sets = ValueSet.all
+    @value_sets = HealthDataStandards::SVS::ValueSet.all
   end
   
   def show
-    @value_set = ValueSet.find(params[:id])
+    @value_set = HealthDataStandards::SVS::ValueSet.find(params[:id])
     respond_with do |format|
       format.json {
         render :json => @value_set
@@ -21,11 +21,11 @@ class ValueSetsController < ApplicationController
   end
   
   def edit
-    @value_set = ValueSet.find(params[:id])
+    @value_set = HealthDataStandards::SVS::ValueSet.find(params[:id])
   end
   
   def new
-    @value_set = ValueSet.new
+    @value_set = HealthDataStandards::SVS::ValueSet.new
   end
   
   def create
@@ -34,7 +34,7 @@ class ValueSetsController < ApplicationController
         # very important to render json here and not text
         # even when debugging because ajaxForm plugin will break
         json_form = JSON.parse(params[:data].to_json)
-        @value_set = ValueSet.new json_form
+        @value_set = HealthDataStandards::SVS::ValueSet.new json_form
         if @value_set.save
           render :json => { :message => "success", :redirect => value_set_url(@value_set) }
         else
@@ -57,7 +57,7 @@ class ValueSetsController < ApplicationController
         params.delete("action")
         params.delete("controller")
         
-        vs = ValueSet.find(id)
+        vs = HealthDataStandards::SVS::ValueSet.find(id)
         # Whitelist necessary here.  When passing in code_sets it breaks update_attributes.
         whitelist = [:oid, :description, :category, :concept, :organization, :version, :key]
         # splat needed below to flatten attributes to slice()

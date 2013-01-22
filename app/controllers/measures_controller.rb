@@ -470,7 +470,7 @@ class MeasuresController < ApplicationController
       low = {'value' => Time.at(v['start_date'] / 1000).strftime('%Y%m%d%H%M%S'), 'type'=>'TS' }
       high = {'value' => Time.at(v['end_date'] / 1000).strftime('%Y%m%d%H%M%S'), 'type'=>'TS' }
       high = nil if v['end_date'] == JAN_ONE_THREE_THOUSAND
-      
+
       data_criteria.modify_patient(patient, HQMF::Range.from_json({'low' => low,'high' => high}), values.values)
     }
 

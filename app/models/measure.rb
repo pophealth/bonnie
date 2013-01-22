@@ -33,9 +33,10 @@ class Measure
   field :populations, type: Array
   field :preconditions, type: Hash
 
+  field :value_set_oids, type: Array, default: []
+
   belongs_to :user
   embeds_many :publishings
-  has_many :value_sets
   has_many :records
 
   scope :published, -> { where({'published'=>true}) }
@@ -170,6 +171,10 @@ class Measure
   def name_precondition(id, name)
     self.preconditions ||= {}
     self.preconditions[id] = name
+  end
+
+  def value_sets
+    HealthDataStandards::SVS::ValueSet.in(oid: value_set_oids)
   end
 
   private

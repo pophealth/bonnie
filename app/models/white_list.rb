@@ -1,2 +1,2 @@
-class WhiteList < ValueSet
+class WhiteList < HealthDataStandards::SVS::ValueSet
 end
