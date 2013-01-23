@@ -85,6 +85,9 @@ module Measures
       errors = {}
       api = HealthDataStandards::Util::VSApi.new(nlm_config["ticket_url"],nlm_config["api_url"],username, password)
       
+      codeset_base_dir = File.join('.','db','code_sets')
+      FileUtils.mkdir_p(codeset_base_dir)
+
       RestClient.proxy = ENV["http_proxy"]
       value_set_oids[measure_id].each_with_index do |oid,index| 
 
@@ -94,7 +97,7 @@ module Measures
           
           vs_data = nil
           
-          cached_service_result = File.join('.','db','code_sets',"#{oid}.xml")
+          cached_service_result = File.join(codeset_base_dir,"#{oid}.xml")
           if (File.exists? cached_service_result)
             vs_data = File.read cached_service_result
           else
@@ -213,7 +216,14 @@ module Measures
       if (!File.exists? source_zip || !use_cached)
         FileUtils.rm_r Dir.glob(base_out_dir) if File.exist? base_out_dir
         FileUtils.mkdir_p(base_out_dir)
-        Net::HTTP.start(uri.host) { |http| open(source_zip, "wb") { |file| file.write(http.get(uri.path).body) } }
+        proxy = ENV['http_proxy'] || ENV['HTTP_PROXY']
+        connector = Net::HTTP
+        if(proxy)
+          proxy_uri = URI(proxy)
+          connector = Net::HTTP::Proxy(proxy_uri.host, proxy_uri.port)
+        end
+        binding.pry
+        connector.start(uri.host) { |http| open(source_zip, "wb") { |file| file.write(http.get(uri.path).body) } }
       end
       FileUtils.rm_r Dir.glob(first_dir) if File.exist? first_dir
       FileUtils.rm_r Dir.glob(final_dir) if File.exist? final_dir
