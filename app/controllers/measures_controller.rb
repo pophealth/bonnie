@@ -514,5 +514,43 @@ class MeasuresController < ApplicationController
     ['IPP', 'DENOM', 'NUMER', 'DENEXCEP', 'DENEX', 'MSRPOPL', 'values', 'first', 'last', 'gender', 'measure_id', 'birthdate', 'patient_id', 'sub_id', 'nqf_id'].each {|k| select['value.'+k]=1 }
     render :json => MONGO_DB['patient_cache'].find({}).select(select)
   end
+
+  def download_measures
+    data = Measures::Loader.load_from_url(params[:source_url])
+    data.sort! {|l,r| l['nqf_id'] <=> r['nqf_id']}
+    render :json => data
+  end
+
+  def load_measures
+    paths = params[:paths] || []
+    measure_ids = params[:measure_ids] || []
+
+    current_user.measures.each {|measure| measure.value_sets.destroy_all}
+    current_user.measures.destroy_all
+
+    job = Measures::Loader.delay(:queue => 'measure_loaders').load_paths(paths,current_user.username)
+    job['measure_ids'] = measure_ids
+    job.save!
+    render json: {job_id: job.id}
+  end
+
+  def poll_load_job_status
+    result = {}
+    job = Delayed::Job.find(params[:job_id]) rescue nil
+    if job
+      measure_ids = job['measure_ids']
+      total = measure_ids.length
+      if total > 0
+        found = Measure.where({hqmf_id: {'$in'=>measure_ids}}).count
+        result['percent'] = ((found / (total * 1.0)) * 100).ceil
+      else
+        result['percent'] = 100
+      end
+    else
+      result['percent'] = 100
+    end
+    render json: result
+  end
+
   
 end

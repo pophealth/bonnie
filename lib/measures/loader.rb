@@ -172,12 +172,101 @@ module Measures
       value_set_models
       
     end
+
+    def self.load_paths(paths, username)
+
+      user = User.where({username:username}).first
+
+      paths.each do |path|
+        hqmf_path = Dir.glob(File.join(path,'*.xml')).first
+        html_path = Dir.glob(File.join(path,'*.html')).first
+
+        measure = nil
+        original_stdout = $stdout
+        $stdout = StringIO.new
+        begin
+          measure = Measures::Loader.load(hqmf_path, nil, nil, false)
+        ensure
+          $stdout = original_stdout
+        end
+
+        oids = {measure.hqmf_id => measure.as_hqmf_model.all_code_set_oids}
+
+        Measures::Loader.load(hqmf_path, user, html_path, true, oids, 'rdingwell', 'TestTest1234')
+        puts "loaded: #{hqmf_path}"
+
+      end
+
+#      calculate!!!
+    end
+
+    def self.load_from_url(url, use_cached=true)
+
+      uri = URI.parse(url)
+      hash = Digest::MD5.hexdigest(url)
+
+      base_out_dir = File.join(Rails.root,'tmp','bonnie',hash)
+      source_zip = File.join(base_out_dir, 'measures_source.zip')
+      first_dir = File.join(base_out_dir, 'first_unzip')
+      final_dir = File.join(base_out_dir, 'measures')
+
+      if (!File.exists? source_zip || !use_cached)
+        FileUtils.rm_r Dir.glob(base_out_dir) if File.exist? base_out_dir
+        FileUtils.mkdir_p(base_out_dir)
+        Net::HTTP.start(uri.host) { |http| open(source_zip, "wb") { |file| file.write(http.get(uri.path).body) } }
+      end
+      FileUtils.rm_r Dir.glob(first_dir) if File.exist? first_dir
+      FileUtils.rm_r Dir.glob(final_dir) if File.exist? final_dir
+      FileUtils.mkdir_p(first_dir)
+      FileUtils.mkdir_p(final_dir)
+
+      measure_data = []
+      Zip::ZipFile.open(source_zip) do |zip_file|
+        zip_file.each do |file|
+          if file.name.match(/.*\.zip/)
+            
+            out_path=File.join(first_dir, file.name)
+            FileUtils.mkdir_p(File.dirname(out_path))
+            zip_file.extract(file, out_path) unless File.exist?(out_path)
+
+            Zip::ZipFile.open(out_path) do |sub_zip|
+              file_map = {}
+              sub_zip.each do |sub_file|
+                if sub_file.name.match(/.*\.xml/) || sub_file.name.match(/.*\.html/)
+                  if sub_file.name.match(/.*\.xml/)
+                    fields = HQMF::Parser.parse_fields(sub_file.get_input_stream.read, HQMF::Parser::HQMF_VERSION_1) rescue {}
+                    if fields['id']
+                      metadata = APP_CONFIG["measures"][fields['set_id']]
+                      file_map[:hqmf] = sub_file
+                      file_map[:fields] = fields.merge(metadata)
+                    end
+                  elsif sub_file.name.match(/.*\.html/)
+                    file_map[:html] = sub_file
+                  end
+                end
+              end
+
+              nqf_id = file_map[:fields]['nqf_id']
+              final_measure_path=File.join(final_dir, nqf_id)
+              FileUtils.mkdir_p(final_measure_path)
+
+              sub_zip.extract(file_map[:hqmf], File.join(final_measure_path,"#{nqf_id}.xml"))
+              sub_zip.extract(file_map[:html], File.join(final_measure_path,"#{nqf_id}.html"))
+              measure_data << {'source_path' => final_measure_path}.merge(file_map[:fields])
+            end
+          end
+        end
+      end
+
+      measure_data
+
+    end
     
     def self.load(hqmf_path, user, html_path=nil, persist = true, value_set_oids=nil, username=nil, password=nil, value_set_path=nil, value_set_format=nil)
       
       
       hqmf_contents = Nokogiri::XML(File.new hqmf_path).to_s
-      measure_id = HQMF::Parser.parse_id(hqmf_contents, HQMF::Parser::HQMF_VERSION_1)
+      measure_id = HQMF::Parser.parse_fields(hqmf_contents, HQMF::Parser::HQMF_VERSION_1)['id']
 
       value_set_models = nil
       # Value sets

@@ -1,0 +1,181 @@
+<% content_for :head do %>
+  <script type="text/javascript">
+    var url_map = {cms_eh:'http://www.cms.gov/Regulations-and-Guidance/Legislation/EHRIncentivePrograms/Downloads/2014_eCQM_Specs_for_EH.zip'
+                  ,cms_ep:'http://www.cms.gov/Regulations-and-Guidance/Legislation/EHRIncentivePrograms/Downloads/ESpecs_2014_eCQM_EP.zip'
+                  ,espec_eh:'http://www.lantanagroup.com/especnavigator/measures/eCQM-EH.zip'
+                  ,espec_ep:'http://www.lantanagroup.com/especnavigator/measures/eCQM-EP.zip'}
+    $(document).ready(
+      function(){
+        $("#progressbar").progressbar({ value: 1 });
+        $(".ui-progressbar-value").html('<span class="ui-label"></span>')
+
+        $('#list_measures_button').click(function() {
+          $('#measures_to_load').empty();
+          $('#measures_to_load').html('<div style="width: inherit; text-align: center; padding-top: 75px;"><img src="/assets/loading.gif"/></div>')
+          $('#source_section').hide()
+          $('#measures_list_section').show()
+          $('.modal-header h3').html('Load Measures: Available Measures')
+          $.post('<%=download_measures_measures_path%>', { source_url:  $('#measure_source_url').val()}, displayAvailableMeasures, 'json');
+        });
+        $('#load_measures_button').click(function() {
+          var measure_paths = $(".measure_to_load:checked").map(function(){ return $(this).data().path }).get()
+          var measure_ids = $(".measure_to_load:checked").map(function(){ return $(this).data().id }).get()
+          $('#measures_list_section').hide()
+          $('#measures_progress_section').show()
+          $('#load_measures_button').hide()
+          $('.modal-header h3').html('Load Measures: Progress')
+          $.post('<%=load_measures_measures_path%>', { 'paths[]': measure_paths, 'measure_ids[]':measure_ids}, showProgressBar, 'json');
+        });
+        $('a[data-dismiss=modal]').click(function() {
+          location.reload();
+        });
+        $('.measure_sources').change(updateSourceUrl);
+        updateSourceUrl();
+      }
+    )
+    function updateSourceUrl() {
+      var key = $('input[name="measure_source"]:checked').val() + '_' + $('input[name="measure_type"]:checked').val();
+      $('#measure_source_url').val(url_map[key]);
+    }
+    function displayAvailableMeasures(data) {
+      $('#measures_to_load').empty();
+      $('#bonnie_tmpl_measure_source').tmpl({measures: data}).appendTo('#measures_to_load');
+      $('#list_measures_button').hide()
+      $('#load_measures_button').show()
+      initializeMeasureCheckboxes()
+    }
+    function initializeMeasureCheckboxes() {
+      $('#select_all_measures').prop('indeterminate',false);
+      $('#select_all_measures').prop('checked',false);
+      $('.measure_to_load').change(function() {
+        var count_all = $('.measure_to_load').length
+        var count_checked = $('.measure_to_load:checked').length
+        if (count_checked == 0) {
+          $('#select_all_measures').prop('indeterminate',false);
+          $('#select_all_measures').prop('checked',false);
+        } else if (count_checked == count_all) {
+          $('#select_all_measures').prop('indeterminate',false);
+          $('#select_all_measures').prop('checked',true);
+        } else {
+          $('#select_all_measures').prop('checked',false);
+          $('#select_all_measures').prop('indeterminate',true);
+        }
+      });
+
+      $('#select_all_measures').change(function() {
+        if ($('#select_all_measures').prop('checked')) {
+          $('.measure_to_load').prop('checked',true);
+        } else {
+          $('.measure_to_load').prop('checked',false);
+        }
+      });
+
+    }
+    function showProgressBar(data) {
+      pollForProgress(data.job_id)
+    }
+    function pollForProgress(job_id) {
+      $.get('<%=poll_load_job_status_measures_url%>?job_id='+job_id, function(data) {
+        if (data.percent > 0) updateProgress(data.percent);
+        if (data.percent < 100) {
+          setTimeout(function(){pollForProgress(job_id);},5000);
+        } 
+      });
+    }
+    function updateProgress(value) {
+      $(".ui-progressbar-value").stop(true).animate({width: value + '%'},
+                                                    {duration: 5000, step: function(now, fx) { 
+                                                      $('.ui-label').html(Math.ceil(now)+'%');
+                                                    }});
+      if (Math.ceil(value) == 100) setTimeout(function(){location.reload();},6500);
+    }
+
+
+  </script>
+  <script type="text/html" id="bonnie_tmpl_measure_source">
+    {{each measures}}
+      <div class="row">
+        <div class="span0" style="padding-left: 1px;"><input type="checkbox" data-id="${id}" data-path="${source_path}" class="measure_to_load"/></div>
+        <div class="span1" style="overflow: hidden;">${nqf_id}</div>
+        <div class="span9">${title}</div>
+      </div>
+    {{/each}}
+  </script>
+
+<% end %>
+
+
+<div id="loadMeasuresDialog" class="modal hide fade" style="width: 850px;">
+  <div class="modal-header">
+    <a class="close" data-dismiss="modal">&times;</a>
+    <h3>Load Measures: Source</h3>
+  </div>
+    <div class="modal-body">
+
+      <div id="source_section">
+        <label for="measure_source">Measure Source:</label>
+        <fieldset id="measure_source" style="padding-left: 15px;">
+          <label for="CMS_source" style="float: left; padding-right: 15px;">
+            <input type="radio" checked="checked" id="CMS_source" name="measure_source" value="cms" class="measure_sources" style="float: left;"/><span style="margin-left: 4px;">CMS Website</span>
+          </label>
+          <label for="eSpec_source" style="float: left; padding-right: 15px;">
+            <input type="radio" name="measure_source" id="eSpec_source" value="espec" class="measure_sources" style="float: left;"/><span style="margin-left: 4px;">eSpec Navigator</span>
+          </label>
+        </fieldset>
+
+        <label for="measure_type">Measure Type:</label>
+        <fieldset id="measure_type" style="padding-left: 15px;">
+          <label for="ep_type" style="float: left; padding-right: 15px;">
+            <input type="radio" checked="checked" name="measure_type" id="ep_type" value="ep" class="measure_sources" style="float: left;"/><span style="margin-left: 4px;">Eligible Professional (EP)</span>
+          </label>
+          <label for="eh_type" style="float: left; padding-right: 15px;">
+            <input type="radio" name="measure_type" id="eh_type" value="eh" class="measure_sources" style="float: left;"/><span style="margin-left: 4px;">Eligible Hospital (EH)</span>
+          </label>
+        </fieldset>
+
+        <label for="measure_source_url">Source Url:</label>
+        <input id="measure_source_url" type="text" style="width: 500px;">
+
+      </div>
+
+
+      <div id="measures_list_section" style="display: none;">
+        <div class="row" style="border-bottom: 1px #ccc solid;">
+          <div class="span0"><input type="checkbox" id="select_all_measures"/></div>
+          <div class="span1"><b>NQF Id</b></div>
+          <div class="span9"><b>Title</b></div>
+        </div>
+        <div id="measures_to_load" style="width: inherit; height: 350px; overflow-y: scroll;"></div>
+      </div>
+
+      <div id="measures_progress_section" style="display: none;">
+        <div id="progressbar"></div>
+      </div>
+
+      <script type="text/javascript">
+        var i = 3
+
+        var doAnim = function(value) {
+            $(".ui-progressbar-value").stop(true).animate({width: value + '%'},
+                                                          {
+                                                            duration: 3000,
+                                                            step: function(now, fx) {
+                                                              $('.ui-label').html(Math.floor(now)+'%');
+                                                            }
+                                                          });
+
+        }
+
+
+//        setInterval(function() { if (i+10 < 100) i+= 10; else i = 100; doAnim(i);}, 3000);
+
+
+      </script>
+
+    </div>
+    <div class="modal-footer">
+      <a href="#" id="list_measures_button" class='btn btn-primary' >Next</a>
+      <a href="#" id="load_measures_button" class='btn btn-primary' style="display: none" >Load</a>
+      <a href="#" data-dismiss="modal" class="btn secondary">Close</a>
+    </div>
+</div>

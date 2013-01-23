@@ -34,6 +34,9 @@ Bonnie::Application.routes.draw do
       get :generate_matrix
       get :matrix
       get :matrix_data
+      post :load_measures
+      post :download_measures
+      get :poll_load_job_status
     end
   end
 

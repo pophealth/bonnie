@@ -5,6 +5,22 @@ require './lib/measures/database_access'
 require './lib/measures/exporter'
 
 namespace :measures do
+  
+  
+  desc 'Load from url file'
+  task :load_from_url, [:url, :username] do |t, args|
+    raise "The url to measure definitions must be specified" unless args.url
+    raise "The username to load the measures for must be specified" unless args.username
+
+    user = User.by_username args.username
+    raise "The user #{args.username} could not be found." unless user
+    
+    data = Measures::Loader.load_from_url(args.url)
+    paths = data.map {|key,value| value[:source_path]}
+    Measures::Loader.load_paths(paths, user)
+
+  end
+  
   desc 'Load a directory of measures and value sets into the DB'
   task :load, [:measures_dir, :username, :vs_username, :vs_password, :delete_existing, :clear_vs_cache] do |t, args|
     raise "The path to the measure definitions must be specified" unless args.measures_dir
