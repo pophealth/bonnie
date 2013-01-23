@@ -8,7 +8,7 @@ class Ability
     if user.admin?
       can :manage, :all
     elsif user.id
-      can :manage, ValueSet
+      can :manage, HealthDataStandards::SVS::ValueSet
       can :manage, Measure
     else
       # need to be able to view published measures???
