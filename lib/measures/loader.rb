@@ -20,6 +20,7 @@ module Measures
       measure.description = json["description"]
       measure.measure_attributes = json["attributes"]
       measure.populations = json['populations']
+      measure.value_set_oids = codes_by_oid.keys
 
       metadata = APP_CONFIG["measures"][measure.hqmf_set_id]
       if metadata
@@ -61,11 +62,29 @@ module Measures
       value_sets = value_set_parser.parse(value_set_path, {format: value_set_format})
       value_set_models = []
       value_sets.each do |value_set|
-        if value_set['code_sets'].include? nil
-          puts "Value Set has a bad code set (code set is null)"
-          value_set['code_sets'].compact!
+        hds_value_set = HealthDataStandards::SVS::ValueSet.new() 
+        hds_value_set['oid'] = value_set['oid']
+        hds_value_set['display_name'] = value_set['key']
+        hds_value_set['version'] = value_set['version']
+        hds_value_set['concepts'] = []
+
+        value_set['code_sets'].each do |code_set|
+          code_set['codes'].map{ |code| 
+            concept = HealthDataStandards::SVS::Concept.new()
+            concept['code'] = code
+            concept['code_system'] = nil
+            concept['code_system_name'] = code_set['code_set']
+            concept['code_system_version'] = code_set['version']
+            concept['display_name'] = nil
+            hds_value_set['concepts'].concat([concept])
+          }
         end
-        set = ValueSet.new(value_set)
+        if hds_value_set['concepts'].include? nil
+          puts "Value Set has a bad code set (code set is null)"
+          hds_value_set['concepts'].compact!
+        end
+        set = hds_value_set
+        set.save!
         value_set_models << set
       end
       value_set_models
@@ -76,7 +95,7 @@ module Measures
       value_set_models = []
       
       existing_value_set_map = {}
-      ValueSet.all.each do |set|
+      HealthDataStandards::SVS::ValueSet.all.each do |set|
         existing_value_set_map[set.oid] = set
       end
       
@@ -115,45 +134,8 @@ module Measures
           if vs_element && vs_element["ID"] == oid
             vs_element["id"] = oid
 
-            vs = HealthDataStandards::SVS::ValueSet.load_from_xml(doc)
-
-            value_set = { 
-               key: vs.display_name.parameterize('_'),
-               organization: nil,
-               oid: oid,
-               concept: vs.display_name,
-               category: nil,
-               version: vs.version,
-               description: vs.display_name,
-               code_sets: [ ],
-            }
-
-            concepts_by_system = {}
-            vs.concepts.each do |concept|
-              concepts_by_system[concept.code_system_name] ||= []
-              concepts_by_system[concept.code_system_name] << concept.code
-            end
-
-            concepts_by_system.each do |key, values|
-              if key != 'AdministrativeSex'
-                oid = HealthDataStandards::Util::CodeSystemHelper.oid_for_code_system(key)
-                puts "\tbad code system name: #{key}" unless oid
-              end
-              
-              value_set[:code_sets] << { 
-                codes: values,
-                key: nil,
-                organization: nil,
-                oid: nil,
-                concept: nil,
-                category: nil,
-                code_set: key,
-                version: nil,
-                description: nil 
-              }
-            end
-            
-            set = ValueSet.new(value_set)
+            set = HealthDataStandards::SVS::ValueSet.load_from_xml(doc)
+            set.save!
           else
             raise "Value set not found: #{oid}"
           end
@@ -162,16 +144,17 @@ module Measures
           value_set = set.attributes
           value_set.delete('_id')
           value_set.delete('measure_id')
-          value_set['code_sets'].each do |cs|
+          value_set['concepts'].each do |cs|
             cs.delete('_id')
           end
-          set = ValueSet.new(value_set)
+          set = HealthDataStandards::SVS::ValueSet.new(value_set)
         end
 
         value_set_models << set
 
       end
       
+
       value_set_models
       
     end
@@ -290,10 +273,14 @@ module Measures
       codes_by_oid = HQMF2JS::Generator::CodesToJson.from_value_sets(value_set_models) if (value_set_models.present?)
       measure = Measures::Loader.load_hqmf(hqmf_contents, user, codes_by_oid)
       
-      value_set_models.each do |vsm|
-        vsm.measure = measure
-        vsm.save!
-      end if value_set_models
+      # value_set_models.each do |vsm|
+      #   vsm.measure = measure
+      #   vsm.save!
+      # end if value_set_models
+      if value_set_oids
+        measure.value_set_oids = value_set_oids[measure_id]
+      end
+
       
       # Save original files
       if (html_path)
