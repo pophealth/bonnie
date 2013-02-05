@@ -20,7 +20,7 @@ module Measures
       measure.description = json["description"]
       measure.measure_attributes = json["attributes"]
       measure.populations = json['populations']
-      measure.value_set_oids = codes_by_oid.keys
+      measure.value_set_oids = codes_by_oid.keys if codes_by_oid
 
       metadata = APP_CONFIG["measures"][measure.hqmf_set_id]
       if metadata
@@ -60,7 +60,6 @@ module Measures
       value_set_parser = HQMF::ValueSet::Parser.new()
       value_set_format ||= HQMF::ValueSet::Parser.get_format(value_set_path)
       value_sets = value_set_parser.parse(value_set_path, {format: value_set_format})
-      value_sets.each {|set| set.save! }
       value_sets
     end
     
@@ -109,7 +108,6 @@ module Measures
             vs_element["id"] = oid
 
             set = HealthDataStandards::SVS::ValueSet.load_from_xml(doc)
-            set.save!
           else
             raise "Value set not found: #{oid}"
           end
@@ -128,7 +126,6 @@ module Measures
 
       end
       
-
       value_set_models
       
     end
@@ -179,7 +176,6 @@ module Measures
           proxy_uri = URI(proxy)
           connector = Net::HTTP::Proxy(proxy_uri.host, proxy_uri.port)
         end
-        binding.pry
         connector.start(uri.host) { |http| open(source_zip, "wb") { |file| file.write(http.get(uri.path).body) } }
       end
       FileUtils.rm_r Dir.glob(first_dir) if File.exist? first_dir
@@ -243,14 +239,15 @@ module Measures
         value_set_models = Measures::Loader.load_value_sets_from_xls(value_set_path, value_set_format)
       end
       
+
+      if (value_set_models.present?)
+        value_set_models.each { |vsm| vsm.save! } if persist
+        codes_by_oid = HQMF2JS::Generator::CodesToJson.from_value_sets(value_set_models) 
+      end
+
       # Parsed HQMF
-      codes_by_oid = HQMF2JS::Generator::CodesToJson.from_value_sets(value_set_models) if (value_set_models.present?)
       measure = Measures::Loader.load_hqmf(hqmf_contents, user, codes_by_oid)
-      
-      # value_set_models.each do |vsm|
-      #   vsm.measure = measure
-      #   vsm.save!
-      # end if value_set_models
+
       if value_set_oids
         measure.value_set_oids = value_set_oids[measure_id]
       end
