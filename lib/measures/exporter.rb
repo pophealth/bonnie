@@ -1,5 +1,6 @@
 module Measures
   class Exporter
+
     # Export all measures, their test decks, necessary JS libraries, source HQMF files, and expected results to a zip file.
     # Bundled content is first collected and then zipped all together. Content is a hash with top level keys defining directories (e.g. "library_functions") pointing to hashes with filename keys (e.g. "hqmf_utils.js") pointing to their content.
     #
@@ -92,7 +93,8 @@ module Measures
       }
     end
 
-    def self.bundle_sources(measure, source_path = File.join(".", "db", "measures"))
+    def self.bundle_sources(measure)
+      source_path = Measures::Loader::SOURCE_PATH
       html = File.read(File.expand_path(File.join(source_path, "html", "#{measure.hqmf_id}.html")))
       hqmf1 = File.read(File.expand_path(File.join(source_path, "hqmf", "#{measure.hqmf_id}.xml")))
       hqmf2 = HQMF2::Generator::ModelProcessor.to_hqmf(measure.as_hqmf_model)

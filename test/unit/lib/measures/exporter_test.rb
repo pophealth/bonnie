@@ -6,13 +6,27 @@ class ExporterTest < ActiveSupport::TestCase
     
     hqmf_file = "test/fixtures/measure-defs/0002/0002.xml"
     value_set_file = "test/fixtures/measure-defs/0002/0002.xls"
-    
+
+    test_source_path = File.join('.','tmp','export_test')
+    set_test_source_path(test_source_path)
+
+    FileUtils.mkdir_p test_source_path
+    FileUtils.cp_r 'test/fixtures/export/measure-sources/hqmf', test_source_path
+    FileUtils.cp_r 'test/fixtures/export/measure-sources/html', test_source_path
+
     Measures::Loader.load(hqmf_file, @user, nil, true, nil, nil, nil, value_set_file)
     Measure.all.count.must_equal 1
     
     @measure = Measure.all.first
     @patient = FactoryGirl.create(:record)
     @measure.records << @patient
+  end
+
+  teardown do
+    test_source_path = File.join('.','tmp','export_test')
+    FileUtils.rm_r test_source_path if File.exists?(test_source_path)
+    test_source_path = File.join(".", "db", "measures")
+    set_test_source_path(test_source_path)
   end
 
   test "export bundle" do
@@ -88,12 +102,11 @@ class ExporterTest < ActiveSupport::TestCase
   end
 
   test "bundle sources" do
-    source_dir = File.join("test", "fixtures", "export", "measure-sources")
-    bundled_sources = Measures::Exporter.bundle_sources(@measure, source_dir)
+    set_test_source_path(File.join("test", "fixtures", "export", "measure-sources"))
+    bundled_sources = Measures::Exporter.bundle_sources(@measure)
 
     assert_equal bundled_sources.size, 4
 
-    source_dir = File.join(source_dir, @measure.hqmf_id)
     assert_not_nil bundled_sources[File.join("0002", "#{@measure.measure_id}.html")]
     assert_not_nil bundled_sources[File.join("0002", "hqmf1.xml")]
     assert_not_nil bundled_sources[File.join("0002", "hqmf2.xml")]

@@ -7,9 +7,14 @@ class MeasuresControllerTest < ActionController::TestCase
 
     @user = FactoryGirl.create(:user)
 
+    test_source_path = File.join('.','tmp','export_test')
+    set_test_source_path(test_source_path)
+    FileUtils.mkdir_p test_source_path
+
     hqmf_file = "test/fixtures/measure-defs/0002/0002.xml"
     value_set_file = "test/fixtures/measure-defs/0002/0002.xls"
-    Measures::Loader.load(hqmf_file, @user, nil, true, nil, nil, nil, value_set_file)
+    html_file = "test/fixtures/measure-defs/0002/0002.html"
+    Measures::Loader.load(hqmf_file, @user, html_file, true, nil, nil, nil, value_set_file)
     
     @measure = Measure.where(hqmf_id: "8A4D92B2-3946-CDAE-0139-77F580AE6690").first
     @measure.user = @user
@@ -18,6 +23,13 @@ class MeasuresControllerTest < ActionController::TestCase
     @measure.records << @patient
 
     sign_in @user
+  end
+
+  teardown do
+    test_source_path = File.join('.','tmp','export_test')
+    FileUtils.rm_r test_source_path if File.exists?(test_source_path)
+    test_source_path = File.join(".", "db", "measures")
+    set_test_source_path(test_source_path)
   end
 
   test "measure index" do

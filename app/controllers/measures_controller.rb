@@ -27,7 +27,7 @@ class MeasuresController < ApplicationController
 
   def show_nqf
     @measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
-    @contents = File.read(File.expand_path(File.join(".", "db", "measures", "html", "#{@measure.hqmf_id}.html")))
+    @contents = File.read(File.expand_path(File.join(Measures::Loader::SOURCE_PATH, "html", "#{@measure.hqmf_id}.html")))
     add_breadcrumb @measure["measure_id"], "/measures/" + @measure["measure_id"]
     add_breadcrumb 'NQF Definition', ''
   end

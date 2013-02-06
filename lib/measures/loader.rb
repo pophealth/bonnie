@@ -1,6 +1,8 @@
 module Measures
   # Utility class for loading measure definitions into the database
   class Loader
+
+    SOURCE_PATH = File.join(".", "db", "measures")
     
     def self.load_hqmf(hqmf_contents, user, codes_by_oid)
 
@@ -297,20 +299,20 @@ module Measures
       
       # Save original files
       if (html_path)
-        html_out_path = File.join(".", "db", "measures", "html")
+        html_out_path = File.join(SOURCE_PATH, "html")
         FileUtils.mkdir_p html_out_path
         FileUtils.cp(html_path, File.join(html_out_path,"#{measure.hqmf_id}.html"))
       end
       
       if (value_set_path)
-        value_set_out_path = File.join(".", "db", "measures", "value_sets")
+        value_set_out_path = File.join(SOURCE_PATH, "value_sets")
         FileUtils.mkdir_p value_set_out_path
         FileUtils.cp(value_set_path, File.join(value_set_out_path,"#{measure.hqmf_id}.xls"))
       end
       
-      hqmf_out_path = File.join(".", "db", "measures", "hqmf")
+      hqmf_out_path = File.join(SOURCE_PATH, "hqmf")
       FileUtils.mkdir_p hqmf_out_path
-      FileUtils.cp(hqmf_path, File.join(".", "db", "measures", "hqmf", "#{measure.hqmf_id}.xml"))
+      FileUtils.cp(hqmf_path, File.join(hqmf_out_path, "#{measure.hqmf_id}.xml"))
 
       measure.save! if persist
       measure
