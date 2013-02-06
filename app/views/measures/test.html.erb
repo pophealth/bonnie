@@ -10,7 +10,9 @@
       });
       $('.delete_patient').click(
         function(){
-          $.post('<%= url_for :action => 'delete_patient' %>', {authenticity_token: $('meta[name=csrf-token]').val(), victim: $(this).siblings('input[name=victim]').val()}, $.proxy(function(r){if (r) $(this).parentsUntil('.row').parent().remove(); }, this));
+          if (confirm("Are you sure you want to delete this patient?")) {
+            $.post('<%= url_for :action => 'delete_patient' %>', {authenticity_token: $('meta[name=csrf-token]').val(), victim: $(this).siblings('input[name=victim]').val()}, $.proxy(function(r){if (r) $(this).parentsUntil('.row').parent().remove(); }, this));
+          }
         }
       );
       $('.patient_info.icon-info-sign').popover()

@@ -37,10 +37,6 @@ init_js_load = ->
       do (e) ->
         append_div(log_element, e)
 
-  $('#run_test_dc_link').click (event) ->
-    log_element.empty()
-    _.each(_.functions(hqmfjs), (item) -> append_div(log_element, "#{item} => #{hqmfjs[item](new hQuery.Patient(patient[0]))}"))
-
   $("#run_ipp_link").click (event) ->
     Logger.logger = [] if Logger?
     log_element.empty()

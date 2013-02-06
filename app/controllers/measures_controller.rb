@@ -485,9 +485,8 @@ class MeasuresController < ApplicationController
   end
 
   def delete_patient
-    @measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
-    @measure.records = @measure.records.reject{|v| v['_id'].to_s == params['victim']}
-    render :json => @measure.save!
+    Record.find(params['victim']).delete
+    render :json => {deleted: params['victim']}
   end
 
   def matrix
