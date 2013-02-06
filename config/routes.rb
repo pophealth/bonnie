@@ -49,6 +49,6 @@ Bonnie::Application.routes.draw do
 
   root :to => 'measures#index'
 
-  resources :value_sets
+  #resources :value_sets
 
  end

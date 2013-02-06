@@ -5,7 +5,7 @@ module Measures
       def self.generate_nqf_template(measure, population)
         locals ||= {}
         oid_map = {}
-        measure.value_sets.each {|vs| oid_map[vs.oid] = vs.description }
+        measure.value_sets.each {|vs| oid_map[vs.oid] = vs.display_name }
         locals[:measure] = measure.as_hqmf_model
         locals[:population] = population
         locals[:oid_map] = oid_map

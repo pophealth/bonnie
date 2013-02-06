@@ -10,11 +10,11 @@ namespace :value_sets do
     format ||= HQMF::ValueSet::Parser.get_format(path)
     value_sets = parser.parse(path, {format: format})
     value_sets.each do |value_set|
-      if value_set['code_sets'].include? nil
-        puts "White list has a bad code set (code set is null)"
-        value_set['code_sets'].compact!
-      end
-      white_list = WhiteList.new(value_set)
+        if value_set['concepts'].include? nil
+          puts "Value Set has a bad code set (code set is null)"
+          hds_value_set['concepts'].compact!
+        end
+      white_list = WhiteList.new(value_set.as_json)
       white_list.save!
     end
   end
@@ -23,7 +23,7 @@ namespace :value_sets do
   task :cache, [:username, :password, :clear] => :setup do |t,args|
 
     if args[:clear] == 'true'
-      ValueSet.all.delete()
+      HealthDataStandards::SVS::ValueSet.all.delete()
     end
 
   end

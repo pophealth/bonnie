@@ -124,8 +124,8 @@ module Measures
     def self.bundle_patient(patient)
       filename = TPG::Exporter.patient_filename(patient)
 
-      # c32 = HealthDataStandards::Export::C32.export(patient)
-      # ccda = HealthDataStandards::Export::CCDA.export(patient)
+      # c32 = HealthDataStandards::Export::C32.new.export(patient)
+      # ccda = HealthDataStandards::Export::CCDA.new.export(patient)
       # ccr = HealthDataStandards::Export::CCR.export(patient)
       
       patient_hash = patient.as_json(except: [ '_id', 'measure_id' ], methods: ['_type'])
@@ -134,7 +134,7 @@ module Measures
       patient_hash.delete_if(&remove_nils)
       json = JSON.pretty_generate(JSON.parse(patient_hash.to_json))
       
-      html = HealthDataStandards::Export::HTML.export(patient)
+      html = HealthDataStandards::Export::HTML.new.export(patient)
 
       {
         File.join("json", "#{filename}.json") => json,
