@@ -48,10 +48,12 @@ module Measures
 
         patient_path = File.join(patients_path, type)
         content[patient_path] = {}
+        patient_exporter = HealthDataStandards::Export::HTML.new
+
         Record.where(type: type).each do |patient|
           puts "Exporting patient: #{patient.first}#{patient.last}"
           patient_ids << patient.medical_record_number
-          content[patient_path].merge! bundle_patient(patient)
+          content[patient_path].merge! bundle_patient(patient, patient_exporter)
         end
       end
       
@@ -121,7 +123,7 @@ module Measures
       }
     end
 
-    def self.bundle_patient(patient)
+    def self.bundle_patient(patient, exporter=HealthDataStandards::Export::HTML.new)
       filename = TPG::Exporter.patient_filename(patient)
 
       # c32 = HealthDataStandards::Export::C32.new.export(patient)
@@ -134,7 +136,7 @@ module Measures
       patient_hash.delete_if(&remove_nils)
       json = JSON.pretty_generate(JSON.parse(patient_hash.to_json))
       
-      html = HealthDataStandards::Export::HTML.new.export(patient)
+      html = exporter.export(patient)
 
       {
         File.join("json", "#{filename}.json") => json,

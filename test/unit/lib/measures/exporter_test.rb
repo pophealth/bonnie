@@ -136,7 +136,9 @@ class ExporterTest < ActiveSupport::TestCase
       "json/#{patient_name}.json",
       "html/#{patient_name}.html"]
 
-    bundled_patient = Measures::Exporter.bundle_patient(@patient)
+    patient_exporter = HealthDataStandards::Export::HTML.new
+
+    bundled_patient = Measures::Exporter.bundle_patient(@patient, patient_exporter)
 
     assert_equal bundled_patient.size, expected_formats.size
     expected_formats.each {|format| assert bundled_patient.include? format}

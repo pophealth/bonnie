@@ -243,17 +243,17 @@ module Measures
       
 
       if (value_set_models.present?)
-        value_set_models.each { |vsm| vsm.save! } if persist
+        loaded_value_sets = HealthDataStandards::SVS::ValueSet.all.map(&:oid)
+        value_set_models.each { |vsm| vsm.save! unless loaded_value_sets.include? vsm.oid } if persist
         codes_by_oid = HQMF2JS::Generator::CodesToJson.from_value_sets(value_set_models) 
       end
 
       # Parsed HQMF
       measure = Measures::Loader.load_hqmf(hqmf_contents, user, codes_by_oid)
 
-      if value_set_oids
-        measure.value_set_oids = value_set_oids[measure_id]
+      if value_set_models
+        measure.value_set_oids = value_set_models.map(&:oid)
       end
-
       
       # Save original files
       if (html_path)
