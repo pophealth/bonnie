@@ -162,10 +162,8 @@ class MeasuresController < ApplicationController
       records = Record.all
     end
     
-    concepts_by_code = {}
-    ValueSet.all.each { |vs| vs.code_sets.each {|cs| concepts_by_code[cs.code_set] ||= {} ; cs.codes.each {|code| concepts_by_code[cs.code_set][code] ||= {} ; concepts_by_code[cs.code_set][code][vs.oid] = {concept: vs.concept, oid: vs.oid}}}}
+    zip = TPG::Exporter.zip(records, params[:download][:format])
 
-    zip = TPG::Exporter.zip(records, params[:download][:format], concepts_by_code)
 
     send_file zip.path, :type => 'application/zip', :disposition => 'attachment', :filename => "patients.zip"
   end
