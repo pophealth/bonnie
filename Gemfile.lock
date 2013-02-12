@@ -24,21 +24,21 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/patientapi.git
-  revision: 10653162405f466adaeeb9874ca8a4666f8d4e1e
+  revision: 63e9208fab523b2f1562dc74e4f3a05d599b8023
   branch: develop
   specs:
     hquery-patient-api (1.0.0)
 
 GIT
   remote: https://github.com/pophealth/test-patient-generator.git
-  revision: 9d0739625df12b7ea66719da496371e64bd26a84
+  revision: 017e0935e3bfcf607501511d490c4572c3069353
   branch: develop
   specs:
     test-patient-generator (1.1.2)
 
 GIT
   remote: https://github.com/projectcypress/health-data-standards.git
-  revision: 3df9860de0ebf9c608b5a4e65220955cc2a65050
+  revision: 5b77b46ed40c8c5956e4b36c974c0f9b457ef96b
   branch: develop
   specs:
     health-data-standards (3.0.0)
@@ -162,15 +162,17 @@ GEM
       tzinfo (~> 0.3.22)
     moped (1.2.9)
     multi_json (1.5.0)
+    multi_xml (0.5.3)
     multipart-post (1.1.5)
     nokogiri (1.5.6)
     nokogiri (1.5.6-java)
     oauth (0.4.7)
-    oauth2 (0.8.0)
+    oauth2 (0.9.0)
       faraday (~> 0.8)
       httpauth (~> 0.1)
       jwt (~> 0.1.4)
       multi_json (~> 1.0)
+      multi_xml (~> 0.5)
       rack (~> 1.2)
     origin (1.0.11)
     orm_adapter (0.4.0)

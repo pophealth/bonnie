@@ -556,7 +556,7 @@
     <select class="data_criteria_oid"{{if hidden}} style="display: none;"{{/if}}>
       <option value="">--</option>
       {{each bonnie.patientBuilder.orderedValueSets}}
-        <option value="${oid}">${concept} (${measure_id})</option>
+        <option value="${oid}">${display_name}</option>
       {{/each}}
     </select>
   </script>
@@ -646,7 +646,7 @@
           {{if operator}}<label>${operator}</label>{{/if}}
           {{if category}}<label>{{if specific_occurrence}}<span class="occurrence">Occurrence ${specific_occurrence}:</span>{{/if}} ${category}{{if status}}, ${status}{{/if}}</label>{{/if}}
           ${title} {{if value }}{{if type!='characteristic' }}${valueText}{{/if}}{{/if}} ${fieldsText} ${temporalText}
-          <div class="negation_text">{{if negation}} <b>not done:</b> {{if negation_code_list_id}}${bonnie.builder.value_sets[negation_code_list_id].concept}: ${bonnie.builder.value_sets[negation_code_list_id].description}{{/if}}{{/if}}</div>
+          <div class="negation_text">{{if negation}} <b>not done:</b> {{if negation_code_list_id}}${bonnie.builder.value_sets[negation_code_list_id].display_name}: ${bonnie.builder.value_sets[negation_code_list_id].description}{{/if}}{{/if}}</div>
         </div>
       </div>
     </div>
@@ -737,8 +737,8 @@
         </div>
         <div class="span3">
           <select name="negation_code_list_id">
-            <% @value_sets.map{|s| s.attributes.select{|k,v| ['concept', 'oid'].include?(k) } }.sort{|l,r| l['concept'] <=> r['concept'] }.each {|v|%>
-              <option value="<%= v['oid'] %>"><%= v['concept'] %> - <%= v['oid'] %></option>
+            <% @value_sets.map{|s| s.attributes.select{|k,v| ['display_name', 'oid'].include?(k) } }.sort{|l,r| l['display_name'] <=> r['display_name'] }.each {|v|%>
+              <option value="<%= v['oid'] %>"><%= v['display_name'] %> - <%= v['oid'] %></option>
             <% } %>
           </select>
         </div>

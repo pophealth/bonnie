@@ -1,7 +1,7 @@
 class Measure
   include Mongoid::Document
 
-  DEFAULT_EFFECTIVE_DATE = Time.gm(2011,1,1).to_i
+  DEFAULT_EFFECTIVE_DATE = Time.gm(2013,1,1).to_i
   TYPES = ["ep", "eh"]
 
   store_in collection: 'draft_measures'
@@ -175,7 +175,8 @@ class Measure
   end
 
   def value_sets
-    HealthDataStandards::SVS::ValueSet.in(oid: value_set_oids).where({'_type'=>{'$ne'=>'WhiteList'}})
+    @value_sets ||= HealthDataStandards::SVS::ValueSet.in(oid: value_set_oids).where({'_type'=>{'$ne'=>'WhiteList'}})
+    @value_sets
   end
 
   private

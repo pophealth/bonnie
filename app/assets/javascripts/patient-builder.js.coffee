@@ -20,8 +20,8 @@ class @bonnie.PatientBuilder
   orderedValueSets: =>
     _.values(@value_sets).sort((left, right) =>
       result = 0
-      l = left.concept.toLowerCase().trim()
-      r = right.concept.toLowerCase().trim()
+      l = left.display_name.toLowerCase().trim()
+      r = right.display_name.toLowerCase().trim()
       result = -1 if ( l < r )
       result = 1 if ( l > r )
       result)
