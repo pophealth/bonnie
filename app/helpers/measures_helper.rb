@@ -28,6 +28,7 @@ module MeasuresHelper
     @js << "// #########################\n\n"
 
     @js << "var patient = #{patient_json};\n"
+    @js << "var effective_date = #{Measure::DEFAULT_EFFECTIVE_DATE};\n"
 
     return @js
   end

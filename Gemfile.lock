@@ -13,7 +13,7 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/hqmf2js.git
-  revision: b01d1cd0d3963a64b4d0f347aca66611c2d148b4
+  revision: a8c157e142c7c7ef78fee195448dd89d58ef8146
   branch: develop
   specs:
     hqmf2js (1.1.0)
@@ -38,7 +38,7 @@ GIT
 
 GIT
   remote: https://github.com/projectcypress/health-data-standards.git
-  revision: 95523538f10916ee678a7f7e89370c7914789268
+  revision: 8a551a7598d203fa45c4a2893b399abbe94f9f1f
   branch: develop
   specs:
     health-data-standards (3.0.0)
@@ -266,7 +266,7 @@ GEM
     uglifier (1.3.0)
       execjs (>= 0.3.0)
       multi_json (~> 1.0, >= 1.0.2)
-    uuid (2.3.6)
+    uuid (2.3.7)
       macaddr (~> 1.0)
     warden (1.2.1)
       rack (>= 1.0)

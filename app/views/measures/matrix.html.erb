@@ -271,7 +271,7 @@
                 if (patient_cache_row.value.NUMER || patient_cache_row.value.MSRPOPL)  {
 	                categories.push(3)
                 }
-                if (patient_cache_row.value.DENOM && patient_cache_row.value.DENOM > (patient_cache_row.value.NUMER || 0))  {
+                if (patient_cache_row.value.DENOM && patient_cache_row.value.DENOM > (patient_cache_row.value.NUMER || 0) && patient_cache_row.value.DENOM > ((patient_cache_row.value.DENEXCEP || 0) + (patient_cache_row.value.DENEX || 0)))  {
 	                categories.push(2)
                 }
                 if (patient_cache_row.value.IPP && (patient_cache_row.value.IPP > ((patient_cache_row.value.DENOM || 0) + (patient_cache_row.value.DENEX || 0) + (patient_cache_row.value.DENEXCEP || 0)+ (patient_cache_row.value.MSRPOPL || 0)))) {
