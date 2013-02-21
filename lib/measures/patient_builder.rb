@@ -47,8 +47,9 @@ module Measures
         end if v['value']
         v['field_values'].each do |key, value|
           data_criteria.field_values ||= {}
-          value['value'] = Time.strptime(value['value'],"%m/%d/%Y %H:%M").to_time.strftime('%Y%m%d%H%M%S') if (value['type'] == 'TS') 
+          converted_time = Time.strptime(value['value'],"%m/%d/%Y %H:%M").to_time.strftime('%Y%m%d%H%M%S') if (value['type'] == 'TS') 
           data_criteria.field_values[key] = HQMF::DataCriteria.convert_value(value)
+          data_criteria.field_values[key].value = converted_time if converted_time
         end if v['field_values']
         if v['negation'] == 'true'
           data_criteria.negation = true
