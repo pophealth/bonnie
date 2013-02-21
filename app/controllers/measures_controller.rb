@@ -139,14 +139,14 @@ class MeasuresController < ApplicationController
   def export
     measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
 
-    file = Measures::Exporter.export_bundle([measure], nil, true)
+    file = Measures::Exporter.export_bundle([measure], true)
     send_file file.path, :type => 'application/zip', :disposition => 'attachment', :filename => "bundle-#{measure.id}.zip"
   end
 
   def export_all
     measures = Measure.by_user(current_user).to_a
 
-    file = Measures::Exporter.export_bundle(measures, nil, true)
+    file = Measures::Exporter.export_bundle(measures, true)
     version = APP_CONFIG["measures"]["version"]
     send_file file.path, :type => 'application/zip', :disposition => 'attachment', :filename => "bundle-#{version}.zip"
   end
