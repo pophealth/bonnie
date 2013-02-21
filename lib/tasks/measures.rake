@@ -164,12 +164,11 @@ namespace :measures do
   end
 
   desc 'Export definitions for all measures'
-  task :export, [:username, :static_results_path, :calculate] do |t, args|
+  task :export, [:username, :calculate] do |t, args|
     calculate = args.calculate != 'false'
     measures = args.username ? User.by_username(args.username).measures.to_a : Measure.all.to_a
-    static_results_path = args.static_results_path unless args.static_results_path.nil? || args.static_results_path.empty?
 
-    zip = Measures::Exporter.export_bundle(measures, static_results_path, calculate)
+    zip = Measures::Exporter.export_bundle(measures, calculate)
     version = APP_CONFIG["measures"]["version"]
     bundle_path = File.join(".", "tmp", "bundles")
     date_string = Time.now.strftime("%Y-%m-%d")

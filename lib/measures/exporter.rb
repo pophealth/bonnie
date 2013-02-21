@@ -8,7 +8,7 @@ module Measures
     # @param [Boolean] preparation_needed Whether or not we need to prepare the export first. Defaults to true.
     # @param [Boolean] verbose Give verbose feedback while exporting. Defaults to true.
     # @return A bundle containing all measures, matching test patients, and some additional goodies.
-    def self.export_bundle(measures = Measure.all.to_a, static_results_path=nil, calculate = true)
+    def self.export_bundle(measures = Measure.all.to_a, calculate = true)
       content = {}
       patient_ids = []
       measure_ids = []
@@ -25,12 +25,6 @@ module Measures
       # TODO should be contextual to measures
       Measures::Calculator.calculate(!calculate)
       
-      # generate static results for export
-      if (static_results_path)
-        worksheet = RubyXL::Parser.parse(static_results_path)
-        QME::Bundle::EHPatientImporter.load(Mongoid.default_session,worksheet,Measure::DEFAULT_EFFECTIVE_DATE)
-      end
-      
       Measure::TYPES.each do |type|
         measure_path = File.join(measures_path, type)
         content[measure_path] = {}
@@ -43,7 +37,7 @@ module Measures
         source_path = File.join(sources_path, type)
         content[source_path] = {}
         Measure.where(:type => type).each do |measure|
-          content[source_path].merge! bundle_sources(measure) rescue {}
+          content[source_path].merge! bundle_sources(measure)
         end
 
         patient_path = File.join(patients_path, type)
@@ -99,15 +93,18 @@ module Measures
       source_path = Measures::Loader::SOURCE_PATH
       html = File.read(File.expand_path(File.join(source_path, "html", "#{measure.hqmf_id}.html")))
       hqmf1 = File.read(File.expand_path(File.join(source_path, "hqmf", "#{measure.hqmf_id}.xml")))
-      hqmf2 = HQMF2::Generator::ModelProcessor.to_hqmf(measure.as_hqmf_model)
-      hqmf_model = JSON.pretty_generate(measure.as_hqmf_model.to_json)
+      hqmf2 = HQMF2::Generator::ModelProcessor.to_hqmf(measure.as_hqmf_model) rescue puts("\tError generating HQMFv2 for #{measure.measure_id}")
+      hqmf_model = JSON.pretty_generate(measure.as_hqmf_model.to_json, max_nesting: 250)
 
-      {
-        File.join(measure.measure_id, "#{measure.measure_id}.html") => html,
-        File.join(measure.measure_id, "hqmf1.xml") => hqmf1,
-        File.join(measure.measure_id, "hqmf2.xml") => hqmf2,
-        File.join(measure.measure_id, "hqmf_model.json") => hqmf_model
-      }
+      sources = {}
+
+      sources[File.join(measure.measure_id, "#{measure.measure_id}.html")] = html
+      sources[File.join(measure.measure_id, "hqmf1.xml")] = hqmf1
+      sources[File.join(measure.measure_id, "hqmf2.xml")] = hqmf2 if hqmf2
+      sources[File.join(measure.measure_id, "hqmf_model.json")] = hqmf_model
+
+      sources
+      
     end
       
     # TODO make this contextual to measures
