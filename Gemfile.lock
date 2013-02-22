@@ -1,6 +1,6 @@
 GIT
   remote: http://github.com/pophealth/quality-measure-engine.git
-  revision: 249f05ef3726fe0422f7240be0c2c0cf21b67293
+  revision: cfcead2c1755f2feadb0f97d1d8c9de2363429d5
   branch: develop
   specs:
     quality-measure-engine (2.1.0)
@@ -38,7 +38,7 @@ GIT
 
 GIT
   remote: https://github.com/projectcypress/health-data-standards.git
-  revision: ff840fb43930fa5e91276be856bb022da876f064
+  revision: c4e3dc1e194faff4bdc0a35c6d29b8d75589e6ac
   branch: develop
   specs:
     health-data-standards (3.0.0)
