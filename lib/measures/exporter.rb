@@ -19,9 +19,10 @@ module Measures
       sources_path = "sources"
       patients_path = "patients"
       result_path = "results"
+      codes_path = "code_sets"
 
       content[library_path] = bundle_library_functions(Measures::Calculator.library_functions)
-      
+
       # TODO should be contextual to measures
       Measures::Calculator.calculate(!calculate)
       
@@ -53,6 +54,7 @@ module Measures
       
       content[bundle_path] = bundle_json(patient_ids, measure_ids, Measures::Calculator.library_functions.keys)
       content[result_path] = bundle_results(measures)
+      content[codes_path] = bundle_codes(measures)
 
       zip_content(content)
     end
@@ -79,6 +81,14 @@ module Measures
       end
 
       content
+    end
+
+    def self.bundle_codes(measures)
+      codes = {}
+      measures.map(&:value_set_oids).flatten.uniq.each do |oid|
+        codes["#{oid}.xml"] = File.read(File.expand_path(File.join('db','code_sets',"#{oid}.xml")))
+      end
+      codes
     end
     
     def self.bundle_measure(measure)
