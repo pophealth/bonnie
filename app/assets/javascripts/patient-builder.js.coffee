@@ -265,9 +265,10 @@ class @bonnie.PatientBuilder
         oid: data.oid
       })
     );
+
     $(form).ajaxSubmit({
-      beforeSubmit: (v) -> v.map((e) ->
-        e.value = new Date(e.value).getTime() if e.name == 'birthdate'
+      beforeSubmit: (v) -> v.map((e) =>
+        e.value = bonnie.patientBuilder.getDateString(new Date(e.value)) if e.name == 'birthdate'
         e
       )
       data: {

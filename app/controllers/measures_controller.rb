@@ -413,7 +413,7 @@ class MeasuresController < ApplicationController
       }.map(&:to_a).flatten
     ]
 
-    params['birthdate'] = params['birthdate'].to_i / 1000
+    params['birthdate'] = Time.parse(params['birthdate']).to_i
 
     @data_criteria = Hash[
       *Measure.where({'measure_id' => {'$in' => patient['measure_ids'] || []}}).map{|m|
@@ -423,8 +423,6 @@ class MeasuresController < ApplicationController
       }.map(&:to_a).flatten
     ]
     
-    
-
     ['first', 'last', 'gender', 'expired', 'birthdate', 'description', 'description_category'].each {|param| patient[param] = params[param]}
     patient['ethnicity'] = {'code' => params['ethnicity'], 'name'=>ETHNICITY_NAME_MAP[params['ethnicity']], 'codeSystem' => 'CDC Race'}
     patient['race'] = {'code' => params['race'], 'name'=>RACE_NAME_MAP[params['race']], 'codeSystem' => 'CDC Race'}
