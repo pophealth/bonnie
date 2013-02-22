@@ -86,7 +86,12 @@ module Measures
     def self.bundle_codes(measures)
       codes = {}
       measures.map(&:value_set_oids).flatten.uniq.each do |oid|
-        codes["#{oid}.xml"] = File.read(File.expand_path(File.join('db','code_sets',"#{oid}.xml")))
+        code_set_file = File.expand_path(File.join('db','code_sets',"#{oid}.xml"))
+        if File.exist? code_set_file
+          codes["#{oid}.xml"] = File.read(code_set_file)
+        else
+          puts("\tError generating code set for #{oid}")
+        end
       end
       codes
     end

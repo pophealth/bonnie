@@ -34,7 +34,7 @@ class ExporterTest < ActiveSupport::TestCase
     measures = [@measure]
 
     Measures::Calculator.calculate(false,measures)
-        
+
     entries = []
     bundle = Measures::Exporter.export_bundle(measures, false)
     Zip::ZipFile.open(bundle.path) do |zip|
@@ -56,11 +56,12 @@ class ExporterTest < ActiveSupport::TestCase
       "patients/ep/json/#{patient_name}.json",
       "patients/ep/html/#{patient_name}.html",
       "results/by_patient.json",
-      "results/by_measure.json"]
+      "results/by_measure.json",
+      "code_sets"]
     
     entries.size.must_equal expected.size
-    entries.each {|entry| assert expected.include? entry}
-    expected.each {|entry| assert entries.include? entry}
+    entries.each {|entry| assert expected.include? entry unless entry.start_with? "code_sets"}
+    expected.each {|entry| assert entries.include? entry unless entry.start_with? "code_sets"}
   end
 
   test "bundle json" do
