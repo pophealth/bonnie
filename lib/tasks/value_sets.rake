@@ -19,7 +19,8 @@ namespace :value_sets do
       if !existing && child_oids.include?(value_set.oid)
         next
       elsif !existing
-        throw "Missing: #{value_set.oid}"
+        puts "\tMissing: #{value_set.oid}"
+        next
       end
       existing_map = existing.concepts.reduce({}) {|hash, concept| hash[concept.code_system_name]||=Set.new; hash[concept.code_system_name] << concept.code; hash}
       white_list = WhiteList.new(value_set.as_json)

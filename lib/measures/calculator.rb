@@ -61,6 +61,7 @@ module Measures
         hqmf_id: measure.hqmf_id,
         hqmf_set_id: measure.hqmf_set_id,
         hqmf_version_number: measure.hqmf_version_number,
+        cms_id: measure.cms_id,
         endorser: measure.endorser,
         name: measure.title,
         description: measure.description,

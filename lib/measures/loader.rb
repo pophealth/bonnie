@@ -18,6 +18,7 @@ module Measures
       measure.hqmf_id = json["hqmf_id"]
       measure.hqmf_set_id = json["hqmf_set_id"]
       measure.hqmf_version_number = json["hqmf_version_number"]
+      measure.cms_id = json["cms_id"]
       measure.title = json["title"]
       measure.description = json["description"]
       measure.measure_attributes = json["attributes"]

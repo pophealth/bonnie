@@ -12,6 +12,7 @@ class Measure
   field :hqmf_id, type: String
   field :hqmf_set_id, type: String
   field :hqmf_version_number, type: Integer
+  field :cms_id, type: String
   field :title, type: String
   field :description, type: String
   field :type, type: String
@@ -121,7 +122,11 @@ class Measure
       "source_data_criteria" => self.source_data_criteria,
       "measure_period" => self.measure_period,
       "attributes" => self.measure_attributes,
-      "populations" => self.populations
+      "populations" => self.populations,
+      "hqmf_id" => self.hqmf_id,
+      "hqmf_set_id" => self.hqmf_set_id,
+      "hqmf_version_number" => self.hqmf_version_number,
+      "cms_id" => self.cms_id
     }
 
     HQMF::Document.from_json(json)
