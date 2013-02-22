@@ -19,7 +19,7 @@ module Measures
       sources_path = "sources"
       patients_path = "patients"
       result_path = "results"
-      codes_path = "code_sets"
+      codes_path = "value_sets"
 
       content[library_path] = bundle_library_functions(Measures::Calculator.library_functions)
 
@@ -85,13 +85,17 @@ module Measures
 
     def self.bundle_codes(measures)
       codes = {}
-      measures.map(&:value_set_oids).flatten.uniq.each do |oid|
+      value_sets = measures.map(&:value_set_oids).flatten.uniq
+      value_sets.each do |oid|
         code_set_file = File.expand_path(File.join('db','code_sets',"#{oid}.xml"))
         if File.exist? code_set_file
-          codes["#{oid}.xml"] = File.read(code_set_file)
+          codes[File.join("xml", "#{oid}.xml")] = File.read(code_set_file)
         else
           puts("\tError generating code set for #{oid}")
         end
+      end
+      HealthDataStandards::SVS::ValueSet.where({oid: {'$in'=>value_sets}}).to_a.each do |vs|
+        codes[File.join("json", "#{vs.oid}.json")] = JSON.pretty_generate(vs.as_json(:except => [ '_id' ]), max_nesting: 250)
       end
       codes
     end

@@ -56,12 +56,14 @@ class ExporterTest < ActiveSupport::TestCase
       "patients/ep/json/#{patient_name}.json",
       "patients/ep/html/#{patient_name}.html",
       "results/by_patient.json",
-      "results/by_measure.json",
-      "code_sets"]
+      "results/by_measure.json"]
+
+    # since this depends on the value sets on the filesystem, it is tough to determine how many will actually be there
+    entries.reject! {|e| e.start_with? 'value_sets' }
     
     entries.size.must_equal expected.size
-    entries.each {|entry| assert expected.include? entry unless entry.start_with? "code_sets"}
-    expected.each {|entry| assert entries.include? entry unless entry.start_with? "code_sets"}
+    entries.each {|entry| assert expected.include? entry }
+    expected.each {|entry| assert entries.include? entry }
   end
 
   test "bundle json" do
