@@ -62,6 +62,7 @@ module Measures
     def self.bundle_json(patient_ids, measure_ids, library_names)
       json = {
         title: APP_CONFIG["measures"]["title"],
+        measure_period_start: APP_CONFIG["measures"]["measure_period_start"],
         effective_date: APP_CONFIG["measures"]["effective_date"],
         version: APP_CONFIG["measures"]["version"],
         license: APP_CONFIG["measures"]["license"],

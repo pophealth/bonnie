@@ -45,7 +45,7 @@ module Measures
     def self.refresh_js_libraries
       MONGO_DB['system.js'].find({}).remove_all
       library_functions.each do |name, contents|
-        QME::Bundle.save_system_js_fn(MONGO_DB, name, contents)
+        HealthDataStandards::Import::Bundle::Importer.save_system_js_fn(name, contents)
       end
     end
 

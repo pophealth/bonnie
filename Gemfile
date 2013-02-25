@@ -22,7 +22,7 @@ gem 'factory_girl'
 gem 'text'
 gem 'rubyXL'
 
-gem "mongoid", '~> 3.0.9'
+gem "mongoid"
 
 gem 'simple_form'
 gem 'coderay'   # for javascript syntax highlighting
