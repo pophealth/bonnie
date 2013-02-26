@@ -1,6 +1,6 @@
 GIT
   remote: http://github.com/pophealth/quality-measure-engine.git
-  revision: 47437eeffae6e0118476ac8aec9951e0b2b0a4b4
+  revision: 3596fece83c959d5f4d88e4ed5f3ec35fb8c73a5
   branch: develop
   specs:
     quality-measure-engine (2.1.0)
@@ -38,7 +38,7 @@ GIT
 
 GIT
   remote: https://github.com/projectcypress/health-data-standards.git
-  revision: 99c499d3d322a4c98f6a992a3fc5a8be850b009d
+  revision: e8b51b99e6aa540598d415d848a4895842edef8d
   branch: develop
   specs:
     health-data-standards (3.0.0)
@@ -131,7 +131,7 @@ GEM
     hashie (1.2.0)
     hike (1.2.1)
     httpauth (0.2.0)
-    i18n (0.6.1)
+    i18n (0.6.2)
     interception (0.3)
     journey (1.0.4)
     jquery-rails (2.1.4)
@@ -155,7 +155,7 @@ GEM
     method_source (0.8.1)
     mime-types (1.21)
     minitest (4.3.2)
-    mongoid (3.1.1)
+    mongoid (3.1.2)
       activemodel (~> 3.2)
       moped (~> 1.4.2)
       origin (~> 1.0)
