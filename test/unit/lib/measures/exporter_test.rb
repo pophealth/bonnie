@@ -6,7 +6,14 @@ class ExporterTest < ActiveSupport::TestCase
     
     hqmf_file = "test/fixtures/measure-defs/0002/0002.xml"
     value_set_file = "test/fixtures/measure-defs/0002/0002.xls"
-    
+
+    test_source_path = File.join('.','tmp','export_test')
+    set_test_source_path(test_source_path)
+
+    FileUtils.mkdir_p test_source_path
+    FileUtils.cp_r 'test/fixtures/export/measure-sources/hqmf', test_source_path
+    FileUtils.cp_r 'test/fixtures/export/measure-sources/html', test_source_path
+
     Measures::Loader.load(hqmf_file, @user, nil, true, nil, nil, nil, value_set_file)
     Measure.all.count.must_equal 1
     
@@ -15,14 +22,21 @@ class ExporterTest < ActiveSupport::TestCase
     @measure.records << @patient
   end
 
+  teardown do
+    test_source_path = File.join('.','tmp','export_test')
+    FileUtils.rm_r test_source_path if File.exists?(test_source_path)
+    test_source_path = File.join(".", "db", "measures")
+    set_test_source_path(test_source_path)
+  end
+
   test "export bundle" do
     file = Tempfile.new(['bundle', '.zip'])
     measures = [@measure]
 
     Measures::Calculator.calculate(false,measures)
-        
+
     entries = []
-    bundle = Measures::Exporter.export_bundle(measures, nil, false)
+    bundle = Measures::Exporter.export_bundle(measures, false)
     Zip::ZipFile.open(bundle.path) do |zip|
       zip.entries.each do |entry|
         entries << entry.name
@@ -39,17 +53,17 @@ class ExporterTest < ActiveSupport::TestCase
       "sources/ep/0002/hqmf1.xml",
       "sources/ep/0002/hqmf2.xml",
       "sources/ep/0002/hqmf_model.json",
-      "patients/ep/c32/#{patient_name}.xml",
-      "patients/ep/ccda/#{patient_name}.xml",
-      "patients/ep/ccr/#{patient_name}.xml",
       "patients/ep/json/#{patient_name}.json",
       "patients/ep/html/#{patient_name}.html",
       "results/by_patient.json",
       "results/by_measure.json"]
+
+    # since this depends on the value sets on the filesystem, it is tough to determine how many will actually be there
+    entries.reject! {|e| e.start_with? 'value_sets' }
     
     entries.size.must_equal expected.size
-    entries.each {|entry| assert expected.include? entry}
-    expected.each {|entry| assert entries.include? entry}
+    entries.each {|entry| assert expected.include? entry }
+    expected.each {|entry| assert entries.include? entry }
   end
 
   test "bundle json" do
@@ -91,12 +105,11 @@ class ExporterTest < ActiveSupport::TestCase
   end
 
   test "bundle sources" do
-    source_dir = File.join("test", "fixtures", "export", "measure-sources")
-    bundled_sources = Measures::Exporter.bundle_sources(@measure, source_dir)
+    set_test_source_path(File.join("test", "fixtures", "export", "measure-sources"))
+    bundled_sources = Measures::Exporter.bundle_sources(@measure)
 
     assert_equal bundled_sources.size, 4
 
-    source_dir = File.join(source_dir, @measure.hqmf_id)
     assert_not_nil bundled_sources[File.join("0002", "#{@measure.measure_id}.html")]
     assert_not_nil bundled_sources[File.join("0002", "hqmf1.xml")]
     assert_not_nil bundled_sources[File.join("0002", "hqmf2.xml")]
@@ -109,12 +122,12 @@ class ExporterTest < ActiveSupport::TestCase
 
     assert_equal bundled_results.size, 2
 
-    expected_by_patient = ["IPP", "DENOM", "NUMER", "DENEXCEP", "DENEX", "antinumerator", "patient_id", "medical_record_id", "first", "last", "gender", "birthdate", "test_id", "provider_performances", "race", "ethnicity", "languages", "logger", "measure_id", "nqf_id", "effective_date"]
+    expected_by_patient = ["IPP", "DENOM", "NUMER", "DENEXCEP", "DENEX", "antinumerator", "patient_id", "medical_record_id", "first", "last", "gender", "birthdate", "test_id", "provider_performances", "race", "ethnicity", "languages", "logger", "rationale", "measure_id", "nqf_id", "effective_date"]
     by_patient = JSON.parse(bundled_results["by_patient.json"]).first["value"]
     assert_equal by_patient.keys.size, expected_by_patient.size
     expected_by_patient.each {|field| assert by_patient.include? field}
 
-    expected_by_measure = ["measure_id", "sub_id", "nqf_id", "population_ids", "effective_date", "test_id", "filters", "IPP", "DENOM", "NUMER", "antinumerator", "DENEX", "DENEXCEP", "considered", "execution_time"]
+    expected_by_measure = ["measure_id", "sub_id", "nqf_id", "population_ids", "effective_date", "test_id", "filters", "IPP", "DENOM", "NUMER", "antinumerator", "DENEX", "DENEXCEP", "considered", "execution_time", "MSRPOPL"]
     by_measure = JSON.parse(bundled_results["by_measure.json"]).first
     assert_equal by_measure.keys.size, expected_by_measure.size
     expected_by_measure.each {|field| assert by_measure.include? field}
@@ -123,15 +136,14 @@ class ExporterTest < ActiveSupport::TestCase
   test "bundle patient" do
     patient_name = "#{@patient.first}_#{@patient.last}"
     expected_formats = [
-      "c32/#{patient_name}.xml",
-      "ccda/#{patient_name}.xml",
-      "ccr/#{patient_name}.xml",
       "json/#{patient_name}.json",
       "html/#{patient_name}.html"]
 
-    bundled_patient = Measures::Exporter.bundle_patient(@patient)
+    patient_exporter = HealthDataStandards::Export::HTML.new
 
-    assert_equal bundled_patient.size, 5
+    bundled_patient = Measures::Exporter.bundle_patient(@patient, patient_exporter)
+
+    assert_equal bundled_patient.size, expected_formats.size
     expected_formats.each {|format| assert bundled_patient.include? format}
   end
 

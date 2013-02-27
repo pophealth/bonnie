@@ -1,32 +1,19 @@
-require 'cover_me'    # cover_me docs say it needs to be the first line in test_helper
+ENV["RAILS_ENV"] = "test"
+require File.expand_path('../../config/environment', __FILE__)
+
+require 'cover_me'
 require 'rubygems'
-require 'spork'
+
+require 'rails/test_help'
 
 require 'minitest/autorun'
 require 'minitest/unit'
 
-Spork.prefork do
-  # Loading more in this block will cause your tests to run faster. However,
-  # if you change any configuration or code from libraries loaded here, you'll
-  # need to restart spork for it take effect.
-  ENV["RAILS_ENV"] = "test"
-  require File.expand_path('../../config/environment', __FILE__)
+require 'factory_girl'
+FactoryGirl.find_definitions
 
-  require 'factory_girl'
-  FactoryGirl.find_definitions
-
-  require 'rake'
-  require 'turn'
-  require 'rails/test_help'
-
-#  require 'autotest/fsevent'
-end
-
-Spork.each_run do
-  # This code will be run each time you run your specs.
-  FactoryGirl.reload
-  Rails.application.reload_routes!
-end
+require 'rake'
+require 'turn'
 
 class ActiveSupport::TestCase
   def dump_database
@@ -78,4 +65,34 @@ class ActiveSupport::TestCase
     end
     fixture
   end
+
+  def set_test_source_path(path)
+    Measures::Loader.send(:remove_const, 'SOURCE_PATH') if Measures::Loader.const_defined?('SOURCE_PATH')
+    Measures::Loader.const_set('SOURCE_PATH', path)
+  end
+
 end
+
+class ActionController::TestCase
+  include Devise::TestHelpers
+end
+
+# Spork.prefork do
+#   # Loading more in this block will cause your tests to run faster. However,
+#   # if you change any configuration or code from libraries loaded here, you'll
+#   # need to restart spork for it take effect.
+#   ENV["RAILS_ENV"] = "test"
+#   require File.expand_path('../../config/environment', __FILE__)
+
+
+# #  require 'autotest/fsevent'
+# end
+
+# Spork.each_run do
+#   # This code will be run each time you run your specs.
+#   FactoryGirl.reload
+#   Rails.application.reload_routes!
+# end
+
+# class ActiveSupport::TestCase
+# end

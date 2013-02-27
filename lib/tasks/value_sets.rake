@@ -9,12 +9,23 @@ namespace :value_sets do
     parser = HQMF::ValueSet::Parser.new()
     format ||= HQMF::ValueSet::Parser.get_format(path)
     value_sets = parser.parse(path, {format: format})
+    child_oids = parser.child_oids
     value_sets.each do |value_set|
-      if value_set['code_sets'].include? nil
-        puts "White list has a bad code set (code set is null)"
-        value_set['code_sets'].compact!
+      if value_set['concepts'].include? nil
+        puts "Value Set has a bad code set (code set is null)"
+        hds_value_set['concepts'].compact!
       end
-      white_list = WhiteList.new(value_set)
+      existing = HealthDataStandards::SVS::ValueSet.where(oid: value_set.oid).first
+      if !existing && child_oids.include?(value_set.oid)
+        next
+      elsif !existing
+        puts "\tMissing: #{value_set.oid}"
+        next
+      end
+      existing_map = existing.concepts.reduce({}) {|hash, concept| hash[concept.code_system_name]||=Set.new; hash[concept.code_system_name] << concept.code; hash}
+      white_list = WhiteList.new(value_set.as_json)
+      match = white_list.concepts.reduce(true) {|match, concept| match &&= existing_map[concept.code_system_name].include? concept.code; match}
+      throw "white list code missing for oid: #{value_set.oid}" unless match
       white_list.save!
     end
   end
@@ -23,7 +34,7 @@ namespace :value_sets do
   task :cache, [:username, :password, :clear] => :setup do |t,args|
 
     if args[:clear] == 'true'
-      ValueSet.all.delete()
+      HealthDataStandards::SVS::ValueSet.all.delete()
     end
 
   end

@@ -27,10 +27,11 @@ class MeasuresController < ApplicationController
 
   def show_nqf
     @measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
-    @contents = File.read(File.expand_path(File.join(".", "db", "measures", "html", "#{@measure.hqmf_id}.html")))
+    @contents = File.read(File.expand_path(File.join(Measures::Loader::SOURCE_PATH, "html", "#{@measure.hqmf_id}.html")))
     add_breadcrumb @measure["measure_id"], "/measures/" + @measure["measure_id"]
     add_breadcrumb 'NQF Definition', ''
   end
+
 
   def publish
     @measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
@@ -138,14 +139,14 @@ class MeasuresController < ApplicationController
   def export
     measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
 
-    file = Measures::Exporter.export_bundle([measure], nil, true)
+    file = Measures::Exporter.export_bundle([measure], true)
     send_file file.path, :type => 'application/zip', :disposition => 'attachment', :filename => "bundle-#{measure.id}.zip"
   end
 
   def export_all
     measures = Measure.by_user(current_user).to_a
 
-    file = Measures::Exporter.export_bundle(measures, nil, true)
+    file = Measures::Exporter.export_bundle(measures, true)
     version = APP_CONFIG["measures"]["version"]
     send_file file.path, :type => 'application/zip', :disposition => 'attachment', :filename => "bundle-#{version}.zip"
   end
@@ -161,10 +162,8 @@ class MeasuresController < ApplicationController
       records = Record.all
     end
     
-    concepts_by_code = {}
-    ValueSet.all.each { |vs| vs.code_sets.each {|cs| concepts_by_code[cs.code_set] ||= {} ; cs.codes.each {|code| concepts_by_code[cs.code_set][code] ||= {} ; concepts_by_code[cs.code_set][code][vs.oid] = {concept: vs.concept, oid: vs.oid}}}}
+    zip = TPG::Exporter.zip(records, params[:download][:format])
 
-    zip = TPG::Exporter.zip(records, params[:download][:format], concepts_by_code)
 
     send_file zip.path, :type => 'application/zip', :disposition => 'attachment', :filename => "patients.zip"
   end
@@ -224,6 +223,14 @@ class MeasuresController < ApplicationController
     
     add_breadcrumb @measure['measure_id'], '/measures/' + @measure['measure_id']
     add_breadcrumb 'Test', '/measures/' + @measure['measure_id'] + '/test'
+  end
+
+  def debug_rationale
+    @measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
+    @patient = Record.find(params[:record_id])
+    @population = (params[:population] || 0).to_i
+    template = Measures::HTML::Writer.generate_nqf_template(@measure, @measure.populations[@population])
+    @contents = Measures::HTML::Writer.finalize_template_body(template,"getRationale()",@patient)
   end
 
   ####
@@ -406,7 +413,7 @@ class MeasuresController < ApplicationController
       }.map(&:to_a).flatten
     ]
 
-    params['birthdate'] = params['birthdate'].to_i / 1000
+    params['birthdate'] = Time.parse(params['birthdate']).to_i
 
     @data_criteria = Hash[
       *Measure.where({'measure_id' => {'$in' => patient['measure_ids'] || []}}).map{|m|
@@ -416,8 +423,6 @@ class MeasuresController < ApplicationController
       }.map(&:to_a).flatten
     ]
     
-    
-
     ['first', 'last', 'gender', 'expired', 'birthdate', 'description', 'description_category'].each {|param| patient[param] = params[param]}
     patient['ethnicity'] = {'code' => params['ethnicity'], 'name'=>ETHNICITY_NAME_MAP[params['ethnicity']], 'codeSystem' => 'CDC Race'}
     patient['race'] = {'code' => params['race'], 'name'=>RACE_NAME_MAP[params['race']], 'codeSystem' => 'CDC Race'}
@@ -461,7 +466,7 @@ class MeasuresController < ApplicationController
       low = {'value' => Time.at(v['start_date'] / 1000).strftime('%Y%m%d%H%M%S'), 'type'=>'TS' }
       high = {'value' => Time.at(v['end_date'] / 1000).strftime('%Y%m%d%H%M%S'), 'type'=>'TS' }
       high = nil if v['end_date'] == JAN_ONE_THREE_THOUSAND
-      
+
       data_criteria.modify_patient(patient, HQMF::Range.from_json({'low' => low,'high' => high}), values.values)
     }
 
@@ -476,9 +481,8 @@ class MeasuresController < ApplicationController
   end
 
   def delete_patient
-    @measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
-    @measure.records = @measure.records.reject{|v| v['_id'].to_s == params['victim']}
-    render :json => @measure.save!
+    Record.find(params['victim']).delete
+    render :json => {deleted: params['victim']}
   end
 
   def matrix
@@ -505,5 +509,43 @@ class MeasuresController < ApplicationController
     ['IPP', 'DENOM', 'NUMER', 'DENEXCEP', 'DENEX', 'MSRPOPL', 'values', 'first', 'last', 'gender', 'measure_id', 'birthdate', 'patient_id', 'sub_id', 'nqf_id'].each {|k| select['value.'+k]=1 }
     render :json => MONGO_DB['patient_cache'].find({}).select(select)
   end
+
+  def download_measures
+    data = Measures::Loader.load_from_url(params[:source_url])
+    data.sort! {|l,r| l['nqf_id'] <=> r['nqf_id']}
+    render :json => data
+  end
+
+  def load_measures
+    paths = params[:paths] || []
+    measure_ids = params[:measure_ids] || []
+
+    current_user.measures.each {|measure| measure.value_sets.destroy_all}
+    current_user.measures.destroy_all
+
+    job = Measures::Loader.delay(:queue => 'measure_loaders').load_paths(paths,current_user.username)
+    job['measure_ids'] = measure_ids
+    job.save!
+    render json: {job_id: job.id}
+  end
+
+  def poll_load_job_status
+    result = {}
+    job = Delayed::Job.find(params[:job_id]) rescue nil
+    if job
+      measure_ids = job['measure_ids']
+      total = measure_ids.length
+      if total > 0
+        found = Measure.where({hqmf_id: {'$in'=>measure_ids}}).count
+        result['percent'] = ((found / (total * 1.0)) * 100).ceil
+      else
+        result['percent'] = 100
+      end
+    else
+      result['percent'] = 100
+    end
+    render json: result
+  end
+
   
 end

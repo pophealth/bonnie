@@ -6,6 +6,7 @@ Bonnie::Application.routes.draw do
       get :import_resource
       post :publish
       get :show_nqf
+      get :debug_rationale
       match :upsert_criteria
       get :debug  # measure debug page
       match 'test(/:measure_patients)' => 'Measures#test', :as => :test
@@ -33,6 +34,9 @@ Bonnie::Application.routes.draw do
       get :generate_matrix
       get :matrix
       get :matrix_data
+      post :load_measures
+      post :download_measures
+      get :poll_load_job_status
     end
   end
 
@@ -45,6 +49,6 @@ Bonnie::Application.routes.draw do
 
   root :to => 'measures#index'
 
-  resources :value_sets
+  #resources :value_sets
 
  end

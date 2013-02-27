@@ -37,10 +37,6 @@ init_js_load = ->
       do (e) ->
         append_div(log_element, e)
 
-  $('#run_test_dc_link').click (event) ->
-    log_element.empty()
-    _.each(_.functions(hqmfjs), (item) -> append_div(log_element, "#{item} => #{hqmfjs[item](new hQuery.Patient(patient[0]))}"))
-
   $("#run_ipp_link").click (event) ->
     Logger.logger = [] if Logger?
     log_element.empty()
@@ -117,7 +113,9 @@ populate_test_table = () ->
         numerator_total += 1  
         cell = $(row).children(":nth-child(4)")
         cell.css('background-color', '#CCFFCC')   #light green
-        cell.html('&#x2713;')
+        values = ''
+        values = ' [' + e.values.join(',') + ']' if (e.values and e.values.length > 0)
+        cell.html('&#x2713;' + values)
 
       if e.DENEX
         exclusions_total += 1  

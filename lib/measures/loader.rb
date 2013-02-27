@@ -1,6 +1,8 @@
 module Measures
   # Utility class for loading measure definitions into the database
   class Loader
+
+    SOURCE_PATH = File.join(".", "db", "measures")
     
     def self.load_hqmf(hqmf_contents, user, codes_by_oid)
 
@@ -16,10 +18,12 @@ module Measures
       measure.hqmf_id = json["hqmf_id"]
       measure.hqmf_set_id = json["hqmf_set_id"]
       measure.hqmf_version_number = json["hqmf_version_number"]
+      measure.cms_id = json["cms_id"]
       measure.title = json["title"]
       measure.description = json["description"]
       measure.measure_attributes = json["attributes"]
       measure.populations = json['populations']
+      measure.value_set_oids = codes_by_oid.keys if codes_by_oid
 
       metadata = APP_CONFIG["measures"][measure.hqmf_set_id]
       if metadata
@@ -38,6 +42,7 @@ module Measures
             measure.populations[population_index]['title'] = population_title if population_title
           end
         end
+        measure.custom_functions = metadata["custom_functions"]
       else
         measure.type = "unknown"
         measure.category = "Miscellaneous"
@@ -58,16 +63,7 @@ module Measures
       value_set_parser = HQMF::ValueSet::Parser.new()
       value_set_format ||= HQMF::ValueSet::Parser.get_format(value_set_path)
       value_sets = value_set_parser.parse(value_set_path, {format: value_set_format})
-      value_set_models = []
-      value_sets.each do |value_set|
-        if value_set['code_sets'].include? nil
-          puts "Value Set has a bad code set (code set is null)"
-          value_set['code_sets'].compact!
-        end
-        set = ValueSet.new(value_set)
-        value_set_models << set
-      end
-      value_set_models
+      value_sets
     end
     
     def self.load_value_sets_from_service(value_set_oids, measure_id, username, password)
@@ -75,7 +71,7 @@ module Measures
       value_set_models = []
       
       existing_value_set_map = {}
-      ValueSet.all.each do |set|
+      HealthDataStandards::SVS::ValueSet.all.each do |set|
         existing_value_set_map[set.oid] = set
       end
       
@@ -84,6 +80,9 @@ module Measures
       errors = {}
       api = HealthDataStandards::Util::VSApi.new(nlm_config["ticket_url"],nlm_config["api_url"],username, password)
       
+      codeset_base_dir = File.join('.','db','code_sets')
+      FileUtils.mkdir_p(codeset_base_dir)
+
       RestClient.proxy = ENV["http_proxy"]
       value_set_oids[measure_id].each_with_index do |oid,index| 
 
@@ -93,7 +92,7 @@ module Measures
           
           vs_data = nil
           
-          cached_service_result = File.join('.','db','code_sets',"#{oid}.xml")
+          cached_service_result = File.join(codeset_base_dir,"#{oid}.xml")
           if (File.exists? cached_service_result)
             vs_data = File.read cached_service_result
           else
@@ -111,45 +110,7 @@ module Measures
           if vs_element && vs_element["ID"] == oid
             vs_element["id"] = oid
 
-            vs = HealthDataStandards::SVS::ValueSet.load_from_xml(doc)
-
-            value_set = { 
-               key: vs.display_name.parameterize('_'),
-               organization: nil,
-               oid: oid,
-               concept: vs.display_name,
-               category: nil,
-               version: vs.version,
-               description: vs.display_name,
-               code_sets: [ ],
-            }
-
-            concepts_by_system = {}
-            vs.concepts.each do |concept|
-              concepts_by_system[concept.code_system_name] ||= []
-              concepts_by_system[concept.code_system_name] << concept.code
-            end
-
-            concepts_by_system.each do |key, values|
-              if key != 'AdministrativeSex'
-                oid = HealthDataStandards::Util::CodeSystemHelper.oid_for_code_system(key)
-                puts "\tbad code system name: #{key}" unless oid
-              end
-              
-              value_set[:code_sets] << { 
-                codes: values,
-                key: nil,
-                organization: nil,
-                oid: nil,
-                concept: nil,
-                category: nil,
-                code_set: key,
-                version: nil,
-                description: nil 
-              }
-            end
-            
-            set = ValueSet.new(value_set)
+            set = HealthDataStandards::SVS::ValueSet.load_from_xml(doc)
           else
             raise "Value set not found: #{oid}"
           end
@@ -158,10 +119,10 @@ module Measures
           value_set = set.attributes
           value_set.delete('_id')
           value_set.delete('measure_id')
-          value_set['code_sets'].each do |cs|
+          value_set['concepts'].each do |cs|
             cs.delete('_id')
           end
-          set = ValueSet.new(value_set)
+          set = HealthDataStandards::SVS::ValueSet.new(value_set)
         end
 
         value_set_models << set
@@ -171,12 +132,107 @@ module Measures
       value_set_models
       
     end
+
+    def self.load_paths(paths, username)
+
+      user = User.where({username:username}).first
+
+      paths.each do |path|
+        hqmf_path = Dir.glob(File.join(path,'*.xml')).first
+        html_path = Dir.glob(File.join(path,'*.html')).first
+
+        measure = nil
+        original_stdout = $stdout
+        $stdout = StringIO.new
+        begin
+          measure = Measures::Loader.load(hqmf_path, nil, nil, false)
+        ensure
+          $stdout = original_stdout
+        end
+
+        oids = {measure.hqmf_id => measure.as_hqmf_model.all_code_set_oids}
+
+        Measures::Loader.load(hqmf_path, user, html_path, true, oids, 'rdingwell', 'TestTest1234')
+        puts "loaded: #{hqmf_path}"
+
+      end
+
+#      calculate!!!
+    end
+
+    def self.load_from_url(url, use_cached=true)
+
+      uri = URI.parse(url)
+      hash = Digest::MD5.hexdigest(url)
+
+      base_out_dir = File.join(Rails.root,'tmp','bonnie',hash)
+      source_zip = File.join(base_out_dir, 'measures_source.zip')
+      first_dir = File.join(base_out_dir, 'first_unzip')
+      final_dir = File.join(base_out_dir, 'measures')
+
+      if (!File.exists? source_zip || !use_cached)
+        FileUtils.rm_r Dir.glob(base_out_dir) if File.exist? base_out_dir
+        FileUtils.mkdir_p(base_out_dir)
+        proxy = ENV['http_proxy'] || ENV['HTTP_PROXY']
+        connector = Net::HTTP
+        if(proxy)
+          proxy_uri = URI(proxy)
+          connector = Net::HTTP::Proxy(proxy_uri.host, proxy_uri.port)
+        end
+        connector.start(uri.host) { |http| open(source_zip, "wb") { |file| file.write(http.get(uri.path).body) } }
+      end
+      FileUtils.rm_r Dir.glob(first_dir) if File.exist? first_dir
+      FileUtils.rm_r Dir.glob(final_dir) if File.exist? final_dir
+      FileUtils.mkdir_p(first_dir)
+      FileUtils.mkdir_p(final_dir)
+
+      measure_data = []
+      Zip::ZipFile.open(source_zip) do |zip_file|
+        zip_file.each do |file|
+          if file.name.match(/.*\.zip/)
+            
+            out_path=File.join(first_dir, file.name)
+            FileUtils.mkdir_p(File.dirname(out_path))
+            zip_file.extract(file, out_path) unless File.exist?(out_path)
+
+            Zip::ZipFile.open(out_path) do |sub_zip|
+              file_map = {}
+              sub_zip.each do |sub_file|
+                if sub_file.name.match(/.*\.xml/) || sub_file.name.match(/.*\.html/)
+                  if sub_file.name.match(/.*\.xml/)
+                    fields = HQMF::Parser.parse_fields(sub_file.get_input_stream.read, HQMF::Parser::HQMF_VERSION_1) rescue {}
+                    if fields['id']
+                      metadata = APP_CONFIG["measures"][fields['set_id']]
+                      file_map[:hqmf] = sub_file
+                      file_map[:fields] = fields.merge(metadata)
+                    end
+                  elsif sub_file.name.match(/.*\.html/)
+                    file_map[:html] = sub_file
+                  end
+                end
+              end
+
+              nqf_id = file_map[:fields]['nqf_id']
+              final_measure_path=File.join(final_dir, nqf_id)
+              FileUtils.mkdir_p(final_measure_path)
+
+              sub_zip.extract(file_map[:hqmf], File.join(final_measure_path,"#{nqf_id}.xml"))
+              sub_zip.extract(file_map[:html], File.join(final_measure_path,"#{nqf_id}.html"))
+              measure_data << {'source_path' => final_measure_path}.merge(file_map[:fields])
+            end
+          end
+        end
+      end
+
+      measure_data
+
+    end
     
     def self.load(hqmf_path, user, html_path=nil, persist = true, value_set_oids=nil, username=nil, password=nil, value_set_path=nil, value_set_format=nil)
       
       
       hqmf_contents = Nokogiri::XML(File.new hqmf_path).to_s
-      measure_id = HQMF::Parser.parse_id(hqmf_contents, HQMF::Parser::HQMF_VERSION_1)
+      measure_id = HQMF::Parser.parse_fields(hqmf_contents, HQMF::Parser::HQMF_VERSION_1)['id']
 
       value_set_models = nil
       # Value sets
@@ -186,31 +242,36 @@ module Measures
         value_set_models = Measures::Loader.load_value_sets_from_xls(value_set_path, value_set_format)
       end
       
+
+      if (value_set_models.present?)
+        loaded_value_sets = HealthDataStandards::SVS::ValueSet.all.map(&:oid)
+        value_set_models.each { |vsm| vsm.save! unless loaded_value_sets.include? vsm.oid } if persist
+        codes_by_oid = HQMF2JS::Generator::CodesToJson.from_value_sets(value_set_models) 
+      end
+
       # Parsed HQMF
-      codes_by_oid = HQMF2JS::Generator::CodesToJson.from_value_sets(value_set_models) if (value_set_models.present?)
       measure = Measures::Loader.load_hqmf(hqmf_contents, user, codes_by_oid)
-      
-      value_set_models.each do |vsm|
-        vsm.measure = measure
-        vsm.save!
-      end if value_set_models
+
+      if value_set_models
+        measure.value_set_oids = value_set_models.map(&:oid)
+      end
       
       # Save original files
       if (html_path)
-        html_out_path = File.join(".", "db", "measures", "html")
+        html_out_path = File.join(SOURCE_PATH, "html")
         FileUtils.mkdir_p html_out_path
         FileUtils.cp(html_path, File.join(html_out_path,"#{measure.hqmf_id}.html"))
       end
       
       if (value_set_path)
-        value_set_out_path = File.join(".", "db", "measures", "value_sets")
+        value_set_out_path = File.join(SOURCE_PATH, "value_sets")
         FileUtils.mkdir_p value_set_out_path
         FileUtils.cp(value_set_path, File.join(value_set_out_path,"#{measure.hqmf_id}.xls"))
       end
       
-      hqmf_out_path = File.join(".", "db", "measures", "hqmf")
+      hqmf_out_path = File.join(SOURCE_PATH, "hqmf")
       FileUtils.mkdir_p hqmf_out_path
-      FileUtils.cp(hqmf_path, File.join(".", "db", "measures", "hqmf", "#{measure.hqmf_id}.xml"))
+      FileUtils.cp(hqmf_path, File.join(hqmf_out_path, "#{measure.hqmf_id}.xml"))
 
       measure.save! if persist
       measure

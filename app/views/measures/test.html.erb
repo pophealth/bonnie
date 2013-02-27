@@ -10,7 +10,9 @@
       });
       $('.delete_patient').click(
         function(){
-          $.post('<%= url_for :action => 'delete_patient' %>', {authenticity_token: $('meta[name=csrf-token]').val(), victim: $(this).siblings('input[name=victim]').val()}, $.proxy(function(r){if (r) $(this).parentsUntil('.row').parent().remove(); }, this));
+          if (confirm("Are you sure you want to delete this patient?")) {
+            $.post('<%= url_for :action => 'delete_patient' %>', {authenticity_token: $('meta[name=csrf-token]').val(), victim: $(this).siblings('input[name=victim]').val()}, $.proxy(function(r){if (r) $(this).parentsUntil('.row').parent().remove(); }, this));
+          }
         }
       );
       $('.patient_info.icon-info-sign').popover()
@@ -77,7 +79,7 @@
           <div class="span2 name"><b>Patient Name</b></div>
           <div class="span2 pop"><b>Population</b></div>
           <div class="span2 denom"><b>Denominator</b></div>
-          <div class="span2 num"><b>Numerator</b></div>
+          <div class="span2 num"><b><%= (@measure.continuous_variable) ? "Measure Popl" : "Numerator" %></b></div>
           <div class="span2 excl"><b>Exclusions</b></div>
           <div class="span2 excep"><b>Exceptions</b></div>
           <div class="span2 inspect">&nbsp;</div>
@@ -99,8 +101,9 @@
           <div class="span2 num"> &nbsp;</div>
           <div class="span2 excl">&nbsp;</div>
           <div class="span2 excep">&nbsp;</div>
-          <div class="span4">
+          <div class="span5">
             <span class="span1 inspect"><%= link_to 'inspect', debug_measure_measure_path(:record_id => p[1], :population=>@population) %></span>
+            <span class="span1 rationale"><%= link_to 'rationale', debug_rationale_measure_path(:record_id => p[1], :population=>@population) %></span>
             <span class="span1 delete">
               <input type="hidden" name="victim" value="<%= p[1] %>" />
               <a href="javascript:void(0);" class="delete_patient">delete</a>

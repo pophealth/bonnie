@@ -1,0 +1,16 @@
+<li>
+  <%code = population[pop_code]%>
+  <b class="<%== code %>"><%= pop_titles[pop_code] %> =</b>
+  <%
+    population_criteria = measure.population_criteria(code)
+    if (population_criteria.preconditions)
+      conjunction = conjunction_translator[population_criteria.preconditions[0].conjunction_code]
+      negation = population_criteria.preconditions[0].negation
+      parent_id = population_criteria.preconditions[0].id
+  %>
+      <%== render partial: 'preconditions', locals: {measure: measure, conjunction: conjunction, preconditions: population_criteria.preconditions[0].preconditions, oid_map: oid_map, patient_cache: patient_cache, parent_id: parent_id}%>
+  <% else %>
+    none
+  <% end %>
+  <br/>
+</li>

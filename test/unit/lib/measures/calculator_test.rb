@@ -7,12 +7,23 @@ class CalculatorTest < ActiveSupport::TestCase
     hqmf_file = "test/fixtures/measure-defs/0002/0002.xml"
     value_set_file = "test/fixtures/measure-defs/0002/0002.xls"
     
+    test_source_path = File.join('.','tmp','export_test')
+    set_test_source_path(test_source_path)
+    FileUtils.mkdir_p test_source_path
+
     Measures::Loader.load(hqmf_file, @user, nil, true, nil, nil, nil, value_set_file)
     Measure.all.count.must_equal 1
     
     @measure = Measure.all.first
     @patient = FactoryGirl.create(:record)
     @measure.records << @patient
+  end
+
+  teardown do
+    test_source_path = File.join('.','tmp','export_test')
+    FileUtils.rm_r test_source_path if File.exists?(test_source_path)
+    test_source_path = File.join(".", "db", "measures")
+    set_test_source_path(test_source_path)
   end
 
   test "test calculate" do
@@ -43,9 +54,8 @@ class CalculatorTest < ActiveSupport::TestCase
 
   test "measure json" do
     measure_json = Measures::Calculator.measure_json(@measure.measure_id)
-    expected_keys = [:id,:nqf_id,:hqmf_id,:hqmf_set_id,:hqmf_version_number,:endorser,:name,:description,:type,:category,:steward,:population,:denominator,:numerator,:exclusions,:map_fn,:population_ids,:data_criteria,:oids]
+    expected_keys = [:id,:nqf_id,:hqmf_id,:hqmf_set_id,:hqmf_version_number, :cms_id,:endorser,:name,:description,:type,:category,:steward,:population,:denominator,:numerator,:exclusions,:map_fn,:population_ids,:data_criteria,:oids, :continuous_variable, :episode_of_care]
     required_keys = [:id,:name,:description,:category,:population,:denominator,:numerator,:map_fn,:category,:data_criteria,:oids]
-
     expected_keys.each {|key| assert measure_json.keys.include? key}
     measure_json.keys.size.must_equal expected_keys.size
     required_keys.each {|key| refute_nil measure_json[key]}

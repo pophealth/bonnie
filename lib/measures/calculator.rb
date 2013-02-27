@@ -45,7 +45,7 @@ module Measures
     def self.refresh_js_libraries
       MONGO_DB['system.js'].find({}).remove_all
       library_functions.each do |name, contents|
-        QME::Bundle.save_system_js_fn(MONGO_DB, name, contents)
+        HealthDataStandards::Import::Bundle::Importer.save_system_js_fn(name, contents)
       end
     end
 
@@ -61,6 +61,7 @@ module Measures
         hqmf_id: measure.hqmf_id,
         hqmf_set_id: measure.hqmf_set_id,
         hqmf_version_number: measure.hqmf_version_number,
+        cms_id: measure.cms_id,
         endorser: measure.endorser,
         name: measure.title,
         description: measure.description,
@@ -71,7 +72,9 @@ module Measures
         denominator: buckets["denominator"],
         numerator: buckets["numerator"],
         exclusions: buckets["exclusions"],
-        map_fn: measure_js(measure, population_index)
+        map_fn: measure_js(measure, population_index),
+        continuous_variable: measure.continuous_variable,
+        episode_of_care: measure.episode_of_care
       }
       
       if (measure.populations.count > 1)
@@ -84,6 +87,13 @@ module Measures
         json[:hqmf_set_id] = measure.hqmf_set_id
         json[:hqmf_version_number] = measure.hqmf_version_number
       end
+
+      if measure.continuous_variable
+        observation = measure.population_criteria[measure.populations[population_index][HQMF::PopulationCriteria::OBSERV]]
+        json[:aggregator] = observation['aggregator']
+      end
+
+
       
       referenced_data_criteria = measure.as_hqmf_model.referenced_data_criteria
       json[:data_criteria] = referenced_data_criteria.map{|data_criteria| data_criteria.to_json}
@@ -143,7 +153,7 @@ module Measures
       #{Measures::Calculator.check_disable_logger}
 
       // clear out logger
-      if (typeof Logger != 'undefined') Logger.logger = [];
+      if (typeof Logger != 'undefined') { Logger.logger = []; Logger.rationale={};}
       // turn on logging if it is enabled
       if (Logger.enabled) enableLogging();
       
@@ -171,10 +181,10 @@ module Measures
       var msrpopl = function() {
         return executeIfAvailable(hqmfjs.#{HQMF::PopulationCriteria::MSRPOPL}, patient_api);
       }
-      var observ = function() {
-        return [];
+      var observ = function(specific_context) {
+        #{Measures::Calculator.observation_function(measure, population_index)}
       }
-            
+      
       var executeIfAvailable = function(optionalFunction, arg) {
         if (typeof(optionalFunction)==='function')
           return optionalFunction(arg);
@@ -186,6 +196,23 @@ module Measures
 
       map(patient, population, denominator, numerator, exclusion, denexcep, msrpopl, observ, occurrenceId,#{measure.continuous_variable});
       "
+    end
+
+    def self.observation_function(measure, population_index)
+
+      result = "
+        var observFunc = hqmfjs.#{HQMF::PopulationCriteria::OBSERV}
+        if (typeof(observFunc)==='function')
+          return observFunc(patient_api, specific_context);
+        else
+          return [];"
+
+      if (measure.custom_functions && measure.custom_functions[HQMF::PopulationCriteria::OBSERV])
+        result = "return #{measure.custom_functions[HQMF::PopulationCriteria::OBSERV]}(patient_api, hqmfjs)"
+      end
+
+      result
+
     end
 
     def self.check_disable_logger

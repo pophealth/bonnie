@@ -12,7 +12,7 @@
 
 <% content_for :page_content do %>
 
-  <%= render partial: 'dialog', locals: { submit_method: 'post', submit_text: 'Create' } %>
+  <%= render partial: 'load_dialog', locals: { submit_method: 'post', submit_text: 'Create' } %>
 
   <!-- start tab nav -->
   <div id="tabs">
@@ -20,7 +20,7 @@
   		<li <% unless @show_published %>class="active"<% end %>><a href="#tabs-0" data-toggle="tab">my measures</a></li>
   		<li <% if @show_published %>class="active"<% end %>><a href="#tabs-1" data-toggle="tab">all published measures</a></li>
       <li id="pageButtons">
-        <a href="#createNewMeasureDialog" class="btn" data-toggle="modal" data-backdrop="static" data-keyboard="true">Create New</a>
+        <a href="#loadMeasuresDialog" class="btn" data-toggle="modal" data-backdrop="static" data-keyboard="true">Load Measures</a>
         <%= link_to 'Export All', export_all_measures_path, method: "get", class:"btn" %>
         <%= link_to 'View Matrix', {:action => 'matrix'}, class:"btn" %>
       </li>

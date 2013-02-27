@@ -1,0 +1,5 @@
+<ul>
+  <% preconditions.each do |precondition| %>
+    <%== render partial: 'precondition', locals: {measure: measure, conjunction: conjunction, negation: negation, precondition: precondition, oid_map: oid_map, patient_cache: patient_cache, parent_id: parent_id }%>
+  <% end %>
+</ul>

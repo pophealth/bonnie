@@ -20,7 +20,14 @@ namespace :patients do
   end
 
   desc 'Resave all records. Useful when something like code selection has changed but measures do not need to be reloaded'
-  task :resave do [t, args]
+  task :resave, [] do |t, args|
+    patients = Record.all
+    total = patients.count
+    patients.each_with_index do |patient, i|
+      Measures::PatientBuilder.rebuild_patient(patient)
+      puts "resaved: #{i+1}/#{total}"
+    end
+
 
   end
 end

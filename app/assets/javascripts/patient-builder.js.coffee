@@ -20,8 +20,8 @@ class @bonnie.PatientBuilder
   orderedValueSets: =>
     _.values(@value_sets).sort((left, right) =>
       result = 0
-      l = left.concept.toLowerCase().trim()
-      r = right.concept.toLowerCase().trim()
+      l = left.display_name.toLowerCase().trim()
+      r = right.display_name.toLowerCase().trim()
       result = -1 if ( l < r )
       result = 1 if ( l > r )
       result)
@@ -265,9 +265,10 @@ class @bonnie.PatientBuilder
         oid: data.oid
       })
     );
+
     $(form).ajaxSubmit({
-      beforeSubmit: (v) -> v.map((e) ->
-        e.value = new Date(e.value).getTime() if e.name == 'birthdate'
+      beforeSubmit: (v) -> v.map((e) =>
+        e.value = bonnie.patientBuilder.getDateString(new Date(e.value)) if e.name == 'birthdate'
         e
       )
       data: {

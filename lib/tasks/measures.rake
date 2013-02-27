@@ -5,6 +5,22 @@ require './lib/measures/database_access'
 require './lib/measures/exporter'
 
 namespace :measures do
+  
+  
+  desc 'Load from url file'
+  task :load_from_url, [:url, :username] do |t, args|
+    raise "The url to measure definitions must be specified" unless args.url
+    raise "The username to load the measures for must be specified" unless args.username
+
+    user = User.by_username args.username
+    raise "The user #{args.username} could not be found." unless user
+    
+    data = Measures::Loader.load_from_url(args.url)
+    paths = data.map {|key,value| value[:source_path]}
+    Measures::Loader.load_paths(paths, user)
+
+  end
+  
   desc 'Load a directory of measures and value sets into the DB'
   task :load, [:measures_dir, :username, :vs_username, :vs_password, :delete_existing, :clear_vs_cache] do |t, args|
     raise "The path to the measure definitions must be specified" unless args.measures_dir
@@ -19,13 +35,13 @@ namespace :measures do
     
     # Delete all of this user's measures out of the DB and remove any lingering files saved from the last load
     if args.delete_existing != 'false'
-      user.measures.each {|measure| measure.value_sets.destroy_all}
+      #user.measures.each {|measure| measure.value_sets.destroy_all}
       count = user.measures.destroy_all
       
       source_dir = File.join(".", "db", "measures")
       FileUtils.rm_r Dir.glob(source_dir)
       
-      ValueSet.all.delete()
+      HealthDataStandards::SVS::ValueSet.all.delete()
       
       puts "Deleted #{count} measures assigned to #{user.username}"
     end
@@ -148,12 +164,11 @@ namespace :measures do
   end
 
   desc 'Export definitions for all measures'
-  task :export, [:username, :static_results_path, :calculate] do |t, args|
+  task :export, [:username, :calculate] do |t, args|
     calculate = args.calculate != 'false'
     measures = args.username ? User.by_username(args.username).measures.to_a : Measure.all.to_a
-    static_results_path = args.static_results_path
 
-    zip = Measures::Exporter.export_bundle(measures, static_results_path, calculate)
+    zip = Measures::Exporter.export_bundle(measures, calculate)
     version = APP_CONFIG["measures"]["version"]
     bundle_path = File.join(".", "tmp", "bundles")
     date_string = Time.now.strftime("%Y-%m-%d")
@@ -201,6 +216,58 @@ namespace :measures do
     result_file = File.join('tmp','results_matrix',"results_matrix_#{type}.xlsx")
     workbook_template.write(result_file)
     puts "Wrote result matrix for #{type} to #{result_file}"
+  end
+  
+  desc 'Generate measure html'
+  task :measure_html, [] do |t, args|
+    
+    measures = Measure.all
+    
+    basedir = File.join('.', 'tmp','measures','rationale')
+    tmpdir = File.join(basedir,'tmp')
+    FileUtils.rm_r basedir if File.exists?(basedir)
+    FileUtils.mkdir_p tmpdir
+    
+    population_keys = ('a'..'zz').to_a
+    measures.each do |measure|
+      
+      measure.populations.each_with_index do |population,index|
+
+        sub_id = nil
+        sub_id = population_keys[index] if measure.populations.length > 1
+        
+        outdir = File.join(basedir,measure.measure_id)
+        FileUtils.mkdir_p outdir
+        
+        result = Measures::HTML::Writer.generate_nqf_template(measure, population)
+
+        outfile = File.join(tmpdir,"#{measure.measure_id}#{sub_id}.html.erb")
+        File.open(outfile, 'w') {|f| f.write(result) }
+
+        patient_caches = MONGO_DB['patient_cache'].where({'value.nqf_id'=>measure.measure_id, 'value.sub_id'=>sub_id})
+        patient_caches.each do |cache|
+          locals ||= {}
+          
+          result = Measures::HTML::Writer.finalize_template(measure.measure_id, sub_id, cache, tmpdir)
+          name = "#{cache['value']['last']}_#{cache['value']['first']}"
+        
+          if (sub_id)
+            subdir = File.join(outdir,sub_id)
+            FileUtils.mkdir_p subdir
+            outfile = File.join(subdir, "#{name}.html")
+          else
+            outfile = File.join(outdir, "#{name}.html")
+          end
+        
+          File.open(outfile, 'w') {|f| f.write(result) }
+        end
+
+        
+        puts "wrote measure #{measure.measure_id}#{sub_id} patients to: #{outdir}"
+      end
+      
+    end
+    
   end
   
 end

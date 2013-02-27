@@ -1,7 +1,8 @@
 class Measure
   include Mongoid::Document
 
-  DEFAULT_EFFECTIVE_DATE = Time.gm(2011,1,1).to_i
+  DEFAULT_EFFECTIVE_DATE = Time.gm(2012,12,31,23,59).to_i
+  MP_START_DATE = Time.gm(2012,1,1,0,0).to_i
   TYPES = ["ep", "eh"]
 
   store_in collection: 'draft_measures'
@@ -12,6 +13,7 @@ class Measure
   field :hqmf_id, type: String
   field :hqmf_set_id, type: String
   field :hqmf_version_number, type: Integer
+  field :cms_id, type: String
   field :title, type: String
   field :description, type: String
   field :type, type: String
@@ -20,6 +22,7 @@ class Measure
   field :episode_of_care, type: Boolean
   field :continuous_variable, type: Boolean
   field :episode_ids, type: Array # of String ids
+  field :custom_functions, type: Hash # stores a custom function for a population criteria (used only in ADE_TTR for observation)
 
   field :published, type: Boolean
   field :publish_date, type: Date
@@ -33,9 +36,10 @@ class Measure
   field :populations, type: Array
   field :preconditions, type: Hash
 
+  field :value_set_oids, type: Array, default: []
+
   belongs_to :user
   embeds_many :publishings
-  has_many :value_sets
   has_many :records
 
   scope :published, -> { where({'published'=>true}) }
@@ -119,7 +123,11 @@ class Measure
       "source_data_criteria" => self.source_data_criteria,
       "measure_period" => self.measure_period,
       "attributes" => self.measure_attributes,
-      "populations" => self.populations
+      "populations" => self.populations,
+      "hqmf_id" => self.hqmf_id,
+      "hqmf_set_id" => self.hqmf_set_id,
+      "hqmf_version_number" => self.hqmf_version_number,
+      "cms_id" => self.cms_id
     }
 
     HQMF::Document.from_json(json)
@@ -170,6 +178,11 @@ class Measure
   def name_precondition(id, name)
     self.preconditions ||= {}
     self.preconditions[id] = name
+  end
+
+  def value_sets
+    @value_sets ||= HealthDataStandards::SVS::ValueSet.in(oid: value_set_oids).where({'_type'=>{'$ne'=>'WhiteList'}})
+    @value_sets
   end
 
   private

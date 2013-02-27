@@ -1,0 +1,8 @@
+<li>
+  <span class="precondition_<%== parent_id %>"><%= conjunction %><%if negation%> NOT<%end%>: </span>
+    <% if precondition.preconditions.empty? %>
+      <%== render partial: 'data_criteria', locals: {measure: measure, data_criteria: measure.data_criteria(precondition.reference.id), oid_map: oid_map, patient_cache: patient_cache}%>
+    <% else %>
+      <%== render partial: 'preconditions', locals: {measure: measure, conjunction: conjunction_translator[precondition.conjunction_code], negation: precondition.negation, preconditions: precondition.preconditions, oid_map: oid_map, patient_cache: patient_cache, parent_id: precondition.id}%>
+    <% end %>
+</li>
