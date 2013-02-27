@@ -1,10 +1,10 @@
 source 'https://rubygems.org'
 
-gem 'hqmf2js', :git => 'https://github.com/pophealth/hqmf2js.git', :branch => 'master'
-gem 'hquery-patient-api', :git => 'https://github.com/pophealth/patientapi.git', :branch => 'master'
-gem 'health-data-standards', :git => 'https://github.com/projectcypress/health-data-standards.git',:branch => 'master'
-gem 'test-patient-generator', :git => 'https://github.com/pophealth/test-patient-generator.git', :branch => 'master'
-gem 'quality-measure-engine', :git => 'http://github.com/pophealth/quality-measure-engine.git', :branch => 'master'
+gem 'hqmf2js', '~> 1.2.0'
+gem 'hquery-patient-api', '~> 1.0.1'
+gem 'health-data-standards', '~> 3.0.2'
+gem 'test-patient-generator', '~> 1.2.0'
+gem 'quality-measure-engine', '~> 2.3.0'
 
 gem 'rails', '3.2.9'
 gem 'jquery-rails'
