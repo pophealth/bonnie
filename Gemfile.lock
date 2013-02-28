@@ -31,7 +31,7 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/test-patient-generator.git
-  revision: d7a85a3f5c84384dad95c470be9762a7678b347c
+  revision: c8b891469243f618c4d40483d3bcf18fdd0f5cf9
   branch: develop
   specs:
     test-patient-generator (1.1.3)

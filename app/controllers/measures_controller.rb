@@ -161,8 +161,14 @@ class MeasuresController < ApplicationController
     else
       records = Record.all
     end
-    
-    zip = TPG::Exporter.zip(records, params[:download][:format])
+
+    format = params[:download][:format]
+    zip = nil
+    if format == 'qrda'
+      zip = TPG::Exporter.zip_qrda_cat_1_patients({measure.measure_id => records.to_a}, [measure.as_hqmf_model])
+    else
+      zip = TPG::Exporter.zip(records, format)
+    end
 
 
     send_file zip.path, :type => 'application/zip', :disposition => 'attachment', :filename => "patients.zip"
