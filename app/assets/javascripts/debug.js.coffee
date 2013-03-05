@@ -102,12 +102,17 @@ populate_test_table = () ->
         cell = $(row).children(":nth-child(2)")
         cell.css('background-color', '#EEE')      #light gray
         cell.html('&#x2713;')
+        values = ''
+        values = "(#{e.IPP})" if (e.IPP > 1)
+        cell.html('&#x2713;' + values)
 
       if e.DENOM
         denominator_total += 1  
         cell = $(row).children(":nth-child(3)")
         cell.css('background-color', '#99CCFF')   #light blue
-        cell.html('&#x2713;')
+        values = ''
+        values = "(#{e.DENOM})" if (e.DENOM > 1)
+        cell.html('&#x2713;' + values)
 
       if e.NUMER || e.MSRPOPL
         numerator_total += 1  
@@ -115,19 +120,24 @@ populate_test_table = () ->
         cell.css('background-color', '#CCFFCC')   #light green
         values = ''
         values = ' [' + e.values.join(',') + ']' if (e.values and e.values.length > 0)
+        values = "(#{e.NUMER})" if (e.NUMER > 1)
         cell.html('&#x2713;' + values)
 
       if e.DENEX
         exclusions_total += 1  
         cell = $(row).children(":nth-child(5)")
         cell.css('background-color', '#FFCC99')   #light orange
-        cell.html('&#x2713;')
+        values = ''
+        values = "(#{e.DENEX})" if (e.DENEX > 1)
+        cell.html('&#x2713;' + values)
 
       if e.DENEXCEP
         exceptions_total++
         cell = $(row).children(":nth-child(6)")
         cell.css('background-color', '#EEE')
-        cell.html('&#x2713')
+        values = ''
+        values = "(#{e.DENEXCEP})" if (e.DENEXCEP > 1)
+        cell.html('&#x2713;' + values)
 
   # set total columns
   total_row = $('#patients').find('.total').find('.span2')
