@@ -84,8 +84,7 @@
           <div class="span2 excep"><b>Exceptions</b></div>
           <div class="span2 inspect">&nbsp;</div>
         </div>
-
-        <% (@measure_patients ? @patient_names.select{|e| e[4] == @measure['_id'] } : @patient_names).each do |p| %>
+        <% (@measure_patients ? @patient_names.select{|e| e[4] == @measure['_id'] } : @patient_names).sort {|l,r| l[0] <=> r[0]}.each do |p| %>
         <div class="row">
           <div class="span2 name">
             <%= f.check_box(p[1], :label => p.first, :checked => true) -%>
