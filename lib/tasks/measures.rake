@@ -18,6 +18,19 @@ namespace :measures do
     data = Measures::Loader.load_from_url(args.url)
     paths = data.map {|key,value| value[:source_path]}
     Measures::Loader.load_paths(paths, user)
+  end
+
+  desc 'Load from bundle'
+  task :load_from_bundle, [:bundle_zip, :username, :type, :json_draft_measures] do |t, args|
+    raise "The path to bundle zip must be specified" unless args.bundle_zip
+    raise "The username to load the measures for must be specified" unless args.username
+
+    json_draft_measures = args.json_draft_measures != 'false'
+
+    user = User.by_username args.username
+    raise "The user #{args.username} could not be found." unless user
+    
+    Measures::Loader.load_from_bundle(args.bundle_zip, user.username, args.type || 'ep', json_draft_measures)
 
   end
   
@@ -45,13 +58,11 @@ namespace :measures do
       
       puts "Deleted #{count} measures assigned to #{user.username}"
     end
-    
+
     # remove code_set cache dir
     code_set_cache_dir = File.join('.','db','code_sets')
     FileUtils.rm_r code_set_cache_dir if File.exists? code_set_cache_dir and args.clear_vs_cache == 'true'
     FileUtils.mkdir_p code_set_cache_dir
-    
-    
     measures_dir_hash = Digest::MD5.hexdigest(args.measures_dir)
     oids_path = File.join(".","db","#{measures_dir_hash}_oids_by_measure.json")
     

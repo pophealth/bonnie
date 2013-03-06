@@ -6,12 +6,18 @@ module Measures
     
     def self.load_hqmf(hqmf_contents, user, codes_by_oid)
 
-      measure = Measure.new
-      measure.user = user
-
       hqmf = HQMF::Parser.parse(hqmf_contents, HQMF::Parser::HQMF_VERSION_1, codes_by_oid)
       # go into and out of json to make sure that we've converted all the symbols to strings, this will happen going to mongo anyway if persisted
       json = JSON.parse(hqmf.to_json.to_json, max_nesting: 250)
+
+      measure_oids = codes_by_oid.keys if codes_by_oid
+      Measures::Loader.load_hqmf_json(json, user, measure_oids)
+    end
+
+    def self.load_hqmf_json(json, user, measure_oids)
+
+      measure = Measure.new
+      measure.user = user
 
       measure.id = json["hqmf_id"]
       measure.measure_id = json["id"]
@@ -23,7 +29,7 @@ module Measures
       measure.description = json["description"]
       measure.measure_attributes = json["attributes"]
       measure.populations = json['populations']
-      measure.value_set_oids = codes_by_oid.keys if codes_by_oid
+      measure.value_set_oids = measure_oids
 
       metadata = APP_CONFIG["measures"][measure.hqmf_set_id]
       if metadata
@@ -133,31 +139,74 @@ module Measures
       
     end
 
-    def self.load_paths(paths, username)
+    def self.load_paths(paths, username, calculate=false, vs_username = nil, vs_password=nil)
 
       user = User.where({username:username}).first
 
       paths.each do |path|
         hqmf_path = Dir.glob(File.join(path,'*.xml')).first
         html_path = Dir.glob(File.join(path,'*.html')).first
+        json_path = Dir.glob(File.join(path,'*.json')).first
 
         measure = nil
-        original_stdout = $stdout
-        $stdout = StringIO.new
-        begin
-          measure = Measures::Loader.load(hqmf_path, nil, nil, false)
-        ensure
-          $stdout = original_stdout
+        if json_path
+
+          json = JSON.parse(File.read(json_path), max_nesting: 250)
+          hqmf_model = HQMF::Document.from_json(json)
+          measure = Measures::Loader.load_hqmf_json(json, user, hqmf_model.all_code_set_oids)
+          measure.save!
+          Measures::Loader.save_sources(measure, hqmf_path, html_path)
+
+        else
+          original_stdout = $stdout
+          $stdout = StringIO.new
+          begin
+            measure = Measures::Loader.load(hqmf_path, nil, nil, false)
+          ensure
+            $stdout = original_stdout
+          end
+
+          oids = {measure.hqmf_id => measure.as_hqmf_model.all_code_set_oids}
+
+          Measures::Loader.load(hqmf_path, user, html_path, true, oids, vs_username, vs_password)
         end
-
-        oids = {measure.hqmf_id => measure.as_hqmf_model.all_code_set_oids}
-
-        Measures::Loader.load(hqmf_path, user, html_path, true, oids, 'rdingwell', 'TestTest1234')
-        puts "loaded: #{hqmf_path}"
+        puts "successfully loaded: #{measure.measure_id}"
 
       end
 
 #      calculate!!!
+
+    end
+
+    def self.load_from_bundle(bundle_path, username, type, json_draft_measures)
+
+      hash = Digest::MD5.hexdigest(bundle_path)
+
+      base_out_dir = File.join(Rails.root,'tmp','bonnie',hash,'measures')
+
+      FileUtils.rm_r base_out_dir if File.exist? base_out_dir
+      FileUtils.mkdir_p(base_out_dir)
+
+      paths = Set.new
+      source_root = File.join('sources',type,'**')
+      Zip::ZipFile.open(bundle_path) do |zip_file|
+        entries = zip_file.glob(File.join(source_root,'**.html')) + zip_file.glob(File.join(source_root,'**1.xml'))
+        entries += zip_file.glob(File.join(source_root,'**.json')) if json_draft_measures
+
+        entries.each do |entry|
+          pathname = Pathname.new(entry.name)
+          filename = pathname.basename.to_s
+          measure_id = pathname.each_filename().to_a[-2]
+          outdir = File.join(base_out_dir,measure_id)
+          FileUtils.mkdir_p(outdir)
+          paths << outdir
+          entry.extract(File.join(outdir,filename))
+        end
+
+      end
+
+      load_paths(paths, username)
+
     end
 
     def self.load_from_url(url, use_cached=true)
@@ -242,7 +291,6 @@ module Measures
         value_set_models = Measures::Loader.load_value_sets_from_xls(value_set_path, value_set_format)
       end
       
-
       if (value_set_models.present?)
         loaded_value_sets = HealthDataStandards::SVS::ValueSet.all.map(&:oid)
         value_set_models.each { |vsm| vsm.save! unless loaded_value_sets.include? vsm.oid } if persist
@@ -256,6 +304,13 @@ module Measures
         measure.value_set_oids = value_set_models.map(&:oid)
       end
       
+      Measures::Loader.save_sources(measure, hqmf_path, html_path, value_set_path)
+
+      measure.save! if persist
+      measure
+    end
+
+    def self.save_sources(measure, hqmf_path, html_path, value_set_path=nil)
       # Save original files
       if (html_path)
         html_out_path = File.join(SOURCE_PATH, "html")
@@ -272,9 +327,6 @@ module Measures
       hqmf_out_path = File.join(SOURCE_PATH, "hqmf")
       FileUtils.mkdir_p hqmf_out_path
       FileUtils.cp(hqmf_path, File.join(hqmf_out_path, "#{measure.hqmf_id}.xml"))
-
-      measure.save! if persist
-      measure
     end
   end
 end
