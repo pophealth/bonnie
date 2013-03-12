@@ -13,7 +13,7 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/hqmf2js.git
-  revision: 3eeb0cee8b12a33bd7bf9dc9358898ee7381f314
+  revision: 574dd7e947e6758c9e2f0fc0be3e5318f1d92b27
   branch: develop
   specs:
     hqmf2js (1.1.0)
@@ -24,7 +24,7 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/patientapi.git
-  revision: 63e9208fab523b2f1562dc74e4f3a05d599b8023
+  revision: cc9a9597de24830ec15c5a472d8916097d840991
   branch: develop
   specs:
     hquery-patient-api (1.0.0)
@@ -41,7 +41,7 @@ GIT
 
 GIT
   remote: https://github.com/projectcypress/health-data-standards.git
-  revision: dff42b425752c7d3160032d07670346db32451b0
+  revision: 5fee0431bbfbdcde4b24827bd9aa0194b5bbc0a3
   branch: develop
   specs:
     health-data-standards (3.0.6)
@@ -145,8 +145,8 @@ GEM
       railties (>= 3.1.0)
     json (1.7.5)
     json (1.7.5-java)
-    jwt (0.1.6)
-      multi_json (>= 1.0)
+    jwt (0.1.7)
+      multi_json (>= 1.5)
     libv8 (3.11.8.3)
     log4r (1.1.10)
     macaddr (1.6.1)
