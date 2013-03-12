@@ -2,8 +2,8 @@ require File.expand_path('../../../config/environment',  __FILE__)
 
 namespace :bonnie do
   desc 'Load all measures and export a bundle. Optionally, load a white list and calculate concepts.'
-  task :initialize, [:measures_dir, :username, :white_list_path, :vs_username, :vs_password, :calculate, :clear_vs_cache, :delete_existing, :include_concepts] do |t, args|
-    use_vsac = !(args.vs_username.nil? or args.vs_password.nil? or args.vs_username.empty? or args.vs_password.empty?)
+  task :initialize, [:measures_dir, :username, :white_list_path, :vs_username, :vs_password, :calculate, :force_xls, :clear_vs_cache, :delete_existing, :include_concepts] do |t, args|
+    use_vsac = !(args.force_xls == 'true')
 
   	Rake::Task["measures:generate_oids_by_measure"].invoke(args.measures_dir, args.clear_vs_cache) if use_vsac
   	Rake::Task["measures:load"].invoke(args.measures_dir, args.username, args.vs_username, args.vs_password, args.delete_existing, args.clear_vs_cache)
@@ -50,8 +50,13 @@ namespace :bonnie do
     left.each do |left_value|
       right_value = right_map[entry_key(left_value)]
       HQMF::PopulationCriteria::ALL_POPULATION_CODES.each do |code|
-        if left_value['value'][code] != right_value['value'][code]
+        if left_value && right_value && left_value['value'][code] != right_value['value'][code]
           puts "\tMISMATCH: #{left_value['value']['nqf_id']}#{right_value['value']['sub_id']} #{left_value['value']['last']}, #{left_value['value']['first']} - #{code}: #{left_value['value'][code]} != #{right_value['value'][code]}" 
+        elsif !(left_value && right_value)
+          left_extract = left_value || {}
+          right_extract = right_value || {}
+          value = left_extract['value'] || right_extract['value']
+#          puts "\tMISSING: #{value['nqf_id']}#{value['sub_id']} #{value['last']}, #{value['first']} - #{code}: #{left_extract['value'][code]} != #{right_extract['value'][code]}" 
         end
       end
     end
