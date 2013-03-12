@@ -21,16 +21,17 @@ namespace :measures do
   end
 
   desc 'Load from bundle'
-  task :load_from_bundle, [:bundle_zip, :username, :type, :json_draft_measures] do |t, args|
+  task :load_from_bundle, [:bundle_zip, :username, :type, :json_draft_measures, :rebuild_measures] do |t, args|
     raise "The path to bundle zip must be specified" unless args.bundle_zip
     raise "The username to load the measures for must be specified" unless args.username
 
     json_draft_measures = args.json_draft_measures != 'false'
+    rebuild_measures = args.rebuild_measures == 'true'
 
     user = User.by_username args.username
     raise "The user #{args.username} could not be found." unless user
     
-    Measures::Loader.load_from_bundle(args.bundle_zip, user.username, args.type || 'ep', json_draft_measures)
+    Measures::Loader.load_from_bundle(args.bundle_zip, user.username, args.type || 'ep', json_draft_measures, rebuild_measures)
 
   end
   

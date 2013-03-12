@@ -18,19 +18,26 @@ module Measures
       
       # Break apart each measure into its submeasures and store as JSON into the measures collection for QME
       measures.each_with_index do |measure, measure_index|
-        sub_ids = ("a".."zz").to_a
+        sub_ids = ['']
+        sub_ids = ("a".."zz").to_a if measure.populations.count > 1
         measure.populations.each_with_index do |population, index|
-          puts "calculating (#{measure_index+1}/#{measures.count}): #{measure.measure_id}#{sub_ids[index]}"
+          if (only_initialize)
+            puts "rebuilding (#{measure_index+1}/#{measures.count}): #{measure.measure_id}#{sub_ids[index]}"
+          else
+            puts "calculating (#{measure_index+1}/#{measures.count}): #{measure.measure_id}#{sub_ids[index]}"
+          end
           
           measure_json = Measures::Calculator.measure_json(measure.measure_id, index)
           MONGO_DB["measures"].insert(measure_json)
           measure_id = MONGO_DB["measures"].find({id: measure_json[:id]}).first
           MONGO_DB["bundles"].find({}).update({"$push" => {"measures" => measure_id}})
           
-          effective_date = Measure::DEFAULT_EFFECTIVE_DATE
-          oid_dictionary = HQMF2JS::Generator::CodesToJson.hash_to_js(Measures::Calculator.measure_codes(measure))
-          report = QME::QualityReport.new(measure_json[:id], measure_json[:sub_id], {'effective_date' => effective_date, 'oid_dictionary' => oid_dictionary})
-          report.calculate(false) unless report.calculated? || only_initialize
+          if !only_initialize
+            effective_date = Measure::DEFAULT_EFFECTIVE_DATE
+            oid_dictionary = HQMF2JS::Generator::CodesToJson.hash_to_js(Measures::Calculator.measure_codes(measure))
+            report = QME::QualityReport.new(measure_json[:id], measure_json[:sub_id], {'effective_date' => effective_date, 'oid_dictionary' => oid_dictionary})
+            report.calculate(false) unless report.calculated?
+          end
         end
       end
     end
@@ -92,8 +99,6 @@ module Measures
         observation = measure.population_criteria[measure.populations[population_index][HQMF::PopulationCriteria::OBSERV]]
         json[:aggregator] = observation['aggregator']
       end
-
-
       
       referenced_data_criteria = measure.as_hqmf_model.referenced_data_criteria
       json[:data_criteria] = referenced_data_criteria.map{|data_criteria| data_criteria.to_json}

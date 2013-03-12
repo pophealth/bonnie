@@ -13,7 +13,7 @@ namespace :bonnie do
   end
 
   desc 'Load a measure bundle back into bonnie'
-  task :load_bundle, [:bundle_zip, :username, :white_list_path, :type, :json_draft_measures, :delete_existing] do |t, args|
+  task :load_bundle, [:bundle_zip, :username, :white_list_path, :type, :json_draft_measures, :rebuild_measures, :delete_existing] do |t, args|
 
     if args.delete_existing != 'false'
       Rake::Task["db:drop"].invoke()
@@ -22,8 +22,8 @@ namespace :bonnie do
     username = args.username
     User.create!({agree_license: true, approved: true, password: username, password_confirmation: username, email: "#{username}@example.com", first_name: username, last_name: username, username: username})
 
-  	Rake::Task["measures:load_from_bundle"].invoke(args.bundle_zip, username, args.type, args.json_draft_measures)
   	Rake::Task["bundle:import"].invoke(args.bundle_zip,'true','true',args.type,'false')
+    Rake::Task["measures:load_from_bundle"].invoke(args.bundle_zip, username, args.type, args.json_draft_measures, args.rebuild_measures)
   	Rake::Task["value_sets:load_white_list"].invoke(args.white_list_path, 'true') if args.white_list_path
   end
 

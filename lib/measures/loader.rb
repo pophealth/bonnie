@@ -139,10 +139,11 @@ module Measures
       
     end
 
-    def self.load_paths(paths, username, calculate=false, vs_username = nil, vs_password=nil)
+    def self.load_paths(paths, username, rebuild=true, calculate=false, vs_username = nil, vs_password=nil)
 
       user = User.where({username:username}).first
 
+      measures = []
       paths.each do |path|
         hqmf_path = Dir.glob(File.join(path,'*.xml')).first
         html_path = Dir.glob(File.join(path,'*.html')).first
@@ -168,17 +169,18 @@ module Measures
 
           oids = {measure.hqmf_id => measure.as_hqmf_model.all_code_set_oids}
 
-          Measures::Loader.load(hqmf_path, user, html_path, true, oids, vs_username, vs_password)
+          measure = Measures::Loader.load(hqmf_path, user, html_path, true, oids, vs_username, vs_password)
         end
+        measures << measure
         puts "successfully loaded: #{measure.measure_id}"
 
       end
 
-#      calculate!!!
+      Measures::Calculator.calculate(!calculate, measures) if(rebuild)
 
     end
 
-    def self.load_from_bundle(bundle_path, username, type, json_draft_measures)
+    def self.load_from_bundle(bundle_path, username, type, json_draft_measures, rebuild)
 
       hash = Digest::MD5.hexdigest(bundle_path)
 
@@ -205,7 +207,7 @@ module Measures
 
       end
 
-      load_paths(paths, username)
+      load_paths(paths, username, rebuild, rebuild)
 
     end
 
