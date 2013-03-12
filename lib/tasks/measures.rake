@@ -72,7 +72,7 @@ namespace :measures do
     index = 0
     
     # Load each measure from the measures directory
-    Dir.foreach(args.measures_dir) do |entry|
+    Dir.entries(args.measures_dir).sort.each do |entry|
       next if entry.starts_with? '.'
       
       index += 1
