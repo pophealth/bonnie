@@ -63,5 +63,43 @@ namespace :bonnie do
 
   end
 
+  desc 'compare mongoexport results of HDS Value sets'
+  task :compare_value_sets, [:left_file, :right_file] do |t, args|
+    #mongoexport --jsonArray -o /tmp/local.json -d bonnie-development -c health_data_standards_svs_value_sets -h localhost
+    #mongoexport --jsonArray -o /tmp/local.json -d bonnie-production -c health_data_standards_svs_value_sets -h stagevpc25
+    raise "The path to both files must be specified" unless args.left_file && args.right_file
+
+    left = JSON.parse(File.read(args.left_file))
+    right = JSON.parse(File.read(args.right_file))
+
+    right_map = {}
+    right.each {|r| right_map["#{r['oid']}_#{r['_type']}"] = r;}
+    left_map = {}
+    left.each {|l| left_map["#{l['oid']}_#{l['_type']}"] = l;}
+
+    keys = (left_map.keys + right_map.keys).uniq
+    keys.each do |key|
+      lvs = left_map[key]
+      rvs = right_map[key]
+      if !lvs
+        puts "\t Left is missing for key: #{key}"
+      elsif !rvs
+        puts "\t Right is missing for key: #{key}"
+      else
+        puts "\t#{key}: display doesn't match #{lvs['display_name']} != #{rvs['display_name']}" if lvs['display_name'] != rvs['display_name']
+        puts "\t#{key}: version doesn't match #{lvs['version']} != #{rvs['version']}" if "#{lvs['version']}" != "#{rvs['version']}"
+
+        lconcepts = lvs['concepts'].map {|c| "#{c['code_system_name']}_#{c['code']}_#{c['code_system_version']}"}
+        rconcepts = rvs['concepts'].map {|c| "#{c['code_system_name']}_#{c['code']}_#{c['code_system_version']}"}
+
+        bad_left = lconcepts - rconcepts
+        bad_right = rconcepts - lconcepts
+
+        puts "\t#{key}: unmatching on left: #{bad_left}" unless bad_left.empty?
+        puts "\t#{key}: unmatching on right: #{bad_right}" unless bad_right.empty?
+      end
+    end
+
+  end
 
 end

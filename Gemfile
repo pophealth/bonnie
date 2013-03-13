@@ -11,7 +11,7 @@ gem 'test-patient-generator', :git => 'https://github.com/pophealth/test-patient
 gem 'quality-measure-engine', :git => 'http://github.com/pophealth/quality-measure-engine.git', :branch => 'develop'
 #gem 'quality-measure-engine', :path => '../quality-measure-engine'
 
-gem 'rails', '3.2.9'
+gem 'rails', '3.2.11'
 gem 'jquery-rails'
 gem 'jquery-ui-rails'
 
@@ -20,7 +20,8 @@ gem 'foreman'
 gem 'cancan'
 gem 'factory_girl'
 gem 'text'
-gem 'rubyXL'
+gem 'spreadsheet', '0.8.3'
+gem 'roo', '1.10.3'
 
 gem "mongoid"
 

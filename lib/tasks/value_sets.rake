@@ -7,8 +7,7 @@ namespace :value_sets do
     WhiteList.destroy_all if args.delete_existing != 'false'
     
     parser = HQMF::ValueSet::Parser.new()
-    format ||= HQMF::ValueSet::Parser.get_format(path)
-    value_sets = parser.parse(path, {format: format})
+    value_sets = parser.parse(path)
     child_oids = parser.child_oids
     value_sets.each do |value_set|
       if value_set['concepts'].include? nil

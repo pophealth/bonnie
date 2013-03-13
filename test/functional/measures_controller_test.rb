@@ -99,23 +99,6 @@ class MeasuresControllerTest < ActionController::TestCase
     assert_equal assigns[:measure], @measure
   end
 
-  test "create measure with uploaded hqmf 2" do
-    Measure.delete_all
-
-    hqmf_file = expose_tempfile(fixture_file_upload("test/fixtures/measure-defs/0043/0043.xml", "text/xml"))
-    value_set_file = expose_tempfile(fixture_file_upload("test/fixtures/measure-defs/0043/0043.xls", "application/vnd.ms-excel"))
-    html_file = expose_tempfile(fixture_file_upload("test/fixtures/measure-defs/0043/0043.html", "text/html"))
-    post :create, { measure: { hqmf: hqmf_file, value_sets: value_set_file, html: html_file} }
-    created_measure = Measure.all.first
-
-    assert_equal Measure.all.size, 1
-    refute_nil created_measure.population_criteria
-    refute_nil created_measure.data_criteria
-    refute_nil created_measure.measure_period
-
-    assert_redirected_to edit_measure_url(created_measure)
-  end
-
   test "update measure" do
     updated_title = "A different title"
     updates = { id: @measure.id, measure: { title: "A different title" } }

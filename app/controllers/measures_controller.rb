@@ -59,21 +59,6 @@ class MeasuresController < ApplicationController
     add_breadcrumb @measure['measure_id'], '/measures/' + @measure['measure_id'] + '/edit'
   end
 
-  def create
-    # Value sets
-    value_set_file = params[:measure][:value_sets]
-    value_set_path = value_set_file.tempfile.path
-    value_set_format = HQMF::ValueSet::Parser.get_format(value_set_file.original_filename)
-
-    # Load the actual measure
-    hqmf_path = params[:measure][:hqmf].tempfile.path
-    html_path = params[:measure][:html].tempfile.path
-
-    measure = Measures::Loader.load(hqmf_path, current_user, html_path, true, nil, nil, nil, value_set_path, value_set_format)
-
-    redirect_to edit_measure_url(measure)
-  end
-
   def upsert_criteria
     @measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
     criteria = {"id" => params[:criteria_id]  || Moped::BSON::ObjectId.new.to_s, "type" => params['type']}

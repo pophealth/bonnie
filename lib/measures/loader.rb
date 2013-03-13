@@ -67,8 +67,7 @@ module Measures
     
     def self.load_value_sets_from_xls(value_set_path, value_set_format)
       value_set_parser = HQMF::ValueSet::Parser.new()
-      value_set_format ||= HQMF::ValueSet::Parser.get_format(value_set_path)
-      value_sets = value_set_parser.parse(value_set_path, {format: value_set_format})
+      value_sets = value_set_parser.parse(value_set_path)
       value_sets
     end
     
