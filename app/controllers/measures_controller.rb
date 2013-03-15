@@ -294,71 +294,10 @@ class MeasuresController < ApplicationController
     
     @measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
     @record = Record.where({'_id' => params[:patient_id]}).first || {}
-    measure_list = (@record['measure_ids'] || []) << @measure['measure_id']
-    
-    @data_criteria = Hash[
-      *Measure.where({'measure_id' => {'$in' => measure_list}}).map{|m|
-        m.source_data_criteria.reject{|k,v|
-          ['patient_characteristic_birthdate','patient_characteristic_gender', 'patient_characteristic_expired'].include?(v['definition'])
-        }.each{|k,v|
-          v['title'] += ' (' + m.measure_id + ')'
-        }
-      }.map(&:to_a).flatten
-    ]
-    
-    @dropped_data_criteria = []
-    if (@record.respond_to? :source_data_criteria)
-      
-      # check to see if there are any data criteria that we cannot find.  If there are, we want to remove them.
-      dropped_source_criteria = @record.source_data_criteria.select {|e| @data_criteria[e['id']].nil? && e['id'] != 'MeasurePeriod' }
-      dropped_source_criteria.each do |dc|
-        alternates = @data_criteria.select {|key,value| value['code_list_id'] == dc['oid']}.keys
-        if (!alternates.empty?)
-          alternate = (alternates.sort {|left, right| Text::Levenshtein.distance(left, dc['id']) <=> Text::Levenshtein.distance(right, dc['id'])}).first
-          # update the source data criteria to set the alternate id with the closes id and a matching code set id
-          dc['id'] = alternate
-        end
-      end
 
-      dropped_ids = (@record.source_data_criteria.select {|e| @data_criteria[e['id']].nil? && e['id'] != 'MeasurePeriod' }).map {|dc| dc['id'] }
-      
-      # fix values that are not arrays
-      @record.source_data_criteria.each do |dc|
-        if (!dc['value'].nil? and !dc['value'].is_a? Array)
-          dc['value'] = [dc['value']]
-        end
-      end
-      
-      @record.source_data_criteria.delete_if {|dc| dropped = dropped_ids.include? dc['id']; @dropped_data_criteria << dc if dropped; dropped}
-      
-      # change children into parents
-      parent_map = JSON.parse(File.read('./parent_oid_map.json')) if File.exists?('./parent_oid_map.json')
-      @record.source_data_criteria.each do |dc|
-        if dc['value']
-          dc['value'].each do |value|
-            if value['code_list_id'] and parent_map[value['code_list_id']]
-              value['code_list_id'] = parent_map[value['code_list_id']]
-            end
-          end
-          
-        end
-        if dc['negation_code_list_id'] && parent_map[dc['negation_code_list_id']]
-          dc['negation_code_list_id'] = parent_map[dc['negation_code_list_id']]
-        end
-        if dc['field_values']
-          dc['field_values'].each do |key, value|
-            if value['code_list_id'] and parent_map[value['code_list_id']]
-              value['code_list_id'] = parent_map[value['code_list_id']]
-            end
-          end
-          
-        end
-        
-      end if parent_map
-      
-      
-    end
-    
+    measure_list = (@record['measure_ids'] || []) << @measure['measure_id']
+    @data_criteria = Measures::PatientBuilder.get_data_criteria(measure_list)
+    @dropped_data_criteria = Measures::PatientBuilder.check_data_criteria!(@record, @data_criteria)
     @value_sets = Measure.where({'measure_id' => {'$in' => measure_list}}).map{|m| m.value_sets}.flatten(1).uniq
 
     add_breadcrumb @measure['measure_id'], '/measures/' + @measure['measure_id']
@@ -376,47 +315,18 @@ class MeasuresController < ApplicationController
       patient.save!
     end
 
-    # clear out patient data
-    if (patient.id)
-      ['allergies', 'care_goals', 'conditions', 'encounters', 'immunizations', 'medical_equipment', 'medications', 'procedures', 'results', 'social_history', 'vital_signs'].each do |section|
-        patient[section] = [] if patient[section]
-      end
-      patient.medical_record_number ||= Digest::MD5.hexdigest("#{patient.first} #{patient.last}")
-      patient.save!
-    end
-
     patient['measure_ids'] ||= []
     patient['measure_ids'] = Array.new(patient['measure_ids']).push(@measure['measure_id']) unless patient['measure_ids'].include? @measure['measure_id']
 
-    values = Hash[
-      *Measure.where({'measure_id' => {'$in' => patient['measure_ids'] || []}}).map{|m|
-        m.value_sets.map do |value_set|
-          preferred_set = WhiteList.where(:oid => value_set.oid).first
-          
-          if preferred_set.nil?
-            concept = Concept.any_in(oids: value_set.oid).first
-            preferred_set = concept.clone_and_filter(value_set) if concept.present?
-          end
-          preferred_set ||= value_set
-
-          [value_set.oid, preferred_set]
-        end
-      }.map(&:to_a).flatten
-    ]
-
     params['birthdate'] = Time.parse(params['birthdate']).to_i
 
-    @data_criteria = Hash[
-      *Measure.where({'measure_id' => {'$in' => patient['measure_ids'] || []}}).map{|m|
-        m.source_data_criteria.reject{|k,v|
-          ['patient_characteristic_birthdate','patient_characteristic_gender', 'patient_characteristic_expired'].include?(v['definition'])
-        }
-      }.map(&:to_a).flatten
-    ]
-    
     ['first', 'last', 'gender', 'expired', 'birthdate', 'description', 'description_category'].each {|param| patient[param] = params[param]}
     patient['ethnicity'] = {'code' => params['ethnicity'], 'name'=>ETHNICITY_NAME_MAP[params['ethnicity']], 'codeSystem' => 'CDC Race'}
     patient['race'] = {'code' => params['race'], 'name'=>RACE_NAME_MAP[params['race']], 'codeSystem' => 'CDC Race'}
+
+    patient['source_data_criteria'] = JSON.parse(params['data_criteria'])
+    patient['measure_period_start'] = params['measure_period_start'].to_i
+    patient['measure_period_end'] = params['measure_period_end'].to_i
 
     insurance_types = {
       'MA' => 'Medicare',
@@ -433,33 +343,7 @@ class MeasuresController < ApplicationController
     insurance_provider.payer.name = insurance_provider.name
     patient.insurance_providers = [insurance_provider]
 
-    patient['source_data_criteria'] = JSON.parse(params['data_criteria'])
-    patient['measure_period_start'] = params['measure_period_start'].to_i
-    patient['measure_period_end'] = params['measure_period_end'].to_i
-    
-    JSON.parse(params['data_criteria']).each {|v|
-      data_criteria = HQMF::DataCriteria.from_json(v['id'], @data_criteria[v['id']])
-      data_criteria.values = []
-      result_vals = v['value'] || []
-      result_vals = [result_vals] if !result_vals.nil? and !result_vals.is_a? Array 
-      result_vals.each do |value|
-        data_criteria.values << (value['type'] == 'CD' ? HQMF::Coded.new('CD', nil, nil, value['code_list_id']) : HQMF::Range.from_json('low' => {'value' => value['value'], 'unit' => value['unit']}))
-      end if v['value']
-      v['field_values'].each do |key, value|
-        data_criteria.field_values ||= {}
-        value['value'] = Time.strptime(value['value'],"%m/%d/%Y %H:%M").to_time.strftime('%Y%m%d%H%M%S') if (value['type'] == 'TS') 
-        data_criteria.field_values[key] = HQMF::DataCriteria.convert_value(value)
-      end if v['field_values']
-      if v['negation'] == 'true'
-        data_criteria.negation = true
-        data_criteria.negation_code_list_id = v['negation_code_list_id']
-      end
-      low = {'value' => Time.at(v['start_date'] / 1000).strftime('%Y%m%d%H%M%S'), 'type'=>'TS' }
-      high = {'value' => Time.at(v['end_date'] / 1000).strftime('%Y%m%d%H%M%S'), 'type'=>'TS' }
-      high = nil if v['end_date'] == JAN_ONE_THREE_THOUSAND
-
-      data_criteria.modify_patient(patient, HQMF::Range.from_json({'low' => low,'high' => high}), values.values)
-    }
+    Measures::PatientBuilder.rebuild_patient(patient)
 
     patient['source_data_criteria'].push({'id' => 'MeasurePeriod', 'start_date' => params['measure_period_start'].to_i, 'end_date' => params['measure_period_end'].to_i})
 

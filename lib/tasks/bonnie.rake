@@ -102,4 +102,70 @@ namespace :bonnie do
 
   end
 
+  desc 'compare mongoexport of patients'
+  task :compare_patients, [:left_file, :right_file] do |t, args|
+    #mongoexport --jsonArray -o /tmp/local.json -d bonnie-development -c records -h localhost
+    #mongoexport --jsonArray -o /tmp/local.json -d bonnie-production -c records -h stagevpc25
+    raise "The path to both files must be specified" unless args.left_file && args.right_file
+
+    def clean_ids(entry)
+      entry.delete('_id')
+      entry['values'].each {|v| v.delete('_id')} if entry['values']
+      entry['reason'].delete('_id') if entry['reason']
+      entry['reason'].delete('_type') if entry['reason']
+      entry['facility'].delete('_id') if entry['facility']
+      entry['payer'].delete('_id') if entry['payer']
+      entry
+    end
+
+    def entry_to_s(entry)
+      "#{entry['start_time']}_#{entry['end_time']}_#{entry['oid']}_#{entry['description']}_#{entry['codes'].keys.sort}_#{entry['codes'].values.flatten.sort}"
+    end
+
+    left = JSON.parse(File.read(args.left_file))
+    right = JSON.parse(File.read(args.right_file))
+
+    right_map = {}
+    right.each {|r| right_map["#{r['medical_record_number']}"] = r;}
+    left_map = {}
+    left.each {|l| left_map["#{l['medical_record_number']}"] = l;}
+
+    keys = (left_map.keys + right_map.keys).uniq
+    keys.each do |key|
+      lpatient = left_map[key]
+      rpatient = right_map[key]
+      if !lpatient
+        puts "\t Left is missing for key: #{key}"
+      elsif !rpatient
+        puts "\t Right is missing for key: #{key}"
+      else
+
+        name = "#{lpatient['last']}, #{lpatient['first']}"
+        fields = ["birthdate", "ethnicity", "expired", "first", "gender", "languages", "last", "race", "type"]
+        fields.each do |field|
+          puts "\t#{name}: #{field} doesn't match #{lpatient[field]} != #{rpatient[field]}" if lpatient[field] != rpatient[field]
+        end
+
+        lentries = Record::Sections.reduce([]) {|entries, section| entries.concat(lpatient[section.to_s] || []); entries }
+        rentries = Record::Sections.reduce([]) {|entries, section| entries.concat(rpatient[section.to_s] || []); entries }
+
+        if (lentries.length != rentries.length)
+          puts "\t#{name}: unmatching entry count on left and right"
+        else
+          lentries.sort! {|l, r| entry_to_s(l) <=> entry_to_s(r) }
+          rentries.sort! {|l, r| entry_to_s(l) <=> entry_to_s(r) }
+
+          (0..lentries.length-1).each do |index|
+            l = clean_ids(lentries[index])
+            r = clean_ids(rentries[index])
+            diff = l.diff(r)
+            puts puts "\t#{name}: unmatching entry #{l['description']}: #{diff}" unless diff.empty?
+          end
+        end
+      end
+    end
+
+  end
+
+
 end

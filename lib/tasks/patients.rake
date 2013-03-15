@@ -24,6 +24,13 @@ namespace :patients do
     patients = Record.all
     total = patients.count
     patients.each_with_index do |patient, i|
+
+      measure_list = patient['measure_ids'] || []
+      data_criteria = Measures::PatientBuilder.get_data_criteria(measure_list)
+      dropped = Measures::PatientBuilder.check_data_criteria!(patient, data_criteria)
+
+      throw "dropped data criteria for #{patient.first}, #{patient.last}" unless dropped.empty?
+
       Measures::PatientBuilder.rebuild_patient(patient)
       puts "resaved: #{i+1}/#{total}"
     end

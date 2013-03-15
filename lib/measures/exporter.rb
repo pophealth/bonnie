@@ -95,7 +95,7 @@ module Measures
           puts("\tError generating code set for #{oid}")
         end
       end
-      HealthDataStandards::SVS::ValueSet.where({oid: {'$in'=>value_sets}, '_type'=>{'$ne'=>'WhiteList'}}).to_a.each do |vs|
+      HealthDataStandards::SVS::ValueSet.where({oid: {'$in'=>value_sets}}).to_a.each do |vs|
         codes[File.join("json", "#{vs.oid}.json")] = JSON.pretty_generate(vs.as_json(:except => [ '_id' ]), max_nesting: 250)
       end
       codes
