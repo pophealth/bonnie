@@ -44,7 +44,7 @@ module HQMF
         elsif file_path =~ /xlsx$/
           Roo::Excelx.new(file_path, nil, :ignore)
         else
-          raise "File does not end in .xls or .xlsx"
+          raise "File: #{file_path} does not end in .xls or .xlsx"
         end
       end
 

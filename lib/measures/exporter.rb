@@ -13,7 +13,7 @@ module Measures
       patient_ids = []
       measure_ids = []
 
-      bundle_path = "."
+      bundle_path = ''
       library_path = "library_functions"
       measures_path = "measures"
       sources_path = "sources"
@@ -173,7 +173,7 @@ module Measures
       Zip::ZipOutputStream.open(file.path) do |zip|
         content.each do |directory_path, files|
           files.each do |file_path, file|
-            zip.put_next_entry(File.join(directory_path, file_path))
+            zip.put_next_entry((!directory_path.empty?) ? File.join(directory_path, file_path) : file_path)
             zip << file
           end
         end

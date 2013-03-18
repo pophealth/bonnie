@@ -47,7 +47,7 @@ class ExporterTest < ActiveSupport::TestCase
     patient_name = "#{@patient.first}_#{@patient.last}"
     expected = ["library_functions/map_reduce_utils.js",
       "library_functions/hqmf_utils.js",
-      "./bundle.json",
+      "bundle.json",
       "measures/ep/0002.json",
       "sources/ep/0002/0002.html",
       "sources/ep/0002/hqmf1.xml",
