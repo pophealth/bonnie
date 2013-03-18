@@ -12,5 +12,6 @@ ObjectId = function(id, value) { return 1; }
 
 var patient = [<%= @patient.to_json.html_safe %>];
 var effective_date = <%= Measure::DEFAULT_EFFECTIVE_DATE %>;
+var enable_logging = <%= APP_CONFIG['enable_logging'] %>;
 
 

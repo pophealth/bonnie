@@ -1,6 +1,6 @@
 GIT
   remote: http://github.com/pophealth/quality-measure-engine.git
-  revision: 3596fece83c959d5f4d88e4ed5f3ec35fb8c73a5
+  revision: 404295199d8c8813971f482c22c98a364446a93a
   branch: develop
   specs:
     quality-measure-engine (2.1.0)
@@ -151,9 +151,9 @@ GEM
       origin (~> 1.0)
       tzinfo (~> 0.3.22)
     moped (1.4.3)
-    multi_json (1.6.1)
-    nokogiri (1.5.6)
-    nokogiri (1.5.6-java)
+    multi_json (1.7.1)
+    nokogiri (1.5.7)
+    nokogiri (1.5.7-java)
     origin (1.0.11)
     orm_adapter (0.4.0)
     polyglot (0.3.3)

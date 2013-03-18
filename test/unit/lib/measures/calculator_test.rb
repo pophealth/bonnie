@@ -93,13 +93,4 @@ class CalculatorTest < ActiveSupport::TestCase
     assert_not_nil execution_logic
   end
 
-  test "check disable logger" do
-    APP_CONFIG["disable_logging"] = true
-    logger = Measures::Calculator.check_disable_logger
-    assert logger.include? "Logger.enabled = false"
-
-    APP_CONFIG["disable_logging"] = false
-    logger = Measures::Calculator.check_disable_logger
-    assert_empty logger
-  end
 end
