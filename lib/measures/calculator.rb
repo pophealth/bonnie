@@ -134,6 +134,7 @@ module Measures
         var patient = this;
         var effective_date = <%= effective_date %>;
         var enable_logging = <%= enable_logging %>;
+        var enable_rationale = <%= enable_rationale %>;
 
         hqmfjs = {}
         <%= init_js_frameworks %>
@@ -200,9 +201,8 @@ module Measures
         Logger.rationale={};
       
         // turn on logging if it is enabled
-        if (enable_logging) {
-          enableLogging();
-          enableMeasureLogging(hqmfjs);
+        if (enable_logging || enable_rationale) {
+          injectLogger(hqmfjs, enable_logging, enable_rationale);
         }
       }
 

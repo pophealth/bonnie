@@ -30,6 +30,7 @@ module MeasuresHelper
     @js << "var patient = #{patient_json};\n"
     @js << "var effective_date = #{Measure::DEFAULT_EFFECTIVE_DATE};\n"
     @js << "var enable_logging = #{APP_CONFIG['enable_logging']};\n"
+    @js << "var enable_rationale = #{APP_CONFIG['enable_rationale']};\n"
 
     return @js
   end
