@@ -35,7 +35,8 @@ module Measures
           if !only_initialize
             effective_date = Measure::DEFAULT_EFFECTIVE_DATE
             oid_dictionary = HQMF2JS::Generator::CodesToJson.hash_to_js(Measures::Calculator.measure_codes(measure))
-            report = QME::QualityReport.new(measure_json[:id], measure_json[:sub_id], {'effective_date' => effective_date, 'oid_dictionary' => oid_dictionary})
+            report = QME::QualityReport.new(measure_json[:id], measure_json[:sub_id], {'effective_date' => effective_date, 
+                'oid_dictionary' => oid_dictionary, 'enable_logging' => (APP_CONFIG['enable_logging'] || false)})
             report.calculate(false) unless report.calculated?
           end
         end
@@ -126,10 +127,14 @@ module Measures
 
     private
 
+    # Note that the JS returned by this function is not included when using the in-browser
+    # debugger. See app/views/measures/debug.js.erb for the in-browser equivalent.
     def self.measure_js(measure, population_index)
       "function() {
         var patient = this;
         var effective_date = <%= effective_date %>;
+        var enable_logging = <%= enable_logging %>;
+        var enable_rationale = <%= enable_rationale %>;
 
         hqmfjs = {}
         <%= init_js_frameworks %>
@@ -155,13 +160,6 @@ module Measures
       "
       var patient_api = new hQuery.Patient(patient);
 
-      #{Measures::Calculator.check_disable_logger}
-
-      // clear out logger
-      if (typeof Logger != 'undefined') { Logger.logger = []; Logger.rationale={};}
-      // turn on logging if it is enabled
-      if (Logger.enabled) enableLogging();
-      
       #{gen.to_js(population_index, codes)}
       
       var occurrenceId = #{quoted_string_array_or_null(measure.episode_ids)};
@@ -197,7 +195,16 @@ module Measures
           return false;
       }
 
-      if (Logger.enabled) enableMeasureLogging(hqmfjs);
+      if (typeof Logger != 'undefined') {
+        // clear out logger
+        Logger.logger = [];
+        Logger.rationale={};
+      
+        // turn on logging if it is enabled
+        if (enable_logging || enable_rationale) {
+          injectLogger(hqmfjs, enable_logging, enable_rationale);
+        }
+      }
 
       map(patient, population, denominator, numerator, exclusion, denexcep, msrpopl, observ, occurrenceId,#{measure.continuous_variable});
       "
@@ -220,13 +227,5 @@ module Measures
 
     end
 
-    def self.check_disable_logger
-      if (APP_CONFIG['disable_logging'])
-        "      // turn off the logger \n"+
-        "      Logger.enabled = false;\n"
-      else
-        ""
-      end
-    end
   end
 end

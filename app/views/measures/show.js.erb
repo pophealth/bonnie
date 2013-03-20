@@ -2,6 +2,8 @@ var ObjectId = ObjectId ||  function(id, value) { return 1; };
 var emit = emit || function(id, value) { alert('undefined'); };
 var emitted = emitted || []
 var effective_date = effective_date || <%= Measure::DEFAULT_EFFECTIVE_DATE %>;
+var enable_logging = <%= APP_CONFIG['enable_logging'] %>;
+var enable_rationale = <%= APP_CONFIG['enable_rationale'] %>;
 
 var executors = executors || {};
 

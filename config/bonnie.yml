@@ -2,7 +2,8 @@ defaults: &defaults
   default_user_approved: true
   version: 0.0.1
   generate_denormalization: true
-  disable_logging: false
+  enable_logging: true
+  enable_rationale: true
   nlm:
     ticket_url: https://vsac.nlm.nih.gov/vsac/ws/Ticket
     api_url: https://vsac.nlm.nih.gov/vsac/ws/RetrieveValueSet
