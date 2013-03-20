@@ -48,7 +48,6 @@ module HQMF
         end
       end
 
-
       private
   
       # Break all the supplied strings into separate words and return the resulting list as a

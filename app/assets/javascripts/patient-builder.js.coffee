@@ -250,6 +250,7 @@ class @bonnie.PatientBuilder
     @selected_data_criteria[id]
 
   save_patient_builder: (form)->
+    $("<div class='modal-backdrop fade in'></div>").prependTo('body');
     data_criteria = []
     $('#patient_data_criteria .paramGroup').each((i,e)=>
       data = bonnie.patientBuilder.selected_data_criteria[$(e).data('criteria-id')]

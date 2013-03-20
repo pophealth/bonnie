@@ -3,9 +3,9 @@
     <a class="close" data-dismiss="modal">&times;</a>
     <h3>Download Patients</h3>
   </div>
-  <%= form_for([:download_patients, @measure], :html => {:method => "get", :class => 'form-stacked', :onsubmit => '$("#downloadPatientsDialog").modal("hide");'}) do |f| %>
+  <%= form_for(@measure, :url => url_for(controller: :patients, action: :download), :html => {:method => "get", :class => 'form-stacked', :onsubmit => '$("#downloadPatientsDialog").modal("hide");'}) do |f| %>
     <div class="modal-body">
-      <% if measure_patients %><input type="hidden" name="measure_patients" value="measure_patients"/><% end %>
+      <input type="hidden" name="measure_id" value="<%=@measure.id%>"/>
       <%= f.label :format, "Select patient format:" %>
       <%= select(:download, :format, ["c32", "ccr", "ccda","qrda", "html"]) %>
     </div>

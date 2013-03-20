@@ -21,8 +21,8 @@
   		<li <% if @show_published %>class="active"<% end %>><a href="#tabs-1" data-toggle="tab">all published measures</a></li>
       <li id="pageButtons">
         <a href="#loadMeasuresDialog" class="btn" data-toggle="modal" data-backdrop="static" data-keyboard="true">Load Measures</a>
-        <%= link_to 'Export All', export_all_measures_path, method: "get", class:"btn" %>
-        <%= link_to 'View Matrix', {:action => 'matrix'}, class:"btn" %>
+        <%= link_to 'Export All', export_measures_path, method: "get", class:"btn" %>
+        <%= link_to 'View Matrix', {controller: :matrix}, class:"btn" %>
       </li>
   	</ul>
 
@@ -37,7 +37,7 @@
             <th>version</th>
             <th>status</th>
             <th>date</th>
-            <th style="width:6em"><!-- actions --></th>
+            <th style="width:10em"><!-- actions --></th>
           </tr>
         </thead>
         <tbody>

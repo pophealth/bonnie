@@ -1,0 +1,31 @@
+var ObjectId = ObjectId ||  function(id, value) { return 1; };
+var emit = emit || function(id, value) { alert('undefined'); };
+var emitted = emitted || []
+var effective_date = effective_date || <%= Measure::DEFAULT_EFFECTIVE_DATE %>;
+
+var executors = executors || {};
+
+<%
+  if @population
+    populations = [@population.to_i]
+  else
+    populations = (0...@measure.populations.length).to_a
+  end
+
+  populations.each do |population|
+%>
+
+  executors['<%=@measure.measure_id%>'] = executors['<%=@measure.measure_id%>'] || {};
+  executors['<%=@measure.measure_id%>']['<%=population%>'] = executors['<%=@measure.measure_id%>']['<%=population%>'] || {};
+
+  executors['<%=@measure.measure_id%>']['<%=population%>'].emit = function(id, value) { executors['<%=@measure.measure_id%>']['<%=population%>'].emitted.push(value); };
+  executors['<%=@measure.measure_id%>']['<%=population%>'].emitted = [];
+  executors['<%=@measure.measure_id%>']['<%=population%>'].calculate = function(patient) {
+    hqmfjs = {}
+    emit = executors['<%=@measure.measure_id%>']['<%=population%>'].emit;
+    emitted = executors['<%=@measure.measure_id%>']['<%=population%>'].emitted
+    <%=measure_js(@measure,population).html_safe%>
+  };
+
+<% end %>
+

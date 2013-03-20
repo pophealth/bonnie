@@ -235,7 +235,7 @@
                 .on("mouseout", mouseout)
                 .on('click',
                   function(i){
-                    document.location.href = '<%= url_for edit_patient_measure_path(:id => '$1', :patient_id => '$2') %>'.replace(/\$(\d+)\b/g,
+                    document.location.href = '<%= url_for edit_patient_path(:id => '$1', :patient_id => '$2') %>'.replace(/\$(\d+)\b/g,
                       function(m, g1){
                         return [headers[i.x][0], nodes[i.y]][g1-1];
                       }
