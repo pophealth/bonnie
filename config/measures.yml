@@ -485,7 +485,7 @@ measures: &measures
     type: eh
     category: Community Acquired Pneumonia
     episode_of_care: true
-    episode_ids:  [OccurrenceAEncounterInpatient2]
+    episode_ids:  [OccurrenceAHospitalMeasuresEncounterInpatient2]
     continuous_variable: false
     subtitles:
       a: ICU patients
@@ -523,7 +523,7 @@ measures: &measures
     type: eh
     category: Venous Thromboembolism
     episode_of_care: true
-    episode_ids:  [OccurrenceAInpatientEncounter11]
+    episode_ids:  [OccurrenceAInpatientEncounter10]
     continuous_variable: false
   6F069BB2-B3C4-4BF4-ADC5-F6DD424A10B7:
     nqf_id: '0373'
@@ -607,7 +607,7 @@ measures: &measures
     type: eh
     category: Surgical Care Improvement Project
     episode_of_care: true
-    episode_ids:  [OccurrenceAEncounterInpatient2]
+    episode_ids:  [OccurrenceAEncounterInpatient3]
     continuous_variable: false
   FD7CA18D-B56D-4BCA-AF35-71CE36B15246:
     nqf_id: '0469'
@@ -640,7 +640,7 @@ measures: &measures
     type: eh
     category: Emergency Department
     episode_of_care: true
-    episode_ids:  [OccurrenceAEmergencyDepartmentVisit1]
+    episode_ids:  [OccurrenceAHospitalMeasuresEncounterEd1]
     continuous_variable: true
     subtitles:
       a: Unstratified
@@ -653,7 +653,7 @@ measures: &measures
     type: eh
     category: Emergency Department
     episode_of_care: true
-    episode_ids:  [OccurrenceAEncounterInpatient2]
+    episode_ids:  [OccurrenceAEncounterInpatient1]
     continuous_variable: true
     subtitles:
       a: Unstratified
@@ -665,7 +665,7 @@ measures: &measures
     type: eh
     category: Surgical Care Improvement Project
     episode_of_care: true
-    episode_ids:  [OccurrenceAEncounterInpatient4]
+    episode_ids:  [OccurrenceAEncounterInpatient3]
     continuous_variable: false
     subtitles:
       a: CABG procedures
@@ -681,7 +681,7 @@ measures: &measures
     type: eh
     category: Surgical Care Improvement Project
     episode_of_care: true
-    episode_ids:  [OccurrenceAEncounterInpatient13]
+    episode_ids:  [OccurrenceAEncounterInpatient10]
     continuous_variable: false
     subtitles:
       a: CABG procedures
