@@ -88,14 +88,15 @@
           <div class="span4">
             <span class="inspect"><%= link_to 'inspect', inspect_debug_path(:patient_id => patient.id, :population=>@population) %></span>
             <span class="rationale"><%= link_to 'rationale', rationale_debug_path(:patient_id => patient.id, :population=>@population) %></span>
-            <span class="delete">
-              <%= link_to 'delete', patient_path(patient, measure_id: @measure.id), :confirm => 'Are you sure you want to delete this patient?', :method => :delete %>
-            </span>
+            <span class="html"><%= link_to 'html', patient_path(patient, :measure_id => @measure.measure_id) %></span>
             <span class="edit">
               <%= link_to 'Edit', edit_patient_path(:patient_id => patient.id) %>
             </span>
             <span class="clone">
               <%= link_to 'Clone', edit_patient_path(:patient_id => patient.id, :clone => true) %>
+            </span>
+            <span class="delete">
+              <%= link_to 'delete', patient_path(patient, measure_id: @measure.id), :confirm => 'Are you sure you want to delete this patient?', :method => :delete %>
             </span>
 
           </div>

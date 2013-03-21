@@ -8,6 +8,15 @@ class PatientsController < ApplicationController
 
   def show
     @patient = Record.find(params[:id])
+    respond_to do |format|
+      format.html {
+        @measure = current_user.measures.where('_id' => params[:measure_id]).exists? ? current_user.measures.find(params[:measure_id]) : current_user.measures.where('measure_id' => params[:measure_id]).first
+        add_breadcrumb @measure['measure_id'], '/measures/' + @measure['measure_id']
+        add_breadcrumb 'Test', debug_path(@measure)
+        add_breadcrumb "#{@patient.last}, #{@patient.first}", ''
+      }
+      format.js { }
+    end
   end
 
   def edit
