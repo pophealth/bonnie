@@ -12,9 +12,10 @@ module Measures
       MONGO_DB["bundles"].insert(JSON.parse(bundle.values.first))
       
       # Delete all old results for these measures because they might be out of date.
-      MONGO_DB['query_cache'].find({}).remove_all unless only_initialize
-      MONGO_DB['patient_cache'].find({}).remove_all unless only_initialize
-      MONGO_DB['measures'].drop
+      MONGO_DB['query_cache'].where({'measure_id' => {'$in' => measures.map(&:hqmf_id)}}).remove_all unless only_initialize
+      MONGO_DB['patient_cache'].where({'value.measure_id' => {'$in' => measures.map(&:hqmf_id)}}).remove_all unless only_initialize
+      MONGO_DB['measures'].where({'hqmf_id' => {'$in' => measures.map(&:hqmf_id)}}).remove_all
+      MONGO_DB.command({ getlasterror: 1 })
       
       # Break apart each measure into its submeasures and store as JSON into the measures collection for QME
       measures.each_with_index do |measure, measure_index|

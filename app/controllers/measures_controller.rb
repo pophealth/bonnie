@@ -97,7 +97,7 @@ class MeasuresController < ApplicationController
     render :json => population
   end
 
-    def update_population
+  def update_population
     @measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
     index = params['index'].to_i
     title = params['title']
@@ -115,16 +115,31 @@ class MeasuresController < ApplicationController
   end
 
   def load_measures
-    paths = params[:paths] || []
-    measure_ids = params[:measure_ids] || []
 
-    current_user.measures.each {|measure| measure.value_sets.destroy_all}
-    current_user.measures.destroy_all
+    if (params[:file])
+      file = params[:file]
+      Measures::Loader.load_mat_exports([file],current_user.username)
+      redirect_to :measures, notice: 'Measure was successfully loaded.'
+    else
+      paths = params[:paths] || []
+      measure_ids = params[:measure_ids] || []
 
-    job = Measures::Loader.delay(:queue => 'measure_loaders').load_paths(paths,current_user.username)
-    job['measure_ids'] = measure_ids
-    job.save!
-    render json: {job_id: job.id}
+      current_user.measures.each do |measure| 
+        measure.value_sets.destroy_all
+        HealthDataStandards::CQM::Measure.where(hqmf_id: measure.hqmf_id).destroy_all
+        MONGO_DB['query_cache'].find({}).remove_all
+        MONGO_DB['patient_cache'].find({}).remove_all
+        MONGO_DB.command({ getlasterror: 1 })
+      end
+
+      current_user.measures.destroy_all
+
+      job = Measures::Loader.delay(:queue => 'measure_loaders').load_paths(paths,current_user.username,true,true)
+      job['measure_ids'] = measure_ids
+      job.save!
+      render json: {job_id: job.id}
+    end
+
   end
 
   def download_measures

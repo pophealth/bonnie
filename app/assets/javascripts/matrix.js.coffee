@@ -183,7 +183,7 @@ class @bonnie.MatrixPage
     
     row.append("line").attr("x2", @width);
 
-    row.append("text").attr("x", -6).attr("y", @x.rangeBand() / 2).attr("dy", ".32em").attr("text-anchor", "end").text((d, i) => 
+    row.append("text").attr("x", -6).attr("y", @y.rangeBand() / 2).attr("dy", ".32em").attr("text-anchor", "end").text((d, i) => 
       @matrix.row_info[@matrix.nodes[i]].last+', '+@matrix.row_info[@matrix.nodes[i]].first)
 
   setupRowBuilder: (x, y, z, available_gradients, colors) =>

@@ -13,7 +13,7 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/hqmf2js.git
-  revision: b31ebd659708ea3e391ca0d9b342a7157c0dcd55
+  revision: f801233cd2d6fe44ecfd3d0f6df5a75c4e677e57
   branch: develop
   specs:
     hqmf2js (1.1.0)
@@ -151,9 +151,9 @@ GEM
       origin (~> 1.0)
       tzinfo (~> 0.3.22)
     moped (1.4.3)
-    multi_json (1.7.1)
-    nokogiri (1.5.8)
-    nokogiri (1.5.8-java)
+    multi_json (1.7.2)
+    nokogiri (1.5.9)
+    nokogiri (1.5.9-java)
     origin (1.0.11)
     orm_adapter (0.4.0)
     polyglot (0.3.3)

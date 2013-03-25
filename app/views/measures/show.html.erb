@@ -130,7 +130,6 @@
       $('#selector').change(
         function(){
           $.bbq.pushState({population: $(this).val()});
-          change_test_button_params($(this).val()); // measure debugger needs to know about multiple populations
           $("#initialPopulationItems, #eligibilityMeasureItems, #outcomeMeasureItems, #exclusionMeasureItems, #exceptionMeasureItems").empty();
           $.getJSON($(this).val(), bonnie.builder.renderMeasureJSON);
         }
