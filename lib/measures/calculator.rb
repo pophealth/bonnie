@@ -47,7 +47,7 @@ module Measures
     def self.library_functions
       library_functions = {}
       library_functions['map_reduce_utils'] = File.read(File.join('.','lib','assets','javascripts','libraries','map_reduce_utils.js'))
-      library_functions['hqmf_utils'] = HQMF2JS::Generator::JS.library_functions
+      library_functions['hqmf_utils'] = HQMF2JS::Generator::JS.library_functions(APP_CONFIG['check_crosswalk'])
       library_functions
     end    
 
@@ -157,6 +157,12 @@ module Measures
     def self.execution_logic(measure, population_index=0, load_codes=false)
       gen = HQMF2JS::Generator::JS.new(measure.as_hqmf_model)
       codes = measure_codes(measure) if load_codes
+
+      if APP_CONFIG['check_crosswalk']
+        crosswalk_check = "result = hqmf.SpecificsManager.maintainSpecifics(new Boolean(result.isTrue() && patient_api.validateCodeSystems()), result);"
+        crosswalk_instrument = "instrumentTrueCrosswalk(hqmfjs);"
+      end
+
       
       "
       var patient_api = new hQuery.Patient(patient);
@@ -189,13 +195,17 @@ module Measures
         #{Measures::Calculator.observation_function(measure, population_index)}
       }
       
-      var executeIfAvailable = function(optionalFunction, arg) {
-        if (typeof(optionalFunction)==='function')
-          return optionalFunction(arg);
-        else
+      var executeIfAvailable = function(optionalFunction, patient_api) {
+        if (typeof(optionalFunction)==='function') {
+          result = optionalFunction(patient_api);
+          #{crosswalk_check}
+          return result;
+        } else {
           return false;
+        }
       }
 
+      #{crosswalk_instrument}
       if (typeof Logger != 'undefined') {
         // clear out logger
         Logger.logger = [];

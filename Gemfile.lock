@@ -13,7 +13,7 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/hqmf2js.git
-  revision: f801233cd2d6fe44ecfd3d0f6df5a75c4e677e57
+  revision: 75651b68ffea240a8d538e069608102a2b0da022
   branch: develop
   specs:
     hqmf2js (1.1.0)
@@ -41,7 +41,7 @@ GIT
 
 GIT
   remote: https://github.com/projectcypress/health-data-standards.git
-  revision: e5f3e2db3c4911161a9318e423e2d63f14c0b8e0
+  revision: 340d8b30ab75ae84309d5955de1da0f8234359e9
   branch: develop
   specs:
     health-data-standards (3.0.6)

@@ -53,9 +53,10 @@ class PatientsController < ApplicationController
     patient['ethnicity'] = {'code' => params['ethnicity'], 'name'=>ETHNICITY_NAME_MAP[params['ethnicity']], 'codeSystem' => 'CDC Race'}
     patient['race'] = {'code' => params['race'], 'name'=>RACE_NAME_MAP[params['race']], 'codeSystem' => 'CDC Race'}
 
-    patient['source_data_criteria'] = JSON.parse(params['data_criteria'])
-    patient['measure_period_start'] = params['measure_period_start'].to_i
-    patient['measure_period_end'] = params['measure_period_end'].to_i
+    measure_period = {'id' => 'MeasurePeriod', 'start_date' => params['measure_period_start'].to_i, 'end_date' => params['measure_period_end'].to_i}
+    patient['source_data_criteria'] = JSON.parse(params['data_criteria']) + [measure_period]
+    patient['measure_period_start'] = measure_period['start_date']
+    patient['measure_period_end'] = measure_period['end_date']
 
     insurance_types = {
       'MA' => 'Medicare',
@@ -73,8 +74,6 @@ class PatientsController < ApplicationController
     patient.insurance_providers = [insurance_provider]
 
     Measures::PatientBuilder.rebuild_patient(patient)
-
-    patient['source_data_criteria'].push({'id' => 'MeasurePeriod', 'start_date' => params['measure_period_start'].to_i, 'end_date' => params['measure_period_end'].to_i})
 
     if @measure.records.include? patient
       render :json => patient.save!

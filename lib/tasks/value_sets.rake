@@ -49,7 +49,7 @@ namespace :value_sets do
         end
       end
 
-      throw "white list code missing for oid: #{value_set.oid}" unless matched_count == white_list_count
+      puts "white list code missing for oid: #{value_set.oid}" unless matched_count == white_list_count
       white_list_total += matched_count
 
       existing.concepts = concepts
@@ -87,16 +87,39 @@ namespace :value_sets do
 
     end
 
-
   end
   
-  desc "Download the set of valuesets required by the installed measures"
-  task :cache, [:username, :password, :clear] => :setup do |t,args|
+  desc "Dump value sets as NLM responses to the value set cache"
+  task :export_to_cache, [] => :environment do |t,args|
 
-    if args[:clear] == 'true'
-      HealthDataStandards::SVS::ValueSet.all.delete()
+    code_set_cache_dir = File.join('.','db','code_sets')
+    FileUtils.rm_r code_set_cache_dir if File.exists? code_set_cache_dir
+    FileUtils.mkdir_p code_set_cache_dir
+
+    used_oids = Measure.all.map {|measure| measure.as_hqmf_model.all_code_set_oids}.flatten.uniq
+    value_sets = HealthDataStandards::SVS::ValueSet.all.select {|vs| used_oids.include? vs.oid}
+
+    puts "exporting #{value_sets.length} value sets"
+
+    class RenderingContext < OpenStruct
+      def my_binding
+        binding
+      end
     end
 
+    value_sets.each do |value_set|
+      locals = {value_set: value_set}
+      rendering_context = RenderingContext.new(locals)
+      erb = File.read(File.join('lib','templates','erb','valueset','valueset.xml.erb'))
+      eruby = Erubis::EscapedEruby.new(erb)
+      result = eruby.result(rendering_context.my_binding)
+      File.open(File.join(code_set_cache_dir,"#{value_set.oid}.xml"), 'w') {|f| f.write(result) }
+    end
+
+    puts "exported #{value_sets.length} value sets to #{code_set_cache_dir}"
+
+
+
   end
-  
+
 end

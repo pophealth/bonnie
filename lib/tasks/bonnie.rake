@@ -8,6 +8,11 @@ namespace :bonnie do
     white_list_path = args.white_list_path unless args.white_list_path && args.white_list_path.empty?
     black_list_path = args.black_list_path unless args.black_list_path && args.black_list_path.empty?
 
+    # Delete all old results for these measures because they might be out of date.
+    ['bundles', 'query_cache', 'patient_cache', 'measures'].each do |collection|
+      MONGO_DB[collection].drop
+    end
+
   	Rake::Task["measures:generate_oids_by_measure"].invoke(args.measures_dir, args.clear_vs_cache) if use_vsac
   	Rake::Task["measures:load"].invoke(args.measures_dir, args.username, args.vs_username, args.vs_password, args.delete_existing, args.clear_vs_cache)
   	Rake::Task["concepts:load"].invoke(args.username, args.delete_existing) if args.include_concepts == 'true'

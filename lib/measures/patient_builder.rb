@@ -46,6 +46,8 @@ module Measures
       patient.source_data_criteria.each {|v|
         next if v['id'] == 'MeasurePeriod'
         data_criteria = HQMF::DataCriteria.from_json(v['id'], @data_criteria[v['id']])
+        v['definition'] ||= data_criteria.definition # tmp, get definition and status onto source dc
+        v['status'] ||= data_criteria.status # tmp, get definition and status onto source dc
         data_criteria.values = []
         result_vals = v['value'] || []
         result_vals = [result_vals] if !result_vals.nil? and !result_vals.is_a? Array 
@@ -94,16 +96,17 @@ module Measures
         # check to see if there are any data criteria that we cannot find.  If there are, we want to remove them.
         dropped_source_criteria = Measures::PatientBuilder.missing_data_criteria(record, data_criteria)
         dropped_source_criteria.each do |dc|
-          alternates = data_criteria.select {|key,value| value['code_list_id'] == dc['oid']}.keys
+          alternates = data_criteria.select {|key,value| value['code_list_id'] == dc['oid'] && value['status'] == dc['status'] && value['definition'] == dc['definition'] }.keys
           if (!alternates.empty?)
             alternate = (alternates.sort {|left, right| Text::Levenshtein.distance(left, dc['id']) <=> Text::Levenshtein.distance(right, dc['id'])}).first
             # update the source data criteria to set the alternate id with the closes id and a matching code set id
+            puts "\talternate: #{alternate} for #{dc['id']}"
             dc['id'] = alternate
           end
         end
 
         dropped_ids = Measures::PatientBuilder.missing_data_criteria(record, data_criteria).map {|dc| dc['id'] }
-        
+
         record.source_data_criteria.delete_if {|dc| dropped = dropped_ids.include? dc['id']; dropped_data_criteria << dc if dropped; dropped}
         
       end
