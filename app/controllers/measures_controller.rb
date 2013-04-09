@@ -64,7 +64,11 @@ class MeasuresController < ApplicationController
   end
 
   def destroy
-    @measure = current_user.measures.where('_id' => params[:id]).exists? ? current_user.measures.find(params[:id]) : current_user.measures.where('measure_id' => params[:id]).first
+    @measure = current_user.measures.find(params[:id])
+    MONGO_DB['measures'].find({hqmf_id: @measure.hqmf_id}).remove_all
+    MONGO_DB['patient_cache'].find({'value.measure_id'=> @measure.hqmf_id}).remove_all
+    MONGO_DB['query_cache'].find({measure_id: @measure.hqmf_id}).remove_all
+
     @measure.destroy
 
     redirect_to measures_url

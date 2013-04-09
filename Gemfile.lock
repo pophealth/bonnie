@@ -41,7 +41,7 @@ GIT
 
 GIT
   remote: https://github.com/projectcypress/health-data-standards.git
-  revision: 340d8b30ab75ae84309d5955de1da0f8234359e9
+  revision: 59e96f58bbf2f658057f36ee469c1a6b4a5c4521
   branch: develop
   specs:
     health-data-standards (3.0.6)
@@ -49,6 +49,7 @@ GIT
       builder (~> 3.0.0)
       erubis (~> 2.7.0)
       log4r (~> 1.1.10)
+      memoist (~> 0.9.0)
       mongoid (~> 3.1.0)
       nokogiri (~> 1.5.5)
       rest-client (~> 1.6.7)
@@ -142,6 +143,7 @@ GEM
       i18n (>= 0.4.0)
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
+    memoist (0.9.0)
     method_source (0.8.1)
     mime-types (1.21)
     minitest (4.3.2)

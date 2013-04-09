@@ -296,7 +296,8 @@ module Measures
               end
             end
 
-            measure_data = fields.merge(APP_CONFIG["measures"][fields['set_id']])
+            measure_data = {}
+            measure_data = fields.merge(APP_CONFIG["measures"][fields['set_id']]) if APP_CONFIG["measures"][fields['set_id']]
 
             out_dir=File.join(dir, measure_id)
             FileUtils.mkdir_p(out_dir)
