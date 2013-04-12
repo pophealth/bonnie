@@ -47,6 +47,8 @@ module Measures
 
         Record.where(type: type).each do |patient|
           puts "Exporting patient: #{patient.first}#{patient.last}"
+          entries = Record::Sections.reduce([]) {|entries, section| entries.concat(patient[section.to_s] || []); entries }
+          puts "\tEntry Count != Source Data Criteria Count" if entries.length != patient.source_data_criteria.length
           patient_ids << patient.medical_record_number
           content[patient_path].merge! bundle_patient(patient, patient_exporter)
         end
@@ -64,6 +66,7 @@ module Measures
         title: APP_CONFIG["measures"]["title"],
         measure_period_start: APP_CONFIG["measures"]["measure_period_start"],
         effective_date: APP_CONFIG["measures"]["effective_date"],
+        active: true,
         version: APP_CONFIG["measures"]["version"],
         license: APP_CONFIG["measures"]["license"],
         measures: measure_ids,
