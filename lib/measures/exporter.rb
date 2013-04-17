@@ -48,7 +48,7 @@ module Measures
         Record.where(type: type).each do |patient|
           puts "Exporting patient: #{patient.first}#{patient.last}"
           entries = Record::Sections.reduce([]) {|entries, section| entries.concat(patient[section.to_s] || []); entries }
-          puts "\tEntry Count != Source Data Criteria Count" if entries.length != patient.source_data_criteria.length
+          puts "\tEntry Count != Source Data Criteria Count" if patient.source_data_criteria && entries.length != patient.source_data_criteria.length
           patient_ids << patient.medical_record_number
           content[patient_path].merge! bundle_patient(patient, patient_exporter)
         end
