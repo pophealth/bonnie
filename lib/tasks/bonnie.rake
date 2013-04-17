@@ -34,8 +34,11 @@ namespace :bonnie do
     User.create!({agree_license: true, approved: true, password: username, password_confirmation: username, email: "#{username}@example.com", first_name: username, last_name: username, username: username})
     puts "created user #{username}/#{username}"
 
-  	Rake::Task["bundle:import"].invoke(args.bundle_zip,'true','true',args.type || 'ep','false')
-    Rake::Task["measures:load_from_bundle"].invoke(args.bundle_zip, username, args.type, args.json_draft_measures, args.rebuild_measures)
+    type = args.type
+    type = nil if type.empty?
+
+  	Rake::Task["bundle:import"].invoke(args.bundle_zip,'true','true',type,'false')
+    Rake::Task["measures:load_from_bundle"].invoke(args.bundle_zip, username, type, args.json_draft_measures, args.rebuild_measures)
   	Rake::Task["value_sets:load_white_list"].invoke(white_list_path, black_list_path) if white_list_path || black_list_path
   end
 

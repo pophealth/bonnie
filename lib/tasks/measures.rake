@@ -31,7 +31,7 @@ namespace :measures do
     user = User.by_username args.username
     raise "The user #{args.username} could not be found." unless user
     
-    Measures::Loader.load_from_bundle(args.bundle_zip, user.username, args.type || 'ep', json_draft_measures, rebuild_measures)
+    Measures::Loader.load_from_bundle(args.bundle_zip, user.username, args.type, json_draft_measures, rebuild_measures)
 
   end
   
@@ -187,6 +187,32 @@ namespace :measures do
     FileUtils.mkdir_p bundle_path
     FileUtils.mv(zip.path, File.join(bundle_path, "bundle-#{date_string}-#{version}.zip"))
     puts "Exported #{measures.size} measures to #{File.join(bundle_path, "bundle-#{date_string}-#{version}.zip")}"
+  end
+
+  desc 'Export definitions for all measures'
+  task :export_js, [:username] do |t, args|
+    calculate = args.calculate != 'false'
+    measures = args.username ? User.by_username(args.username).measures.to_a : Measure.all.to_a
+
+    outpath = File.join(".", "tmp", "measures", "js")
+    
+    FileUtils.rm_r outpath if File.exists?(outpath)
+    FileUtils.mkdir_p outpath
+
+    sub_ids = ('a'..'zz').to_a
+    measures.each do |measure|
+      measure.populations.each_with_index do |population, population_index|
+        sub_id = ''
+        sub_id = sub_ids[population_index] if measure.populations.count > 1
+        measure_id = "#{measure.measure_id}#{sub_id}"
+        outfile = File.join(outpath, "#{measure_id}.js")
+        js = Measures::Calculator.execution_logic(measure, population_index, true)
+        File.open(outfile, 'w') {|f| f.write(js) }
+        puts "wrote js for: #{measure_id}"
+      end
+    end
+
+    puts "Exported javascript for #{measures.size} measures to #{outpath}"
   end
   
 end

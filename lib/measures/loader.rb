@@ -190,7 +190,7 @@ module Measures
       FileUtils.mkdir_p(base_out_dir)
 
       paths = Set.new
-      source_root = File.join('sources',type,'**')
+      source_root = File.join('sources',type || '**','**')
       Zip::ZipFile.open(bundle_path) do |zip_file|
         entries = zip_file.glob(File.join(source_root,'**.html')) + zip_file.glob(File.join(source_root,'**1.xml'))
         entries += zip_file.glob(File.join(source_root,'**.json')) if json_draft_measures
