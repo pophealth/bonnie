@@ -29,6 +29,7 @@ module Measures
 
         locals[:rationale] = rationale
         locals[:patient_cache] = patient_cache
+        locals[:patient] = patient
       
         rendering_context = RenderingContext.new(locals)
         eruby = Erubis::EscapedEruby.new(template_body)

@@ -1,0 +1,11 @@
+<h3>Patient Data</h3>
+<% 
+  entries = Record::Sections.reduce([]) {|entries, section| entries.concat(patient[section.to_s] || []); entries } 
+  entries.sort! {|l,r| l['description'].to_s <=> r['description'].to_s }
+  entries.each do |entry|
+%>
+
+  <% if entry['description'] %>
+    <%= entry['description'].gsub(/\s\(Code List: (.*)\)/, '') %><br/>
+  <% end %>
+<% end %>

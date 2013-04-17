@@ -24,26 +24,37 @@
   </head>
   <%== render partial: 'header', locals: {measure: measure, erb_strings: erb_strings} %>
   <body>
+    <table>
+      <tr style="background-color: #FFFFFF;">
+        <td width="80%">
+          <h3>
+            Population criteria
+          </h3>
+          <div>
+            <ul>
+              <%  
+                 HQMF::PopulationCriteria::ALL_POPULATION_CODES.each do |pop_code|
+                   if (population[pop_code])
+              %>
+                 
+                     <%== render partial: 'population_criteria', locals: {measure: measure, population: population, pop_code: pop_code, pop_titles: pop_titles, oid_map: oid_map, patient_cache: patient_cache}%>
+          
+              <% 
+                   end
+                 end
+                  
+              %>
+            </ul>
+          </div>
+          <br/><br/><br/><br/><br/><br/>
+        </td>
+        <td style="border-left: 1px #CCCCCC solid;" width="20%">
+
+          <%== File.new(File.join('lib','templates','erb','measure','_patient_data.html.erb')).read %>
+
+        </td>
+      </tr>
+    </table>
     
-    <h3>
-      Population criteria
-    </h3>
-    <div>
-      <ul>
-        <%  
-           HQMF::PopulationCriteria::ALL_POPULATION_CODES.each do |pop_code|
-             if (population[pop_code])
-        %>
-           
-               <%== render partial: 'population_criteria', locals: {measure: measure, population: population, pop_code: pop_code, pop_titles: pop_titles, oid_map: oid_map, patient_cache: patient_cache}%>
-    
-        <% 
-             end
-           end
-            
-        %>
-      </ul>
-    </div>
-    <br/><br/><br/><br/><br/><br/>
   </body>
 </html>
