@@ -214,5 +214,61 @@ namespace :measures do
 
     puts "Exported javascript for #{measures.size} measures to #{outpath}"
   end
+
+  desc 'Generate measure rationale'
+  task :generate_rationale, [] do |t, args|
+    
+    measures = Measure.all
+    patient_map = Record.all.reduce({}) {|patient_map, patient| patient_map[patient.medical_record_number] = patient; patient_map}
+    
+    basedir = File.join('.', 'tmp','measures','rationale')
+    basedir_by_measure = File.join(basedir,'by_measure')
+    basedir_by_patient = File.join(basedir,'by_patient')
+    FileUtils.rm_r basedir if File.exists?(basedir)
+    
+    population_keys = ('a'..'zz').to_a
+    measures.each do |measure|
+      
+      measure.populations.each_with_index do |population,index|
+
+        sub_id = nil
+        sub_id = population_keys[index] if measure.populations.length > 1
+        
+        outdir = File.join(basedir_by_measure,measure.measure_id)
+        FileUtils.mkdir_p outdir
+        
+        template_body = Measures::HTML::Writer.generate_nqf_template(measure, population)
+
+        patient_caches = MONGO_DB['patient_cache'].where({'value.nqf_id'=>measure.measure_id, 'value.sub_id'=>sub_id})
+        count = 0
+        patient_caches.each do |cache|
+          if cache['value']['IPP'] > 0
+            count+=1
+            locals ||= {}
+            
+            patient = patient_map[cache['value']['medical_record_id']]
+            result = Measures::HTML::Writer.finalize_template_body(template_body,cache['value']['rationale'],patient)
+            name = "#{cache['value']['last']}_#{cache['value']['first']}"
+          
+            if (sub_id)
+              subdir = File.join(outdir,sub_id)
+              FileUtils.mkdir_p subdir
+              outfile_by_measure = File.join(subdir, "#{name}.html")
+            else
+              outfile_by_measure = File.join(outdir, "#{name}.html")
+            end
+            by_patient_outdir = File.join(basedir_by_patient,name)
+            FileUtils.mkdir_p by_patient_outdir
+            outfile_by_patient = File.join(by_patient_outdir, "#{measure.measure_id}#{sub_id}.html")
+          
+            File.open(outfile_by_measure, 'w') {|f| f.write(result) }
+            File.open(outfile_by_patient, 'w') {|f| f.write(result) }
+          end
+        end
+        puts "wrote #{count} measure #{measure.measure_id}#{sub_id} patients to: #{outdir}"
+      end
+    end
+  end
+
   
 end
