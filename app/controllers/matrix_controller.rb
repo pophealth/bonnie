@@ -13,7 +13,7 @@ class MatrixController < ApplicationController
       (m['populations'].length > 1 ? ('a'..'zz').to_a.first(m['populations'].length) : [nil]).each{|sub_id|
         p 'Calculating measure ' + m.measure_id + (sub_id || '') + " (#{m['hqmf_id']})"
         oid_dictionary = HQMF2JS::Generator::CodesToJson.hash_to_js(Measures::Calculator.measure_codes(m))
-        options = {'effective_date' => (params['effective_date'] || Measure::DEFAULT_EFFECTIVE_DATE).to_i, 'oid_dictionary' => oid_dictionary }
+        options = {'effective_date' => (params['effective_date'] || Measure::DEFAULT_EFFECTIVE_DATE).to_i, 'oid_dictionary' => oid_dictionary, 'enable_logging' => (APP_CONFIG['enable_logging'] || false), 'enable_rationale' => (APP_CONFIG['enable_rationale'] || false) }
         qr = QME::QualityReport.new(m['hqmf_id'], sub_id, options)
         qr.calculate(false) unless qr.calculated?
       }
