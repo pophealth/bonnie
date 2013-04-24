@@ -18,13 +18,32 @@
           $.post('<%=download_measures_measures_path%>', { source_url:  $('#measure_source_url').val()}, displayAvailableMeasures, 'json');
         });
         $('#load_measures_button').click(function() {
-          var measure_paths = $(".measure_to_load:checked").map(function(){ return $(this).data().path }).get()
-          var measure_ids = $(".measure_to_load:checked").map(function(){ return $(this).data().id }).get()
-          $('#measures_list_section').hide()
-          $('#measures_progress_section').show()
-          $('#load_measures_button').hide()
-          $('.modal-header h3').html('Load Measures: Progress')
-          $.post('<%=load_measures_measures_path%>', { 'paths[]': measure_paths, 'measure_ids[]':measure_ids}, showProgressBar, 'json');
+
+          var measure_source = $('input[name="measure_source"]:checked').val()
+          if (measure_source == 'file') {
+            if ($('#file').val().length == 0) {
+              alert('You must select a file to continue');
+            } else {
+              $('#source_section').hide();
+              $('#measures_progress_section').show()
+              $('#load_measures_button').hide()
+              $('.modal-header h3').html('Load Measure: Progress')
+              endlessProgress();
+
+              $('#measure_file_form').submit()
+            }
+
+
+          } else {
+            var measure_paths = $(".measure_to_load:checked").map(function(){ return $(this).data().path }).get()
+            var measure_ids = $(".measure_to_load:checked").map(function(){ return $(this).data().id }).get()
+            $('#measures_list_section').hide()
+            $('#measures_progress_section').show()
+            $('#load_measures_button').hide()
+            $('.modal-header h3').html('Load Measures: Progress')
+            $.post('<%=load_measures_measures_path%>', { 'paths[]': measure_paths, 'measure_ids[]':measure_ids}, showProgressBar, 'json');
+          }
+
         });
         $('a[data-dismiss=modal]').click(function() {
           location.reload();
@@ -34,8 +53,20 @@
       }
     )
     function updateSourceUrl() {
-      var key = $('input[name="measure_source"]:checked').val() + '_' + $('input[name="measure_type"]:checked').val();
-      $('#measure_source_url').val(url_map[key]);
+      var measure_source = $('input[name="measure_source"]:checked').val()
+      if (measure_source == 'file') {
+        $('#url_sources').hide();
+        $('#file_sources').show();
+        $('#list_measures_button').hide()
+        $('#load_measures_button').show()
+      } else {
+        $('#file_sources').hide();
+        $('#url_sources').show();
+        $('#list_measures_button').show()
+        $('#load_measures_button').hide()
+        var key = measure_source + '_' + $('input[name="measure_type"]:checked').val();
+        $('#measure_source_url').val(url_map[key]);
+      }
     }
     function displayAvailableMeasures(data) {
       $('#measures_to_load').empty();
@@ -90,6 +121,23 @@
       if (Math.ceil(value) == 100) setTimeout(function(){location.reload();},6500);
     }
 
+    function endlessProgress() {
+      $(".ui-progressbar-value").css({width: '20%'})
+      endlessProgressRight()
+    }
+    function endlessProgressRight() {
+      $(".ui-progressbar-value").stop(true).animate({left: 80 + '%'},
+                                                    {duration: 2500, complete: function () {
+                                                      endlessProgressLeft();
+                                                    }});
+    }
+    function endlessProgressLeft() {
+      $(".ui-progressbar-value").stop(true).animate({left: 0 + '%'},
+                                                    {duration: 2500, complete: function () {
+                                                      endlessProgressRight();
+                                                    }});
+    }
+
 
   </script>
   <script type="text/html" id="bonnie_tmpl_measure_source">
@@ -115,29 +163,44 @@
       <div id="source_section">
         <label for="measure_source">Measure Source:</label>
         <fieldset id="measure_source" style="padding-left: 15px;">
+          <label for="file_source" style="float: left; padding-right: 15px;">
+            <input type="radio" checked="checked" id="file_source" name="measure_source" value="file" class="measure_sources" style="float: left;"/><span style="margin-left: 4px;">MAT Export</span>
+          </label>
           <label for="CMS_source" style="float: left; padding-right: 15px;">
-            <input type="radio" checked="checked" id="CMS_source" name="measure_source" value="cms" class="measure_sources" style="float: left;"/><span style="margin-left: 4px;">CMS Website</span>
+            <input type="radio" id="CMS_source" name="measure_source" value="cms" class="measure_sources" style="float: left;"/><span style="margin-left: 4px;">CMS Website</span>
           </label>
           <label for="eSpec_source" style="float: left; padding-right: 15px;">
             <input type="radio" name="measure_source" id="eSpec_source" value="espec" class="measure_sources" style="float: left;"/><span style="margin-left: 4px;">eSpec Navigator</span>
           </label>
         </fieldset>
 
-        <label for="measure_type">Measure Type:</label>
-        <fieldset id="measure_type" style="padding-left: 15px;">
-          <label for="ep_type" style="float: left; padding-right: 15px;">
-            <input type="radio" checked="checked" name="measure_type" id="ep_type" value="ep" class="measure_sources" style="float: left;"/><span style="margin-left: 4px;">Eligible Professional (EP)</span>
-          </label>
-          <label for="eh_type" style="float: left; padding-right: 15px;">
-            <input type="radio" name="measure_type" id="eh_type" value="eh" class="measure_sources" style="float: left;"/><span style="margin-left: 4px;">Eligible Hospital (EH)</span>
-          </label>
-        </fieldset>
+        <div id="url_sources" style="display:none">
+          <label for="measure_type">Measure Type:</label>
+          <fieldset id="measure_type" style="padding-left: 15px;">
+            <label for="ep_type" style="float: left; padding-right: 15px;">
+              <input type="radio" checked="checked" name="measure_type" id="ep_type" value="ep" class="measure_sources" style="float: left;"/><span style="margin-left: 4px;">Eligible Professional (EP)</span>
+            </label>
+            <label for="eh_type" style="float: left; padding-right: 15px;">
+              <input type="radio" name="measure_type" id="eh_type" value="eh" class="measure_sources" style="float: left;"/><span style="margin-left: 4px;">Eligible Hospital (EH)</span>
+            </label>
+          </fieldset>
 
-        <label for="measure_source_url">Source Url:</label>
-        <input id="measure_source_url" type="text" style="width: 500px;">
+          <label for="measure_source_url">Source Url:</label>
+          <input id="measure_source_url" type="text" style="width: 500px;">
+        </div>
+
+        <div id="file_sources">
+
+          <%= form_tag(load_measures_measures_path, :id => 'measure_file_form', :method => "post", :multipart=>true) do %>
+              <label for="measure_source_file">Source Zip File:</label>
+              <%= file_field_tag(:file)%>
+          <% end %>
+
+          <form id="measure_file_form" action="<%=%>" method="post">
+        </div>
+
 
       </div>
-
 
       <div id="measures_list_section" style="display: none;">
         <div class="row" style="border-bottom: 1px #ccc solid;">

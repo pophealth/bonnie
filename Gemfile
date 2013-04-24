@@ -1,12 +1,12 @@
 source 'https://rubygems.org'
 
-gem 'hqmf2js', '~> 1.2.0'
-gem 'hquery-patient-api', '~> 1.0.1'
-gem 'health-data-standards', '~> 3.0.2'
-gem 'test-patient-generator', '~> 1.2.0'
-gem 'quality-measure-engine', '~> 2.3.0'
+gem 'hqmf2js', '~> 1.2.1'
+gem 'hquery-patient-api', '~> 1.0.2'
+gem 'health-data-standards', '~> 3.1.1'
+gem 'test-patient-generator', '~> 1.2.1'
+gem 'quality-measure-engine', '~> 2.4.0'
 
-gem 'rails', '3.2.9'
+gem 'rails', '3.2.11'
 gem 'jquery-rails'
 gem 'jquery-ui-rails'
 
@@ -15,7 +15,8 @@ gem 'foreman'
 gem 'cancan'
 gem 'factory_girl'
 gem 'text'
-gem 'rubyXL'
+gem 'spreadsheet', '0.8.3'
+gem 'roo', '1.10.3'
 
 gem "mongoid"
 

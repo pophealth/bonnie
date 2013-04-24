@@ -181,7 +181,7 @@ class Measure
   end
 
   def value_sets
-    @value_sets ||= HealthDataStandards::SVS::ValueSet.in(oid: value_set_oids).where({'_type'=>{'$ne'=>'WhiteList'}})
+    @value_sets ||= HealthDataStandards::SVS::ValueSet.in(oid: value_set_oids)
     @value_sets
   end
 

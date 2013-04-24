@@ -14,6 +14,4 @@
 //= require jquery_ujs
 //= require jquery-ui
 //= require _underscore-min
-//= require backbone-min
-//= require backbone-forms
 //= require_tree .

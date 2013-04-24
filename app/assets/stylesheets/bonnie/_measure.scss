@@ -684,6 +684,11 @@ div.start-drag {color:red !important;background-color:red !important;opacity:0.5
 .widget {
   //border-left:1px dotted red;
 }
+
+#patients {
+  min-width: 1100px;
+}
+
 #patients .row {
   margin: 0em;
   padding: 0em;
@@ -713,13 +718,13 @@ div.start-drag {color:red !important;background-color:red !important;opacity:0.5
   }
 }
 
-#patients .row:hover {
+#patients .data_row:hover {
     background: none repeat scroll 0 0 #EEEEEE;
 }
 
 
 #patients #population-total {
-  background: #EEE;
+  background: #EEEEEE;
 }
 
 #patients #denominator-total {
@@ -735,7 +740,7 @@ div.start-drag {color:red !important;background-color:red !important;opacity:0.5
 }
 
 #patients #exceptions-total {
-  background: #EEE;
+  background: #F06560;
 }
 
 #test-submit-button {

@@ -1,0 +1,40 @@
+<% content_for :head do %>
+  <script type="text/javascript">
+    var debug = new bonnie.Debug();
+    var page = new bonnie.DebugInspectPage();
+    $(document).ready(function() {
+      page.init(new hQuery.Patient(patient));
+      debug.execute('<%=@measure.measure_id%>','<%=@population%>',patient);
+      debug.update_log();
+    });
+  </script>
+  <script src="<%= url_for action: :libraries, format: :js %>" type="text/javascript"></script>
+  <script src="<%= patient_path(@patient.id,format: :js) %>" type="text/javascript"></script>
+  <script src="<%= measure_path(format: :js) %>" type="text/javascript"></script>
+<% end %>
+
+
+<% content_for :page_content do %>
+
+  <div style="margin:1em;">
+    <h1>Measure Debug</h1>
+    <em><%= @measure.measure_id %>: <%= @measure.title %></em><br>
+    <em><%= "#{@patient.last}, #{@patient.first}" %></em><br>
+
+
+    <a href="javascript:debug.clear_log(); debug.execute('<%=@measure.measure_id%>','<%=@population%>',patient); debug.update_log();" id="calculate_link">Calculate</a> <br/>
+    Run: <a href="#" id="run_ipp_link">IPP</a> | 
+    <a href="#" id="run_denominator_link">Denominator</a> | 
+    <a href="#" id="run_numerator_link">Numerator</a> | 
+    <a href="#" id="run_exclusions_link">Exclusions</a> | 
+    <a href="#" id="run_exceptions_link">Exceptions</a> <br/>
+    <a href="#" id="toggle_code_link">Toggle Code</a><br/>
+    
+  
+    <%= raw(CodeRay.scan(measure_js(@measure,@population), :javascript).div(:wrap => :div, :line_numbers => :inline)) %>
+    <textarea id='log' style="width:95%; height:85em;">
+    </textarea>
+  </div>
+  
+  
+<% end %>

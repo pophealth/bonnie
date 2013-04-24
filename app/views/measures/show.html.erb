@@ -130,7 +130,6 @@
       $('#selector').change(
         function(){
           $.bbq.pushState({population: $(this).val()});
-          change_test_button_params($(this).val()); // measure debugger needs to know about multiple populations
           $("#initialPopulationItems, #eligibilityMeasureItems, #outcomeMeasureItems, #exclusionMeasureItems, #exceptionMeasureItems").empty();
           $.getJSON($(this).val(), bonnie.builder.renderMeasureJSON);
         }
@@ -397,7 +396,7 @@
 
   <script type="text/html" id="bonnie_tmpl_data_criteria_new">
     <div class="modal hide fade in" id="data_criteria_new">
-      <%= form_tag({:action => 'upsert_criteria'}, {:onsubmit => "return !$(this).ajaxSubmit(bonnie.builder.addDataCriteria);"}) do %>
+      <%= form_tag({action: :upsert_criteria, controller: :measure_builder}, {:onsubmit => "return !$(this).ajaxSubmit(bonnie.builder.addDataCriteria);"}) do %>
         <div class="modal-header">
           <h3>Create New Data Criterion</h3>
         </div>
@@ -550,7 +549,7 @@
     <div style="position: relative; border-radius:12px;padding:10px; border:1px solid #aaa;background-color:#CCC;">
       <span class="close_edit" style="position:absolute; top: 0; right: 0;">close</span>
       <div style="width: 0px; height: 0px;"><!-- This is crap. --><div class="arrow-w" style="position: relative; top: 45px; left: -86px;"></div></div>
-      <%= form_tag({:action => 'upsert_criteria'}, {:onsubmit => "return bonnie.builder.editDataCriteria_submit(this)"}) do %>
+      <%= form_tag({action: :upsert_criteria, controller: :measure_builder}, {:onsubmit => "return bonnie.builder.editDataCriteria_submit(this)"}) do %>
         <input type="hidden" name="id" value="<%= params[:id] %>" />
         <input type="hidden" name="criteria_id" value="${id}" />
         <input type="hidden" name="precondition_id" value="${precondition_id}" />
@@ -656,7 +655,7 @@
 
   <div class="pull-right" id="pageButtons">
     <a href="#" class="btn" >Save</a>
-    <%= link_to 'Test', test_measure_url(@measure), :class => 'btn' %>
+    <%= link_to 'Test', debug_url, :class => 'btn' %>
     <a class="btn" data-toggle="modal" data-show="false" href="#publishConfirm">Publish</a>
   </div>
 	<h1 class="measure-title"><%= "#{@measure.endorser}#{@measure.measure_id}: #{@measure.title}" %></h1>
@@ -683,7 +682,6 @@
           <dd><%= "#{@measure.version} as of #{@measure.publish_date}" %></dd>
         </dl>
       <% end %>
-      <%= link_to 'Export', export_measure_path(@measure) %> |
       <%= link_to 'Edit', edit_measure_path(@measure) %> |
       <%= link_to 'NQF Definition', show_nqf_measure_path(@measure), :target => "_blank" %> |
       <%= link_to 'Back', measures_path %>
@@ -691,7 +689,7 @@
       <div><a onclick="bonnie.builder.add_new_criteria()">Add New Data Criterion</a></div>
 
       <div id="dataCriteria">
-        <%= render partial: 'data_criteria', locals: {criteria_by_category: data_criteria_by_category(@measure.source_data_criteria)}%>
+        <%= render partial: 'shared/data_criteria', locals: {criteria_by_category: data_criteria_by_category(@measure.source_data_criteria)}%>
       </div>
     </div>
   </div>
@@ -711,11 +709,14 @@
       <li class="observ"><a href="#observMeasures" data-toggle="tab">Measure Observation</a></li>
       <li id="pr_controls">
         <span id="text_view" class="btn">Toggle Text View</span>
-        <select id="selector">
-          <% @measure.populations.each_with_index do |population, index| %>
-            <option value="<%= url_for :population => index, :action => 'definition' %>"<%= ' selected="selected"' if index == params[:population].to_i%>><%= population['title'] %></option>
-          <% end if @measure.populations %>
-        </select>
+        <% if @measure.populations.length > 1 %>
+
+          <select id="selector">
+            <% @measure.populations.each_with_index do |population, index| %>
+              <option value="<%= url_for :population => index, :action => 'definition' %>"<%= ' selected="selected"' if index == @population %>><%= population['title'] %></option>
+            <% end if @measure.populations %>
+          </select>
+        <% end %>
       </li>
     </ul>
 

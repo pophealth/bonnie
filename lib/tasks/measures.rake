@@ -18,6 +18,20 @@ namespace :measures do
     data = Measures::Loader.load_from_url(args.url)
     paths = data.map {|key,value| value[:source_path]}
     Measures::Loader.load_paths(paths, user)
+  end
+
+  desc 'Load from bundle'
+  task :load_from_bundle, [:bundle_zip, :username, :type, :json_draft_measures, :rebuild_measures] do |t, args|
+    raise "The path to bundle zip must be specified" unless args.bundle_zip
+    raise "The username to load the measures for must be specified" unless args.username
+
+    json_draft_measures = args.json_draft_measures != 'false'
+    rebuild_measures = args.rebuild_measures == 'true'
+
+    user = User.by_username args.username
+    raise "The user #{args.username} could not be found." unless user
+    
+    Measures::Loader.load_from_bundle(args.bundle_zip, user.username, args.type, json_draft_measures, rebuild_measures)
 
   end
   
@@ -45,13 +59,11 @@ namespace :measures do
       
       puts "Deleted #{count} measures assigned to #{user.username}"
     end
-    
+
     # remove code_set cache dir
     code_set_cache_dir = File.join('.','db','code_sets')
     FileUtils.rm_r code_set_cache_dir if File.exists? code_set_cache_dir and args.clear_vs_cache == 'true'
     FileUtils.mkdir_p code_set_cache_dir
-    
-    
     measures_dir_hash = Digest::MD5.hexdigest(args.measures_dir)
     oids_path = File.join(".","db","#{measures_dir_hash}_oids_by_measure.json")
     
@@ -61,7 +73,7 @@ namespace :measures do
     index = 0
     
     # Load each measure from the measures directory
-    Dir.foreach(args.measures_dir) do |entry|
+    Dir.entries(args.measures_dir).sort.each do |entry|
       next if entry.starts_with? '.'
       
       index += 1
@@ -72,7 +84,7 @@ namespace :measures do
       html_path = Dir.glob(File.join(measure_dir,'*.html')).first
       
       begin
-        measure = Measures::Loader.load(hqmf_path, user, html_path, true, value_set_oids, vs_username, vs_password, codes_path, clear_vs_cache)
+        measure = Measures::Loader.load(hqmf_path, user, html_path, true, value_set_oids, vs_username, vs_password, codes_path)
         
         puts "(#{index}/#{measure_count}): Measure #{measure.measure_id} (#{measure.title}) successfully loaded.\n"
       rescue Exception => e
@@ -155,7 +167,6 @@ namespace :measures do
 
   end
   
-  
   desc 'Drop all measure defintions from the DB'
   task :drop, [:username] do |t, args|
     measures = args.username ? User.by_username(args.username).measures : Measure.all
@@ -177,56 +188,43 @@ namespace :measures do
     FileUtils.mv(zip.path, File.join(bundle_path, "bundle-#{date_string}-#{version}.zip"))
     puts "Exported #{measures.size} measures to #{File.join(bundle_path, "bundle-#{date_string}-#{version}.zip")}"
   end
-  
-  desc 'Generate Results Spreadsheet template for static testing results'
-  task :generate_results_xls, [:type] do |t, args|
-    raise "Type must be specified" unless args.type
-    require 'rubyXL'
+
+  desc 'Export definitions for all measures'
+  task :export_js, [:username] do |t, args|
+    calculate = args.calculate != 'false'
+    measures = args.username ? User.by_username(args.username).measures.to_a : Measure.all.to_a
+
+    outpath = File.join(".", "tmp", "measures", "js")
     
-    type = args.type
-    
-    measures = []
-    MONGO_DB["measures"].find({type:type}).each do |measure|
-      measures << measure
+    FileUtils.rm_r outpath if File.exists?(outpath)
+    FileUtils.mkdir_p outpath
+
+    sub_ids = ('a'..'zz').to_a
+    measures.each do |measure|
+      measure.populations.each_with_index do |population, population_index|
+        sub_id = ''
+        sub_id = sub_ids[population_index] if measure.populations.count > 1
+        measure_id = "#{measure.measure_id}#{sub_id}"
+        outfile = File.join(outpath, "#{measure_id}.js")
+        js = Measures::Calculator.execution_logic(measure, population_index, true)
+        File.open(outfile, 'w') {|f| f.write(js) }
+        puts "wrote js for: #{measure_id}"
+      end
     end
 
-    measures.sort! {|left,right| "#{left['nqf_id']}#{left['sub_id']}" <=> "#{right['nqf_id']}#{right['sub_id']}"}
-    
-    workbook_template = RubyXL::Parser.parse(File.join('lib','templates','EH_results_matrix.xlsx'))
-    template = Marshal.dump(workbook_template.worksheets[0])
-    template_cv = Marshal.dump(workbook_template.worksheets[1])
-    
-    workbook_template.worksheets = []
-    measures.each do |measure|
-      worksheet = measure['population_ids'][HQMF::PopulationCriteria::MSRPOPL].nil? ? Marshal.load(template) : Marshal.load(template_cv)
-      worksheet.sheet_name = "#{measure['nqf_id']}#{measure['sub_id']}"
-      worksheet.add_cell(1,8,measure['name'])
-      worksheet.add_cell(2,8,"#{measure['nqf_id']}#{measure['sub_id']}")
-      worksheet.add_cell(3,8,measure['subtitle'])
-      row = 4
-      
-      (HQMF::PopulationCriteria::ALL_POPULATION_CODES + ['stratification']).each_with_index do |key, index|
-        worksheet.add_cell(row+index,7,key)
-        worksheet[row+index][7].change_font_bold(true)
-        worksheet.add_cell(row+index,8,measure['population_ids'][key])
-      end
-      workbook_template.worksheets << worksheet
-    end
-    
-    result_file = File.join('tmp','results_matrix',"results_matrix_#{type}.xlsx")
-    workbook_template.write(result_file)
-    puts "Wrote result matrix for #{type} to #{result_file}"
+    puts "Exported javascript for #{measures.size} measures to #{outpath}"
   end
-  
-  desc 'Generate measure html'
-  task :measure_html, [] do |t, args|
+
+  desc 'Generate measure rationale'
+  task :generate_rationale, [] do |t, args|
     
     measures = Measure.all
+    patient_map = Record.all.reduce({}) {|patient_map, patient| patient_map[patient.medical_record_number] = patient; patient_map}
     
     basedir = File.join('.', 'tmp','measures','rationale')
-    tmpdir = File.join(basedir,'tmp')
+    basedir_by_measure = File.join(basedir,'by_measure')
+    basedir_by_patient = File.join(basedir,'by_patient')
     FileUtils.rm_r basedir if File.exists?(basedir)
-    FileUtils.mkdir_p tmpdir
     
     population_keys = ('a'..'zz').to_a
     measures.each do |measure|
@@ -236,38 +234,41 @@ namespace :measures do
         sub_id = nil
         sub_id = population_keys[index] if measure.populations.length > 1
         
-        outdir = File.join(basedir,measure.measure_id)
+        outdir = File.join(basedir_by_measure,measure.measure_id)
         FileUtils.mkdir_p outdir
         
-        result = Measures::HTML::Writer.generate_nqf_template(measure, population)
-
-        outfile = File.join(tmpdir,"#{measure.measure_id}#{sub_id}.html.erb")
-        File.open(outfile, 'w') {|f| f.write(result) }
+        template_body = Measures::HTML::Writer.generate_nqf_template(measure, population)
 
         patient_caches = MONGO_DB['patient_cache'].where({'value.nqf_id'=>measure.measure_id, 'value.sub_id'=>sub_id})
+        count = 0
         patient_caches.each do |cache|
-          locals ||= {}
+          if cache['value']['IPP'] > 0
+            count+=1
+            locals ||= {}
+            
+            patient = patient_map[cache['value']['medical_record_id']]
+            result = Measures::HTML::Writer.finalize_template_body(template_body,cache['value']['rationale'],patient)
+            name = "#{cache['value']['last']}_#{cache['value']['first']}"
           
-          result = Measures::HTML::Writer.finalize_template(measure.measure_id, sub_id, cache, tmpdir)
-          name = "#{cache['value']['last']}_#{cache['value']['first']}"
-        
-          if (sub_id)
-            subdir = File.join(outdir,sub_id)
-            FileUtils.mkdir_p subdir
-            outfile = File.join(subdir, "#{name}.html")
-          else
-            outfile = File.join(outdir, "#{name}.html")
+            if (sub_id)
+              subdir = File.join(outdir,sub_id)
+              FileUtils.mkdir_p subdir
+              outfile_by_measure = File.join(subdir, "#{name}.html")
+            else
+              outfile_by_measure = File.join(outdir, "#{name}.html")
+            end
+            by_patient_outdir = File.join(basedir_by_patient,name)
+            FileUtils.mkdir_p by_patient_outdir
+            outfile_by_patient = File.join(by_patient_outdir, "#{measure.measure_id}#{sub_id}.html")
+          
+            File.open(outfile_by_measure, 'w') {|f| f.write(result) }
+            File.open(outfile_by_patient, 'w') {|f| f.write(result) }
           end
-        
-          File.open(outfile, 'w') {|f| f.write(result) }
         end
-
-        
-        puts "wrote measure #{measure.measure_id}#{sub_id} patients to: #{outdir}"
+        puts "wrote #{count} measure #{measure.measure_id}#{sub_id} patients to: #{outdir}"
       end
-      
     end
-    
   end
+
   
 end

@@ -13,7 +13,7 @@ module Measures
       patient_ids = []
       measure_ids = []
 
-      bundle_path = "."
+      bundle_path = ''
       library_path = "library_functions"
       measures_path = "measures"
       sources_path = "sources"
@@ -47,6 +47,8 @@ module Measures
 
         Record.where(type: type).each do |patient|
           puts "Exporting patient: #{patient.first}#{patient.last}"
+          entries = Record::Sections.reduce([]) {|entries, section| entries.concat(patient[section.to_s] || []); entries }
+          puts "\tEntry Count != Source Data Criteria Count" if patient.source_data_criteria && entries.length != patient.source_data_criteria.length
           patient_ids << patient.medical_record_number
           content[patient_path].merge! bundle_patient(patient, patient_exporter)
         end
@@ -64,6 +66,7 @@ module Measures
         title: APP_CONFIG["measures"]["title"],
         measure_period_start: APP_CONFIG["measures"]["measure_period_start"],
         effective_date: APP_CONFIG["measures"]["effective_date"],
+        active: true,
         version: APP_CONFIG["measures"]["version"],
         license: APP_CONFIG["measures"]["license"],
         measures: measure_ids,
@@ -95,7 +98,7 @@ module Measures
           puts("\tError generating code set for #{oid}")
         end
       end
-      HealthDataStandards::SVS::ValueSet.where({oid: {'$in'=>value_sets}, '_type'=>{'$ne'=>'WhiteList'}}).to_a.each do |vs|
+      HealthDataStandards::SVS::ValueSet.where({oid: {'$in'=>value_sets}}).to_a.each do |vs|
         codes[File.join("json", "#{vs.oid}.json")] = JSON.pretty_generate(vs.as_json(:except => [ '_id' ]), max_nesting: 250)
       end
       codes
@@ -173,7 +176,7 @@ module Measures
       Zip::ZipOutputStream.open(file.path) do |zip|
         content.each do |directory_path, files|
           files.each do |file_path, file|
-            zip.put_next_entry(File.join(directory_path, file_path))
+            zip.put_next_entry((!directory_path.empty?) ? File.join(directory_path, file_path) : file_path)
             zip << file
           end
         end

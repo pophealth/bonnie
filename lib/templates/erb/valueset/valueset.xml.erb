@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns0:RetrieveValueSetResponse xmlns:ns0="urn:ihe:iti:svs:2008" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ns0:ValueSet ID="<%= value_set.oid %>" displayName="<%= value_set.display_name %>" version="<%= value_set.version %>">
+    <ns0:ConceptList>
+    <% value_set.concepts.each do |concept| %>
+      <ns0:Concept code="<%= concept.code %>" codeSystem="<%= concept.code_system %>" codeSystemName="<%= HealthDataStandards::SVS::ValueSet.denormalize_code_set_name(concept.code_system_name)%>" codeSystemVersion="<%= concept.code_system_version %>" displayName="<%= concept.display_name %>"/>
+    <% end %> 
+    </ns0:ConceptList>
+  </ns0:ValueSet>
+</ns0:RetrieveValueSetResponse>

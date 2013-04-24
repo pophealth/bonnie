@@ -767,6 +767,7 @@
   <div class="pull-right" id="pageButtons">
     <a href="#" class="btn" id="savebutton_matrix">Save to Matrix</a>
     <a href="#" class="btn" id="savebutton">Save</a>
+    <a href="<%=debug_path(@measure)%>" class="btn" id="cancelbutton">Cancel</a>
   </div>
 	<h1 class="measure-title"><%= "#{@measure.endorser}#{@measure.measure_id}: #{@measure.title}" %></h1>
 
@@ -794,7 +795,7 @@
 
       <div id="dataCriteria" style="overflow-y: auto; height: 650px;">
         <%=
-          render partial: 'data_criteria', locals: {
+          render partial: 'shared/data_criteria', locals: {
             criteria_by_category: data_criteria_by_category(@data_criteria),
             patient_builder: true
           }
@@ -817,13 +818,13 @@
     </div>
 
     <div class="tab-content" id="measureEditContainer">
-      <%= form_tag({:action => 'make_patient'}, {:onsubmit => 'bonnie.patientBuilder.save_patient_builder(this); return false', :id => 'save_patient_builder'}) do %>
+      <%= form_tag({:action => 'save'}, {:onsubmit => 'bonnie.patientBuilder.save_patient_builder(this); return false', :id => 'save_patient_builder'}) do %>
         <input type="hidden" name="record_id" value="<%= @record['_id'] %>"} />
         <% if params[:clone] %>
           <input type="hidden" name="clone" value="true"} />
         <% end %>
-        <input type="hidden" class="redirect_url" value="<%= url_for :action => 'test' %>"} />
-        <input type="hidden" class="redirect_matrix_url" value="<%= url_for :action => 'matrix' %>"} />
+        <input type="hidden" class="redirect_url" value="<%= debug_path(@measure) %>"} />
+        <input type="hidden" class="redirect_matrix_url" value="<%= matrix_path %>"} />
         <div style="margin: 5px 0 0 30px;">
           <div class="row">
             <div class="span4">

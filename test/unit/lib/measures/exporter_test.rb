@@ -47,7 +47,7 @@ class ExporterTest < ActiveSupport::TestCase
     patient_name = "#{@patient.first}_#{@patient.last}"
     expected = ["library_functions/map_reduce_utils.js",
       "library_functions/hqmf_utils.js",
-      "./bundle.json",
+      "bundle.json",
       "measures/ep/0002.json",
       "sources/ep/0002/0002.html",
       "sources/ep/0002/hqmf1.xml",
@@ -127,7 +127,7 @@ class ExporterTest < ActiveSupport::TestCase
     assert_equal by_patient.keys.size, expected_by_patient.size
     expected_by_patient.each {|field| assert by_patient.include? field}
 
-    expected_by_measure = ["measure_id", "sub_id", "nqf_id", "population_ids", "effective_date", "test_id", "filters", "IPP", "DENOM", "NUMER", "antinumerator", "DENEX", "DENEXCEP", "considered", "execution_time", "MSRPOPL"]
+    expected_by_measure = ["measure_id", "sub_id", "nqf_id", "population_ids", "effective_date", "test_id", "filters", "IPP", "DENOM", "NUMER", "antinumerator", "DENEX", "DENEXCEP", "considered", "execution_time", "MSRPOPL", 'supplemental_data']
     by_measure = JSON.parse(bundled_results["by_measure.json"]).first
     assert_equal by_measure.keys.size, expected_by_measure.size
     expected_by_measure.each {|field| assert by_measure.include? field}

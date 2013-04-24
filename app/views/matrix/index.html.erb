@@ -1,0 +1,99 @@
+<% content_for :head do %>
+  <style type="text/css">
+  .background {
+    fill: #eee;
+  }
+
+  line {
+    stroke: #fff;
+  }
+
+  text.active {
+    text-shadow: 1px 0px 0px #333333;
+  }
+  #pageContent {
+    position: relative;
+    width: 100%;
+  }
+  .crosshair_container {
+    margin-left: auto;
+    position: absolute;
+    pointer-events: none;
+  }
+  #crosshairX, #crosshairY {
+    background: #DEDEDE;
+    position: absolute;
+    margin: 0;
+    border: 0
+  }
+  #crosshairX {
+    width: 1px;
+    height: 100%;
+  }
+  #crosshairY {
+    width: 100%;
+    height: 1px;
+  }
+  .popover-inner {
+    width: 120px;
+  }
+  </style>
+
+  <script type="text/javascript">
+  $(document).ready(
+    function(){
+      page = new bonnie.MatrixPage();
+      $('#loading_image').load(function(){
+        page.init('<%= url_for :action => 'matrix_data' %>')
+      });
+    }
+  );
+  </script>
+
+<% end %>
+
+<% content_for :page_content do %>
+  <aside style="margin-top:80px;">
+  <%= link_to 'Generate Matrix Data', {:action => 'generate_matrix'}, {:class => 'btn', :onclick => "$('#loadingModal').modal({backdrop:'static',keyboard:false});", :style => 'margin: 5px 10px 15px 20px'} %>
+  <p>Order Measures: <select id="orderCol">
+    <option value="name">by Name</option>
+    <option value="density">by Density</option>
+  </select>
+  </p>
+  <p>Order Rows: <select id="orderRow">
+    <option value="name">by Name</option>
+    <option value="density">by Density</option>
+  </select>
+  </p>
+
+  <p id="key">
+    Key:<span style="float: right;">(click to highlight)</span>
+    <div class="key_row" data-category="0" style="background-color: #EEEEEE;">None</div>
+    <div class="key_row" data-category="1" style="background-color: #CCCCCC;">Population</div>
+    <div class="key_row" data-category="2" style="background-color: #40B3BC;">Denominator</div>
+    <div class="key_row" data-category="3" style="background-color: #9CC45E;">Numerator</div>
+    <div class="key_row" data-category="4" style="background-color: #EDA039;">Exclusions</div>
+    <div class="key_row" data-category="5" style="background-color: #F06560;">Exceptions</div>
+  </p>
+
+  <p id="key">Key:<span style="float: right;">(click to highlight)</span></p>
+  <p>
+    <label>
+      <input type="checkbox" id="toggle_highlight" style="display: inline;" />
+      Highlight incompletely tested Measures
+    </label>
+  </p>
+  <p>
+    <label>
+      <input type="checkbox" id="toggle_crosshair" checked="checked" style="display: inline;" />
+      Show crosshairs
+    </label>
+  </p>
+  </aside>
+  <div class="modal hide fade in" id="loadingModal">
+    <div class="modal-body" style="text-align: center;">
+      <img id="loading_image" src="/assets/loading.gif" />
+    </div>
+  </div>
+<% end %>
+
