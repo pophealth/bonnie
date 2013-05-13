@@ -281,7 +281,7 @@ namespace :measures do
           template = HQMF::DataCriteria.template_id_for_definition(data_criteria.definition, data_criteria.status, data_criteria.negation)
           value_set_oid = data_criteria.code_list_id
           begin
-            qrda_template = HealthDataStandards::Export::QRDA::EntryTemplateResolver.qrda_oid_for_hqmf_oid(template)
+            qrda_template = HealthDataStandards::Export::QRDA::EntryTemplateResolver.qrda_oid_for_hqmf_oid(template,value_set_oid)
           rescue
             value_set_oid = 'In QRDA Header (Non Null Value)'
             qrda_template = 'N/A'
