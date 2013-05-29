@@ -37,7 +37,7 @@ module Measures
             effective_date = Measure::DEFAULT_EFFECTIVE_DATE
             oid_dictionary = HQMF2JS::Generator::CodesToJson.hash_to_js(Measures::Calculator.measure_codes(measure))
             report = QME::QualityReport.new(measure_json[:id], measure_json[:sub_id], {'effective_date' => effective_date, 
-                'oid_dictionary' => oid_dictionary, 'enable_logging' => (APP_CONFIG['enable_logging'] || false)})
+                'oid_dictionary' => oid_dictionary, 'enable_logging' => (APP_CONFIG['enable_logging'] || false), "enable_rationale" =>(APP_CONFIG['enable_rationale'] || false)})
             report.calculate(false) unless report.calculated?
           end
         end
@@ -63,7 +63,6 @@ module Measures
       
       measure = Measure.by_measure_id(measure_id).first
       buckets = measure.parameter_json(population_index, true)
-      
       json = {
         id: measure.hqmf_id,
         nqf_id: measure.measure_id,
@@ -83,7 +82,8 @@ module Measures
         exclusions: buckets["exclusions"],
         map_fn: measure_js(measure, population_index),
         continuous_variable: measure.continuous_variable,
-        episode_of_care: measure.episode_of_care
+        episode_of_care: measure.episode_of_care,
+        hqmf_document:  measure.as_hqmf_model.to_json
       }
       
       if (measure.populations.count > 1)
