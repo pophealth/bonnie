@@ -1,0 +1,28 @@
+
+if (rationale['<%= data_criteria.id%>']) {
+  tree['<%= data_criteria.id%>'] = true;
+  flat_dc.push('<%= data_criteria.id%>');
+
+  <% if data_criteria.type != :derived %>
+    <% if data_criteria.temporal_references %>
+      <% data_criteria.temporal_references.each do |temporal_reference| %>
+          <% if temporal_reference.reference.id != 'MeasurePeriod' %>
+  	        <%== render partial: 'data_criteria_tree', locals: {measure: measure, data_criteria: measure.data_criteria(temporal_reference.reference.id)}%>
+          <% end %>
+      <% end %>
+    <% end %>
+  <% else %>
+    <% if data_criteria.children_criteria %>
+        <% data_criteria.children_criteria.each do |child_id| %>
+  	        <%== render partial: 'data_criteria_tree', locals: {measure: measure, data_criteria: measure.data_criteria(child_id)}%>
+        <% end %>
+    <% end %>
+  <% end %>
+
+}
+
+
+
+
+
+

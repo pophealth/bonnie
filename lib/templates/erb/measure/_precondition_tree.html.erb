@@ -1,0 +1,33 @@
+<%
+  parent.preconditions.each do |precondition|
+%>
+  parent_key = 'precondition_<%= parent.id %>';
+  key = 'precondition_<%= precondition.id %>';
+
+  <% if precondition.preconditions.empty? %>
+    <%
+      data_criteria = measure.data_criteria(precondition.reference.id)
+    %>
+    <%== render partial: 'data_criteria_tree', locals: {measure: measure, data_criteria: data_criteria}%>
+  <% else %>
+
+    if (rationale[parent_key] && rationale[key]) {
+      tree[key] = {};
+    
+      <% 
+      if (precondition.preconditions && precondition.preconditions.length > 0)
+      %>
+        var previous = tree;
+        tree = tree[key];
+        <%== render partial: 'precondition_tree', locals: {parent: precondition, measure: measure}%>
+        tree = previous;
+      <%
+      end
+      %>
+    }
+  
+  <% end %>
+
+<%
+  end
+%>

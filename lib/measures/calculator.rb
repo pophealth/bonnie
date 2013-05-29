@@ -157,6 +157,7 @@ module Measures
     def self.execution_logic(measure, population_index=0, load_codes=false)
       gen = HQMF2JS::Generator::JS.new(measure.as_hqmf_model)
       codes = measure_codes(measure) if load_codes
+      force_sources = measure.force_sources
 
       if APP_CONFIG['check_crosswalk']
         crosswalk_check = "result = hqmf.SpecificsManager.maintainSpecifics(new Boolean(result.isTrue() && patient_api.validateCodeSystems()), result);"
@@ -167,7 +168,7 @@ module Measures
       "
       var patient_api = new hQuery.Patient(patient);
 
-      #{gen.to_js(population_index, codes)}
+      #{gen.to_js(population_index, codes, force_sources)}
       
       var occurrenceId = #{quoted_string_array_or_null(measure.episode_ids)};
 

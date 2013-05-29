@@ -27,7 +27,9 @@ class PatientsController < ApplicationController
     measure_list = (@record['measure_ids'] || []) << @measure['measure_id']
     @data_criteria = Measures::PatientBuilder.get_data_criteria(measure_list)
     @dropped_data_criteria = Measures::PatientBuilder.check_data_criteria!(@record, @data_criteria)
+
     @value_sets = Measure.where({'measure_id' => {'$in' => measure_list}}).map{|m| m.value_sets}.flatten(1).uniq
+    @value_sets = @value_sets.map {|vs| {oid: vs.oid, display_name: vs.display_name}}
 
     add_breadcrumb @measure['measure_id'], '/measures/' + @measure['measure_id']
     add_breadcrumb 'Test', debug_path(@measure)

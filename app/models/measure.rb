@@ -23,6 +23,7 @@ class Measure
   field :continuous_variable, type: Boolean
   field :episode_ids, type: Array # of String ids
   field :custom_functions, type: Hash # stores a custom function for a population criteria (used only in ADE_TTR for observation)
+  field :force_sources, type: Array # stores a list of source data criteria to force method creation for (used only in ADE_TTR for LaboratoryTestResultInr)
 
   field :published, type: Boolean
   field :publish_date, type: Date

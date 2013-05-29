@@ -1,6 +1,6 @@
 measures: &measures
   title: Meaningful Use Stage 2 Quality Bundle
-  version: 2.2.0
+  version: 2.1.0
   effective_date: 1356998340
   measure_period_start: 1325376000
   license: <p>Performance measures and related data specifications (the \"Measures\") are copyrighted by\nthe noted quality measure providers as indicated in the applicable Measure. Coding\nvocabularies are owned by their copyright owners. By using the Measures, a user\n(\"User\") agrees to these Terms of Use. Measures are not clinical guidelines and do not\nestablish a standard of medical care and quality measure providers are not responsible\nfor any use of or reliance on the Measures.</p>\n\n<p><strong>THE MEASURES AND SPECIFICATIONS ARE PROVIDED \"AS IS\" WITHOUT ANY WARRANTY OF\nANY KIND, AND ANY AND ALL IMPLIED WARRANTIES ARE HEREBY DISCLAIMED, INCLUDING ANY\nWARRANTY OF NON-INFRINGEMENT, ACCURACY, MERCHANTABILITY AND FITNESS FOR A PARTICULAR\nPURPOSE. NO QUALITY MEASURE PROVIDER, NOR ANY OF THEIR TRUSTEES, DIRECTORS, MEMBERS,\nAFFILIATES, OFFICERS, EMPLOYEES, SUCCESSORS AND/OR ASSIGNS WILL BE LIABLE TO YOU FOR\nANY DIRECT, INDIRECT, SPECIAL, EXEMPLARY, INCIDENTAL, PUNITIVE, AND/OR CONSEQUENTIAL\nDAMAGE OF ANY KIND, IN CONTRACT, TORT OR OTHERWISE, IN CONNECTION WITH THE USE OF THE\nPOPHEALTH TOOL OR THE MEASURES, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH LOSS OR DAMAGE.\n</strong></p>\n\n<p>The Measures are licensed to a User for the limited purpose of using, reproducing and\ndistributing the Measures with the popHealth Tool as delivered to User, without any\nmodification, for commercial and noncommercial uses, but such uses are only permitted\nif the copies of the Measures contain this complete Copyright, Disclaimer and Terms\nof Use. Users of the Measures may not alter, enhance, or otherwise modify the Measures.</p>\n\n<p><strong>NOT A CONTRIBUTION</strong> - The Measures, including specifications and coding,\nas used in the popHealth Tool, are not a contribution under the Apache license. Coding\nin the Measures is provided for convenience only and necessary licenses for use should\nbe obtained from the copyright owners. Current Procedural Terminology \n(CPT<span class=\"reg\">&reg;</span>) &copy; 2004-2010 American Medical Association. \nLOINC<span class=\"reg\">&reg;</span> &copy; 2004 Regenstrief Institute,\nInc. SNOMED Clinical Terms<span class=\"reg\">&reg;</span> \n(SNOMED CT<span class=\"reg\">&reg;</span>) &copy; 2004-2010 International Health\nTerminology Standards Development Organization.</p>",
@@ -238,7 +238,7 @@ measures: &measures
     category: Behavioral Health Adult
     episode_of_care: true
     continuous_variable: false
-    episode_ids: [OccurrenceAPsychVisitDiagnosticEvaluation1, OccurrenceAPsychVisitPsychotherapy2, OccurrenceAEmergencyDepartmentVisit3, OccurrenceAOfficeVisit5, OccurrenceAOutpatientConsultation6, OccurrenceAPsychoanalysis7, OccurrenceAFaceToFaceInteraction8]
+    episode_ids: [OccurrenceAPsychVisitDiagnosticOrEvaluativeInterview1, OccurrenceAPsychVisitIndividualOutpatientPsychotherapy2, OccurrenceAPsychVisitIndividualOutpatientInteractivePsychotherapy3, OccurrenceAPsychVisitMedicationManagement4, OccurrenceAOfficeVisit5,  OccurrenceAOutpatientConsultation6, OccurrenceAPsychoanalysis7, OccurrenceAFaceToFaceInteraction8]
   8924F2B3-EC06-4650-B634-D70A53DEE577:
     nqf_id: '0105'
     type: ep
@@ -368,7 +368,7 @@ measures: &measures
     category: Behavioral Health Pediatric
     episode_of_care: true
     continuous_variable: false
-    episode_ids:  [OccurrenceAOfficeVisit2, OccurrenceAOutpatientConsultation3, OccurrenceAFaceToFaceInteraction1, OccurrenceAPsychVisitDiagnosticEvaluation9, OccurrenceAPsychVisitPsychotherapy10, OccurrenceAPsychVisitFamilyPsychotherapy4, OccurrenceAPsychoanalysis5, OccurrenceAGroupPsychotherapy6]
+    episode_ids:  [OccurrenceAFaceToFaceInteraction1, OccurrenceAOfficeVisit2, OccurrenceAOutpatientConsultation3, OccurrenceAPsychVisitDiagnosticOrEvaluativeInterview4, OccurrenceAPsychVisitIndividualOutpatientInteractivePsychotherapy5, OccurrenceAPsychVisitIndividualOutpatientPsychotherapy6, OccurrenceAPsychVisitFamilyPsychotherapy7, OccurrenceAPsychoanalysis8, OccurrenceAGroupPsychotherapy9, OccurrenceAPsychVisitMedicationManagement10]
   8E6C8479-99FD-4949-B0AD-24FA60FE4201:
     nqf_id: '1401'
     type: ep
@@ -382,7 +382,6 @@ measures: &measures
     episode_of_care: false
     custom_functions:
       OBSERV: hqmf.CustomCalc.ADE_TTR_OBSERV
-    force_sources: [LaboratoryTestResultInr]
     continuous_variable: true
   9A033A94-3D9B-11E1-8634-00237D5BF174:
     nqf_id: BPScreen
@@ -486,7 +485,7 @@ measures: &measures
     type: eh
     category: Community Acquired Pneumonia
     episode_of_care: true
-    episode_ids:  [OccurrenceAEncounterInpatient1]
+    episode_ids:  [OccurrenceAEncounterInpatient2]
     continuous_variable: false
     subtitles:
       a: ICU patients
@@ -559,49 +558,49 @@ measures: &measures
     type: eh
     category: Stroke
     episode_of_care: true
-    episode_ids:  [OccurrenceANonElectiveInpatientEncounter4]
+    episode_ids:  [OccurrenceAInpatientEncounter1]
     continuous_variable: false
   03876D69-085B-415C-AE9D-9924171040C2:
     nqf_id: '0436'
     type: eh
     category: Stroke
     episode_of_care: true
-    episode_ids:  [OccurrenceANonElectiveInpatientEncounter4]
+    episode_ids:  [OccurrenceAInpatientEncounter1]
     continuous_variable: false
   2838875A-07B5-4BF0-BE04-C3EB99F53975:
     nqf_id: '0437'
     type: eh
     category: Stroke
     episode_of_care: true
-    episode_ids:  [OccurrenceANonElectiveInpatientEncounter4]
+    episode_ids:  [OccurrenceAInpatientEncounter1]
     continuous_variable: false
   93F3479F-75D8-4731-9A3F-B7749D8BCD37:
     nqf_id: '0438'
     type: eh
     category: Stroke
     episode_of_care: true
-    episode_ids:  [OccurrenceANonElectiveInpatientEncounter3]
+    episode_ids:  [OccurrenceAInpatientEncounter1]
     continuous_variable: false
   1F503318-BB8D-4B91-AF63-223AE0A2328E:
     nqf_id: '0439'
     type: eh
     category: Stroke
     episode_of_care: true
-    episode_ids:  [OccurrenceANonElectiveInpatientEncounter6]
+    episode_ids:  [OccurrenceAInpatientEncounter1]
     continuous_variable: false
   217FDF0D-3D64-4720-9116-D5E5AFA27F2C:
     nqf_id: '0440'
     type: eh
     category: Stroke
     episode_of_care: true
-    episode_ids:  [OccurrenceANonElectiveInpatientEncounter2]
+    episode_ids:  [OccurrenceAInpatientEncounter1]
     continuous_variable: false
   7DC26160-E615-4CC2-879C-75985189EC1A:
     nqf_id: '0441'
     type: eh
     category: Stroke
     episode_of_care: true
-    episode_ids:  [OccurrenceANonElectiveInpatientEncounter2]
+    episode_ids:  [OccurrenceAInpatientEncounter1]
     continuous_variable: false
   D78CE034-8288-4012-A31E-7F485A74F2A9:
     nqf_id: '0453'
@@ -624,9 +623,6 @@ measures: &measures
     episode_of_care: true
     episode_ids:  [OccurrenceAInpatientEncounter1]
     continuous_variable: false
-    subtitles:
-      a: All
-      b: Refusals Excluded
   9A033274-3D9B-11E1-8634-00237D5BF174:
     nqf_id: '0495'
     type: eh

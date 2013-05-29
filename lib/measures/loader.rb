@@ -49,6 +49,7 @@ module Measures
           end
         end
         measure.custom_functions = metadata["custom_functions"]
+        measure.force_sources = metadata["force_sources"]
       else
         measure.type = "unknown"
         measure.category = "Miscellaneous"
