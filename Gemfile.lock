@@ -128,7 +128,7 @@ GEM
     i18n (0.6.4)
     interception (0.3)
     journey (1.0.4)
-    jquery-rails (2.2.1)
+    jquery-rails (2.1.4)
       railties (>= 3.0, < 5.0)
       thor (>= 0.14, < 2.0)
     jquery-ui-rails (4.0.3)
@@ -153,7 +153,7 @@ GEM
       origin (~> 1.0)
       tzinfo (~> 0.3.22)
     moped (1.4.5)
-    multi_json (1.7.3)
+    multi_json (1.7.4)
     nokogiri (1.5.9)
     origin (1.1.0)
     orm_adapter (0.4.0)
@@ -254,7 +254,7 @@ DEPENDENCIES
   health-data-standards!
   hqmf2js!
   hquery-patient-api!
-  jquery-rails
+  jquery-rails (= 2.1.4)
   jquery-ui-rails
   libv8 (~> 3.11.8.3)
   minitest
