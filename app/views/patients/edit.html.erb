@@ -737,8 +737,8 @@
         </div>
         <div class="span3">
           <select name="negation_code_list_id">
-            <% @value_sets.sort{|l,r| l['display_name'] <=> r['display_name'] }.each {|v|%>
-              <option value="<%= v['oid'] %>"><%= v['display_name'] %> - <%= v['oid'] %></option>
+            <% @value_sets.sort{|l,r| l[:display_name] <=> r[:display_name] }.each {|v|%>
+              <option value="<%= v[:oid] %>"><%= v[:display_name] %> - <%= v[:oid] %></option>
             <% } %>
           </select>
         </div>
