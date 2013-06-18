@@ -9,6 +9,14 @@ module Measures
         ['allergies', 'care_goals', 'conditions', 'encounters', 'immunizations', 'medical_equipment', 'medications', 'procedures', 'results', 'social_history', 'vital_signs'].each do |section|
           patient[section] = [] if patient[section]
         end
+
+        codes = {"OT" => '349', "MA" => '1' ,"MC" =>'2'}
+
+        patient.insurance_providers.each do |i|
+          i.codes["SOP"] = [codes[i.type]]
+          i.save
+        end
+
         patient.medical_record_number ||= Digest::MD5.hexdigest("#{patient.first} #{patient.last}")
         patient.save!
         patient.reload
