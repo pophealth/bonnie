@@ -65,6 +65,13 @@ class PatientsController < ApplicationController
       'MC' => 'Medicaid',
       'OT' => 'Other'
     }
+
+    insurance_codes = {
+      'MA' => '1',
+      'MC' => '2',
+      'OT' => '349'
+    }
+
     insurance_provider = InsuranceProvider.new
     insurance_provider.type = params['payer']
     insurance_provider.member_id = '1234567890'
@@ -73,6 +80,7 @@ class PatientsController < ApplicationController
     insurance_provider.start_time = Time.new(2008,1,1).to_i
     insurance_provider.payer = Organization.new
     insurance_provider.payer.name = insurance_provider.name
+    insurance_provider.codes["SOP"] = [insurance_codes[params['payer']]]
     patient.insurance_providers = [insurance_provider]
 
     Measures::PatientBuilder.rebuild_patient(patient)
