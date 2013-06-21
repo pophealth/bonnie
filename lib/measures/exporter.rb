@@ -67,6 +67,7 @@ module Measures
         measure_period_start: APP_CONFIG["measures"]["measure_period_start"],
         effective_date: APP_CONFIG["measures"]["effective_date"],
         active: true,
+        smoking_gun_capable: true,
         version: APP_CONFIG["measures"]["version"],
         license: APP_CONFIG["measures"]["license"],
         measures: measure_ids,
