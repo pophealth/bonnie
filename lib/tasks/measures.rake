@@ -286,7 +286,8 @@ namespace :measures do
             value_set_oid = 'In QRDA Header (Non Null Value)'
             qrda_template = 'N/A'
           end
-          result << {description: data_criteria.description, oid: value_set_oid, template: qrda_template}
+          description = "#{HQMF::DataCriteria.title_for_template_id(template).titleize}: #{data_criteria.title}"
+          result << {description: description, oid: value_set_oid, template: qrda_template}
 
           if data_criteria.temporal_references
             data_criteria.temporal_references.each do |temporal_reference|
