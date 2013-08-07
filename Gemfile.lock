@@ -1,6 +1,6 @@
 GIT
   remote: http://github.com/pophealth/quality-measure-engine.git
-  revision: a1c65e0599b198794762ae72eda1fc29bc360bab
+  revision: 90afa5a37f6c181479946c39c589e6032d71d530
   branch: develop
   specs:
     quality-measure-engine (2.1.0)
@@ -13,14 +13,10 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/hqmf2js.git
-  revision: ce5ecd72010288325286f36f8cbe83897e178bf6
+  revision: 902ee5157d22ed867645d54aa5dcb95b756b9616
   branch: develop
   specs:
     hqmf2js (1.2.1)
-      coffee-script (~> 2.2.0)
-      nokogiri (~> 1.5.5)
-      sprockets (~> 2.2.2)
-      tilt (~> 1.3.3)
 
 GIT
   remote: https://github.com/pophealth/patientapi.git
@@ -31,20 +27,17 @@ GIT
 
 GIT
   remote: https://github.com/pophealth/test-patient-generator.git
-  revision: da5aaab488650d4cbc25b1ed3ea7de45ca8712e8
+  revision: 9baa99b6158490b426e3777a56e262af21ae7a72
   branch: develop
   specs:
     test-patient-generator (1.1.3)
-      health-data-standards (~> 3.1.1)
-      hqmf2js (~> 1.2.1)
-      hquery-patient-api (~> 1.0.2)
 
 GIT
   remote: https://github.com/projectcypress/health-data-standards.git
-  revision: cd5284d0b2048a2c28d7b7a58ae04f1adbced30a
+  revision: 7a4908f8030a7d08f3a134bacf57cb123eaa4d15
   branch: develop
   specs:
-    health-data-standards (3.1.1)
+    health-data-standards (3.2.7)
       activesupport (~> 3.2.9)
       builder (~> 3.0.0)
       erubis (~> 2.7.0)
@@ -98,7 +91,7 @@ GEM
     coffee-script (2.2.0)
       coffee-script-source
       execjs
-    coffee-script-source (1.6.2)
+    coffee-script-source (1.6.3)
     configatron (2.10.0)
       yamler (>= 0.1.0)
     cover_me (1.2.0)
@@ -124,7 +117,7 @@ GEM
       dotenv (>= 0.7)
       thor (>= 0.13.6)
     hashie (2.0.5)
-    hike (1.2.2)
+    hike (1.2.3)
     i18n (0.6.4)
     interception (0.3)
     journey (1.0.4)
@@ -143,7 +136,7 @@ GEM
       i18n (>= 0.4.0)
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
-    memoist (0.9.0)
+    memoist (0.9.1)
     method_source (0.8.1)
     mime-types (1.23)
     minitest (5.0.1)
@@ -153,8 +146,8 @@ GEM
       origin (~> 1.0)
       tzinfo (~> 0.3.22)
     moped (1.4.5)
-    multi_json (1.7.4)
-    nokogiri (1.5.9)
+    multi_json (1.7.8)
+    nokogiri (1.5.10)
     origin (1.1.0)
     orm_adapter (0.4.0)
     polyglot (0.3.3)
@@ -224,7 +217,7 @@ GEM
       libv8 (~> 3.11.8.12)
       ref
     thor (0.18.1)
-    tilt (1.3.7)
+    tilt (1.4.1)
     treetop (1.4.12)
       polyglot
       polyglot (>= 0.3.1)
