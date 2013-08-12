@@ -92,11 +92,6 @@ GEM
       coffee-script-source
       execjs
     coffee-script-source (1.6.3)
-    configatron (2.10.0)
-      yamler (>= 0.1.0)
-    cover_me (1.2.0)
-      configatron
-      hashie
     delayed_job (3.0.5)
       activesupport (~> 3.0)
     delayed_job_mongoid (2.0.0)
@@ -116,7 +111,6 @@ GEM
     foreman (0.63.0)
       dotenv (>= 0.7)
       thor (>= 0.13.6)
-    hashie (2.0.5)
     hike (1.2.3)
     i18n (0.6.4)
     interception (0.3)
@@ -203,6 +197,10 @@ GEM
     simple_form (2.1.0)
       actionpack (~> 3.0)
       activemodel (~> 3.0)
+    simplecov (0.7.1)
+      multi_json (~> 1.0)
+      simplecov-html (~> 0.7.1)
+    simplecov-html (0.7.1)
     slop (3.4.5)
     spreadsheet (0.8.3)
       ruby-ole (>= 1.0)
@@ -231,7 +229,6 @@ GEM
       macaddr (~> 1.0)
     warden (1.2.1)
       rack (>= 1.0)
-    yamler (0.1.0)
 
 PLATFORMS
   ruby
@@ -240,7 +237,6 @@ DEPENDENCIES
   cancan
   coderay
   coffee-rails (~> 3.2.1)
-  cover_me
   devise
   factory_girl
   foreman
@@ -260,6 +256,7 @@ DEPENDENCIES
   roo (= 1.10.3)
   sass-rails (~> 3.2.3)
   simple_form
+  simplecov
   spreadsheet (= 0.8.3)
   test-patient-generator!
   text

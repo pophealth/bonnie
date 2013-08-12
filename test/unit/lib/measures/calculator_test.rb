@@ -54,7 +54,7 @@ class CalculatorTest < ActiveSupport::TestCase
 
   test "measure json" do
     measure_json = Measures::Calculator.measure_json(@measure.measure_id)
-    expected_keys = [:id,:nqf_id,:hqmf_id,:hqmf_set_id,:hqmf_version_number, :cms_id,:endorser,:name,:description,:type,:category,:steward,:population,:denominator,:numerator,:exclusions,:map_fn,:population_ids,:data_criteria,:oids, :continuous_variable, :episode_of_care]
+    expected_keys = [:id,:nqf_id,:hqmf_id,:hqmf_set_id,:hqmf_version_number, :cms_id,:endorser,:name,:description,:type,:category,:steward,:population,:denominator,:numerator,:exclusions,:map_fn,:population_ids,:data_criteria,:oids, :continuous_variable, :episode_of_care, :hqmf_document]
     required_keys = [:id,:name,:description,:category,:population,:denominator,:numerator,:map_fn,:category,:data_criteria,:oids]
     expected_keys.each {|key| assert measure_json.keys.include? key}
     measure_json.keys.size.must_equal expected_keys.size

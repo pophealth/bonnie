@@ -35,7 +35,7 @@ gem 'pry-rescue'
 group :test, :develop do
   # Pretty printed test output
   gem 'turn', :require => false
-  gem 'cover_me'
+  gem 'simplecov', :require => false
   gem 'minitest', '~> 4.0'
 end
 

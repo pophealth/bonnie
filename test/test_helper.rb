@@ -1,7 +1,7 @@
 ENV["RAILS_ENV"] = "test"
+# require_relative "./simplecov"
 require File.expand_path('../../config/environment', __FILE__)
 
-require 'cover_me'
 require 'rubygems'
 
 require 'rails/test_help'
