@@ -36,7 +36,7 @@ group :test, :develop do
   # Pretty printed test output
   gem 'turn', :require => false
   gem 'cover_me'
-  gem 'minitest'
+  gem 'minitest', '~> 4.0'
 end
 
 group :production do

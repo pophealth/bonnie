@@ -1,7 +1,6 @@
 language: ruby
 rvm:
-  - 1.9.2
-# uncomment this line if your project needs to run something other than `rake`:
+  - 1.9.3
 script: bundle exec rake test
 services:
   - mongodb
@@ -10,8 +9,8 @@ notifications:
     recipients:
       - healthcare-ci@googlegroups.com
     on_failure: change
- 
-branches:
+
+branches: 
   only:
     - master
     - develop

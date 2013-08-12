@@ -139,7 +139,7 @@ GEM
     memoist (0.9.1)
     method_source (0.8.1)
     mime-types (1.23)
-    minitest (5.0.1)
+    minitest (4.7.5)
     mongoid (3.1.4)
       activemodel (~> 3.2)
       moped (~> 1.4)
@@ -250,7 +250,7 @@ DEPENDENCIES
   jquery-rails (= 2.1.4)
   jquery-ui-rails
   libv8 (~> 3.11.8.3)
-  minitest
+  minitest (~> 4.0)
   mongoid
   pry
   pry-nav
