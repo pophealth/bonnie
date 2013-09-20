@@ -1,26 +1,26 @@
 GIT
   remote: http://github.com/pophealth/quality-measure-engine.git
-  revision: 90afa5a37f6c181479946c39c589e6032d71d530
-  branch: develop
+  revision: d9884765147acc7ffff49896ed2078b8b6464d59
+  branch: perf
   specs:
-    quality-measure-engine (2.1.0)
+    quality-measure-engine (2.5.1)
       delayed_job_mongoid (~> 2.0.0)
-      mongoid (~> 3.0)
-      moped (~> 1.4.2)
-      nokogiri (~> 1.5.5)
+      mongoid (~> 3.1.4)
+      moped (~> 1.5.1)
+      nokogiri (~> 1.6.0)
       rubyXL (~> 1.2.10)
       rubyzip (~> 0.9.9)
 
 GIT
   remote: https://github.com/pophealth/hqmf2js.git
-  revision: 3376329fb1fa700ff03379f8a13ee0d29e974910
-  branch: develop
+  revision: ab2bf380eda00ef13aeba5a8140242ceb062173e
+  branch: perf
   specs:
     hqmf2js (1.2.1)
 
 GIT
   remote: https://github.com/pophealth/patientapi.git
-  revision: 220bc8a5179400d640af2e358fb1af8928898303
+  revision: 6e5e231a6078409a4f5a7d0bafdacb0a63c2d54a
   branch: develop
   specs:
     hquery-patient-api (1.0.2)
@@ -34,50 +34,50 @@ GIT
 
 GIT
   remote: https://github.com/projectcypress/health-data-standards.git
-  revision: 7a4908f8030a7d08f3a134bacf57cb123eaa4d15
+  revision: ba7c0a763f811a8e106ebd8137e7192b7a720c86
   branch: develop
   specs:
-    health-data-standards (3.2.7)
-      activesupport (~> 3.2.9)
+    health-data-standards (3.2.11)
+      activesupport (~> 3.2.14)
       builder (~> 3.0.0)
       erubis (~> 2.7.0)
       log4r (~> 1.1.10)
-      memoist (~> 0.9.0)
-      mongoid (~> 3.1.0)
-      nokogiri (~> 1.5.5)
+      memoist (~> 0.9.1)
+      mongoid (~> 3.1.4)
+      nokogiri (~> 1.6.0)
       rest-client (~> 1.6.7)
       rubyzip
-      uuid (~> 2.3.5)
+      uuid (~> 2.3.7)
 
 GEM
   remote: https://rubygems.org/
   specs:
-    actionmailer (3.2.11)
-      actionpack (= 3.2.11)
-      mail (~> 2.4.4)
-    actionpack (3.2.11)
-      activemodel (= 3.2.11)
-      activesupport (= 3.2.11)
+    actionmailer (3.2.14)
+      actionpack (= 3.2.14)
+      mail (~> 2.5.4)
+    actionpack (3.2.14)
+      activemodel (= 3.2.14)
+      activesupport (= 3.2.14)
       builder (~> 3.0.0)
       erubis (~> 2.7.0)
       journey (~> 1.0.4)
-      rack (~> 1.4.0)
+      rack (~> 1.4.5)
       rack-cache (~> 1.2)
       rack-test (~> 0.6.1)
       sprockets (~> 2.2.1)
-    activemodel (3.2.11)
-      activesupport (= 3.2.11)
+    activemodel (3.2.14)
+      activesupport (= 3.2.14)
       builder (~> 3.0.0)
-    activerecord (3.2.11)
-      activemodel (= 3.2.11)
-      activesupport (= 3.2.11)
+    activerecord (3.2.14)
+      activemodel (= 3.2.14)
+      activesupport (= 3.2.14)
       arel (~> 3.0.2)
       tzinfo (~> 0.3.29)
-    activeresource (3.2.11)
-      activemodel (= 3.2.11)
-      activesupport (= 3.2.11)
-    activesupport (3.2.11)
-      i18n (~> 0.6)
+    activeresource (3.2.14)
+      activemodel (= 3.2.14)
+      activesupport (= 3.2.14)
+    activesupport (3.2.14)
+      i18n (~> 0.6, >= 0.6.4)
       multi_json (~> 1.0)
     ansi (1.4.3)
     arel (3.0.2)
@@ -112,7 +112,7 @@ GEM
       dotenv (>= 0.7)
       thor (>= 0.13.6)
     hike (1.2.3)
-    i18n (0.6.4)
+    i18n (0.6.5)
     interception (0.3)
     journey (1.0.4)
     jquery-rails (2.1.4)
@@ -126,22 +126,23 @@ GEM
     log4r (1.1.10)
     macaddr (1.6.1)
       systemu (~> 2.5.0)
-    mail (2.4.4)
-      i18n (>= 0.4.0)
+    mail (2.5.4)
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
     memoist (0.9.1)
     method_source (0.8.1)
-    mime-types (1.23)
+    mime-types (1.25)
+    mini_portile (0.5.1)
     minitest (4.7.5)
     mongoid (3.1.4)
       activemodel (~> 3.2)
       moped (~> 1.4)
       origin (~> 1.0)
       tzinfo (~> 0.3.22)
-    moped (1.4.5)
-    multi_json (1.7.8)
-    nokogiri (1.5.10)
+    moped (1.5.1)
+    multi_json (1.8.0)
+    nokogiri (1.6.0)
+      mini_portile (~> 0.5.0)
     origin (1.1.0)
     orm_adapter (0.4.0)
     polyglot (0.3.3)
@@ -161,22 +162,22 @@ GEM
       rack
     rack-test (0.6.2)
       rack (>= 1.0)
-    rails (3.2.11)
-      actionmailer (= 3.2.11)
-      actionpack (= 3.2.11)
-      activerecord (= 3.2.11)
-      activeresource (= 3.2.11)
-      activesupport (= 3.2.11)
+    rails (3.2.14)
+      actionmailer (= 3.2.14)
+      actionpack (= 3.2.14)
+      activerecord (= 3.2.14)
+      activeresource (= 3.2.14)
+      activesupport (= 3.2.14)
       bundler (~> 1.0)
-      railties (= 3.2.11)
-    railties (3.2.11)
-      actionpack (= 3.2.11)
-      activesupport (= 3.2.11)
+      railties (= 3.2.14)
+    railties (3.2.14)
+      actionpack (= 3.2.14)
+      activesupport (= 3.2.14)
       rack-ssl (~> 1.3.2)
       rake (>= 0.8.7)
       rdoc (~> 3.4)
       thor (>= 0.14.6, < 2.0)
-    rake (10.0.4)
+    rake (10.1.0)
     rdoc (3.12.2)
       json (~> 1.4)
     ref (1.0.5)
@@ -216,7 +217,7 @@ GEM
       ref
     thor (0.18.1)
     tilt (1.4.1)
-    treetop (1.4.12)
+    treetop (1.4.15)
       polyglot
       polyglot (>= 0.3.1)
     turn (0.9.6)
@@ -252,7 +253,7 @@ DEPENDENCIES
   pry-nav
   pry-rescue
   quality-measure-engine!
-  rails (= 3.2.11)
+  rails (= 3.2.14)
   roo (= 1.10.3)
   sass-rails (~> 3.2.3)
   simple_form

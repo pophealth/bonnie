@@ -59,6 +59,7 @@ FactoryGirl.define do
     r.ethnicity ({:code => "", :code_set => "CDC-RE"})
     r.languages [ "en-US" ]
     r.type 'ep'
+    r.medical_record_number '123456'
     r.conditions []
   end
 
